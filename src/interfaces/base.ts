@@ -1,8 +1,3 @@
-export interface CloudFlareConfig {
-    userAgent: string;
-    cfClearance: string;
-}
-
 export type UriType = "cover" | "page" | "thumbnail";
 
 export enum Sort {

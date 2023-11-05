@@ -1,7 +1,6 @@
-import { Result } from "../interfaces";
+import { CloudFlareConfig, Result } from "../interfaces";
 import {
     Book,
-    CloudFlareConfig,
     Pagination,
     SearchResult,
     Sort,

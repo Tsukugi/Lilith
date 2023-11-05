@@ -29,3 +29,7 @@ interface CustomHeaders {
     [x: string]: string;
     "User-Agent": string;
 }
+export interface CloudFlareConfig {
+    userAgent: string;
+    cfClearance: string;
+}

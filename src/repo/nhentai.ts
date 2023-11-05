@@ -1,8 +1,12 @@
-import { CustomFetch, CustomFetchInitOptions, Result } from "../interfaces";
+import {
+    CloudFlareConfig,
+    CustomFetch,
+    CustomFetchInitOptions,
+    Result,
+} from "../interfaces";
 import {
     Book,
     Chapter,
-    CloudFlareConfig,
     Pagination,
     SearchResult,
     Sort,

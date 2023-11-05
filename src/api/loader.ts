@@ -1,11 +1,10 @@
-import { CustomFetch, LilithRepo } from "../interfaces";
-import { CloudFlareConfig } from "../interfaces/base";
+import { CloudFlareConfig, CustomFetch, LilithRepo } from "../interfaces";
 
 import RepositoryBase from "../repo/base";
 
 import NHentai from "../repo/nhentai";
 
-interface UseAPILoaderProps {
+export interface UseAPILoaderProps {
     repo: LilithRepo;
     fetchImpl: CustomFetch;
     config?: CloudFlareConfig;
