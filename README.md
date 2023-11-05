@@ -1,12 +1,12 @@
 <h1 align="center">Welcome to Lilith!</h1>
 <p>
-  <img alt="Version" src="https://img.shields.io/badge/version-0.2.0-blue.svg?cacheSeconds=2592000" />
+  <img alt="Version" src="https://img.shields.io/badge/version-0.1.0-blue.svg?cacheSeconds=2592000" />
   <a href="#" target="_blank">
     <img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg" />
   </a>
 </p>
 
-#### A simple state manager written in Typescript
+#### A simple API Loader for Typescript
 
 ## How to Install
 
@@ -18,109 +18,83 @@ npm i @atsu/lilith
 
 ## Usage
 
-First of all, you just need to know one simple concept
+Lilith provides a API to get data in a format that is accessible from your app from different sources.
 
-1. `value`, `watch` and `unwatch`: These words are the core of Lilith.
+Currently supported sources are: `NHentai`, more to come.
 
-    Use a `value` to read and write new data.
-
-    You `watch` for changes and do something about it, and you `unwatch` when you want to stop watching a value.
-
-Then you are good to go, this is a basic example on how to use it.
+This is a basic example on how to use it.
 
 ```ts
 import { useState } from "@atsu/lilith";
 
-const [Lilith, watchLilith, unwatchLilith] = useState({
-    list: [],
-    flag: false,
+const loader = useAPILoader({
+    repo: LilithRepo.NHentai, // Repository to use
+    config: cookies, // configuration for the loader
+    fetchImpl: fetch, // (optional) custom fetch implementation
 });
 
-const onLilithUpdate = ({ list, flag }) => {
-    console.log("I will receive this updated ", list);
-    console.log("I will receive this updated flag as", flag);
-};
-
-watchLilith(onLilithUpdate); // I want to watch for updates
-
-Lilith.list = ["I want to add this"]; // This will trigger an update
-Lilith.flag = true; // This will trigger an update again
-
-unwatchLilith(onLilithUpdate); // I am responisble and clean my listeners
+const book: Book | null = await loader.get("ass"); // We already get some data
 ```
 
-## Typescript
+## How to extend it
 
-After you define your state, it should be possible to have type inference.
-
-```ts
-Lilith; // Should be of type { list: any[], flag: boolean }
-```
-
-This is nice, and enforces a type safe development, but it can be a bit hard to read if you have a big section.
-
-Plus, we have an `any[]` in the list type, TS took the initial values to type it.
-
-We can do it better, so we simply define an `LilithState` interface to feed the useState generic:
+This project is thought to be extended with more sources, to achieve that, basically we would need a class that implements `RepositoryBase`
 
 ```ts
-interface LilithState {
-    list: string[];
-    flag: boolean;
+// This is from src/repo/base.ts
+interface RepositoryBase {
+    readonly BASE_URL: string;
+    readonly API_URL: string;
+    readonly IMAGE_BASE_URL: string;
+    readonly AVATAR_URL: string;
+    readonly TINY_IMAGE_BASE_URL: string;
+
+    config: CloudFlareConfig | null;
+
+    request: <T>(
+        url: string,
+        params: string | Record<string, string> | string[][] | URLSearchParams,
+    ) => Promise<Result<T>>;
+
+    getUri: (
+        type: UriType,
+        mediaId: string,
+        mime: string,
+        pageNumber?: number,
+    ) => string;
+
+    get: (identifier: string) => Promise<Book | null>;
+
+    search: (query: string, page: number, sort: Sort) => Promise<SearchResult>;
+
+    paginate: (page: number) => Promise<Pagination>;
+
+    random: (retry: number) => Promise<Book>;
 }
 ```
 
-And include it in the `useState` as `useState<LilithState>`.
-
-Or you can always make your code organized, I prefer it this way:
+Add it in `src/repo/`
 
 ```ts
-const initialLilithState: LilithState = {
-    list: [],
-    flag: false,
-};
-const [Lilith, watchLilith, unwatchLilith] = useState(initialLilithState);
-```
+// in src/interfaces/index.ts
 
-And that's it, really simple!
-
-You can organize multiple states as sections of a store, if you want to separate concerns and also to separate the watchers' event handlers.
-
-```ts
-export const MyAppStore = {
-    Lilith: useState(initialLilithState);
-    azuma: useState(initialAzumaState);
-    atago: useState(initialAtagoState);
+export enum LilithRepo {
+    NHentai = "NHentai",
+    // Add a new entry here, to allow users to choose it
 }
 ```
 
-```ts
-/* In another file */
-const [azuma, watchAzuma, unwatchAzuma] = MyAppStore.azuma;
-```
-
-### Configuration
-
-If you wanna see what's going on every update, just enable `debug` mode:
+And in the loader do the following:
 
 ```ts
-const [Lilith, watchLilith, unwatchLilith] = useState(initialLilithState, {
-    debug: true,
-});
+switch (repo) {
+    case LilithRepo.MyNewRepo: // Add your repo
+        return new NewRepoClass(config, fetchImpl); // And add your loader class
+    default:
+        return new NHentai(config, fetchImpl);
+}
 ```
 
-This way Lilith will log any change update into the console.
-
-## Common questions and answers
-
-Q: This basically describes the `Publish-subscribe pattern`, why not simply use a message system?
-
-A: I do not want to define messages and map them in an Enum. Lilith 0.2.x used this method of doing things.
-
-Q: Why I would use this instead of Redux or Pinia or any other store management?
-
-A: The main point of Lilith is simplicity, it resolves the problem of needing a State and Event management and only that.
-This gives you also the benefit of integrating on almost any project (that uses npm).
 
 ## Author
 
