@@ -1,0 +1,9 @@
+# Ignore artifacts:
+node_modules/
+.idea
+.DS_Store
+.azurlane
+dist/
+typedoc
+docs/
+examples/cli/node_modules/

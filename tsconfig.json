@@ -1,0 +1,20 @@
+/*
+ * Typescript config for Development
+ */
+
+{
+    "compilerOptions": {
+        "module": "esnext",
+        "target": "esnext",
+        "lib": ["ESNext", "dom"],
+        "moduleResolution": "node",
+        "outDir": "./dist",
+        "rootDir": "./src",
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "noEmit": true,
+        "types": ["node"]
+    },
+    "include": ["src/**/*.ts"],
+    "exclude": ["src/tests", "node_modules"]
+}

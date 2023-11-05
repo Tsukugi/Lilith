@@ -1,0 +1,17 @@
+#Development folders
+src
+examples
+tests
+typedoc
+
+#Root configuration files
+.github
+.*ignore
+.*attributes
+.*rc.json
+.*rc.js
+*.config.js
+tsconfig.json
+package-lock.json
+yarn.lock
+*.tgz

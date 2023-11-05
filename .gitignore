@@ -1,0 +1,12 @@
+node_modules/
+typedoc/
+docs/
+examples/cli/node_modules/
+dist/
+coverage/
+
+.azurlane
+.vscode
+.idea
+.DS_Store
+*.tgz
