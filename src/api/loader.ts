@@ -6,16 +6,18 @@ import NHentai from "../repo/nhentai";
 
 export interface UseAPILoaderProps {
     repo: LilithRepo;
-    fetchImpl: CustomFetch;
     config?: CloudFlareConfig;
+    fetchImpl?: CustomFetch;
+    domParser?: (stringDom: string, type: string) => Document;
 }
 export const useAPILoader = ({
     repo,
-    fetchImpl = fetch,
     config,
+    fetchImpl = fetch,
+    domParser = new DOMParser().parseFromString,
 }: UseAPILoaderProps): RepositoryBase => {
     switch (repo) {
         default:
-            return new NHentai(config, fetchImpl);
+            return new NHentai(config, fetchImpl, domParser);
     }
 };

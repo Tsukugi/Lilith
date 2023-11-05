@@ -33,3 +33,5 @@ export interface CloudFlareConfig {
     userAgent: string;
     cfClearance: string;
 }
+
+export type DOMParserImpl = (stringDom: string, type: string) => Document;

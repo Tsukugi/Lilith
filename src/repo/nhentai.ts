@@ -2,6 +2,7 @@ import {
     CloudFlareConfig,
     CustomFetch,
     CustomFetchInitOptions,
+    DOMParserImpl,
     Result,
 } from "../interfaces";
 import {
@@ -30,13 +31,16 @@ class NHentai implements RepositoryBase {
     config: CloudFlareConfig | null = null;
 
     localFetch: CustomFetch;
+    localDomParser: DOMParserImpl;
 
     constructor(
         config: CloudFlareConfig | null = null,
         fetchImpl: CustomFetch,
+        domParserImpl: DOMParserImpl,
     ) {
         this.config = config;
         this.localFetch = fetchImpl;
+        this.localDomParser = domParserImpl;
     }
 
     request = async <T>(
@@ -69,7 +73,7 @@ class NHentai implements RepositoryBase {
         const response = await this.localFetch(apiUrl, requestOptions);
 
         const getDocument = async () =>
-            new DOMParser().parseFromString(await response.text(), "text/html");
+            this.localDomParser(await response.text(), "text/html");
 
         return {
             json: response.json as () => Promise<T>,

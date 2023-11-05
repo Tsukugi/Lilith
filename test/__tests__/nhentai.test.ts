@@ -12,6 +12,7 @@ describe("Lilith", () => {
                 repo: LilithRepo.NHentai,
                 config: cookies,
                 fetchImpl: fetchMock,
+                domParser: () => document,
             });
 
             const book: Book | null = await loader.get("ass"); // Verify that response.json() was not called, as we provided our own JSON response
