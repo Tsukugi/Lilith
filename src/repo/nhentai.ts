@@ -1,4 +1,4 @@
-import { Result } from "../interfaces";
+import { CustomFetch, CustomFetchInitOptions, Result } from "../interfaces";
 import {
     Book,
     Chapter,
@@ -25,8 +25,14 @@ class NHentai implements RepositoryBase {
 
     config: CloudFlareConfig | null = null;
 
-    constructor(config: CloudFlareConfig | null = null) {
+    localFetch: CustomFetch;
+
+    constructor(
+        config: CloudFlareConfig | null = null,
+        fetchImpl: CustomFetch,
+    ) {
         this.config = config;
+        this.localFetch = fetchImpl;
     }
 
     request = async <T>(
@@ -47,7 +53,7 @@ class NHentai implements RepositoryBase {
             "User-Agent": this.config.userAgent,
         };
 
-        const requestOptions: RequestInit = {
+        const requestOptions: CustomFetchInitOptions = {
             method: "GET",
             headers,
             credentials: "include",
@@ -56,16 +62,15 @@ class NHentai implements RepositoryBase {
         const queryString = new URLSearchParams(params).toString();
         const apiUrl = `${url}?${queryString}`;
 
-        const response = await fetch(apiUrl, requestOptions);
+        const response = await this.localFetch(apiUrl, requestOptions);
+
+        const getDocument = async () =>
+            new DOMParser().parseFromString(await response.text(), "text/html");
 
         return {
-            json: response.json,
+            json: response.json as () => Promise<T>,
             statusCode: response.status,
-            getDocument: async () =>
-                new DOMParser().parseFromString(
-                    await response.text(),
-                    "text/html",
-                ),
+            getDocument,
         };
     };
 
