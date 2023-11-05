@@ -92,7 +92,7 @@ class NHentai implements RepositoryBase {
             const book = await response.json();
             const chapter: Chapter = {
                 id: `defaultId`,
-                pages: book.images.pages.map((page: any, index: number) => ({
+                pages: book.images.pages.map((page, index) => ({
                     uri: this.getUri(
                         "page",
                         book.media_id,
@@ -111,12 +111,12 @@ class NHentai implements RepositoryBase {
                 },
                 id: `${book.id}`,
                 authors: book.tags
-                    .filter((tag: any) => tag.type === "artist")
-                    .map((tag: any) => tag.name),
+                    .filter((tag) => tag.type === "artist")
+                    .map((tag) => tag.name),
                 genres: book.tags
-                    .filter((tag: any) => tag.type === "tag")
-                    .map((tag: any) => ({
-                        id: tag.id,
+                    .filter((tag) => tag.type === "tag")
+                    .map((tag) => ({
+                        id: `${tag.id}`,
                         name: tag.name,
                     })),
                 thumbnail: {
@@ -249,7 +249,7 @@ class NHentai implements RepositoryBase {
     }
 
     async random(retry: number = 0): Promise<Book> {
-        const response = await this.request<any>(`${this.BASE_URL}/random`);
+        const response = await this.request(`${this.BASE_URL}/random`);
 
         const document = await response.getDocument();
 
