@@ -1,4 +1,8 @@
-export { useAPILoader, UseAPILoaderProps } from "./api/loader";
+export {
+    useAPILoader,
+    UseAPILoaderProps,
+    APILoaderConfigurations,
+} from "./api/loader";
 
 export {
     LilithRepo,
@@ -18,4 +22,12 @@ export {
     Thumbnail,
     SearchResult,
     Pagination,
+    Extension,
 } from "./interfaces/base";
+
+export {
+    UseDomParser,
+    UseDomParserImpl,
+    ElementProps,
+    Attributes,
+} from "./parser/domParser";
