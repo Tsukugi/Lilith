@@ -12,6 +12,7 @@ import {
 import {
     TextMocksForDomParser,
     cookies,
+    customFetchImpl,
     fetchMock,
     useCheerioDomParser,
 } from "../nhentaiMock";
@@ -25,8 +26,7 @@ describe("Lilith", () => {
                 repo: LilithRepo.NHentai,
                 configurations: {
                     headers: cookies,
-                    fetchImpl: () =>
-                        fetchMock({}, TextMocksForDomParser.Search),
+                    fetchImpl: customFetchImpl,
                     domParser: useCheerioDomParser,
                 },
             });
@@ -59,6 +59,13 @@ describe("Lilith", () => {
             expect(page).toEqual(
                 "https://i.nhentai.net/galleries/someInterestingBook/69.png",
             );
+        });
+        test("Request", async () => {
+            const res = await loader.request(
+                "https://nhentai.net/search?q=ass&sort=recent&page=1",
+            );
+            console.log(res);
+            expect(res).toBeDefined();
         });
         test("Get", async () => {
             const book: Book | null = await loader.get("ass");

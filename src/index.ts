@@ -8,6 +8,7 @@ export {
     LilithRepo,
     CustomFetch,
     CustomFetchInitOptions,
+    CustomFetchResponse,
     CloudFlareConfig,
 } from "./interfaces/index";
 

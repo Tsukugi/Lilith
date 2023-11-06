@@ -59,11 +59,12 @@ class NHentai implements RepositoryBase {
             );
         }
 
-        const headers = { ...this.config };
-
         const requestOptions: CustomFetchInitOptions = {
             method: "GET",
-            headers,
+            headers: {
+                cookie: this.config.cookie,
+                "User-Agent": this.config["User-Agent"],
+            },
             credentials: "include",
         };
 

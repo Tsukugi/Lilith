@@ -13,8 +13,9 @@ import getMock from "./__mocks__/getMock.json";
 import { randomMock } from "./__mocks__/randomMock";
 import { searchMock } from "./__mocks__/searchMock";
 import fetch from "node-fetch";
-import * as cheerio from "cheerio";
-import { Cheerio } from "cheerio";
+import { AnyNode, Cheerio, load } from "cheerio/lib/slim";
+
+//import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 
 export const cookies: CloudFlareConfig = {
     "User-Agent":
@@ -57,9 +58,9 @@ export const customFetchImpl: CustomFetch = async (
 };
 
 export const useCheerioDomParser: UseDomParser = (stringDom: string) => {
-    const $ = cheerio.load(stringDom);
+    const $ = load(stringDom);
 
-    const parser = (el: Cheerio<cheerio.AnyNode>): UseDomParserImpl => {
+    const parser = (el: Cheerio<AnyNode>): UseDomParserImpl => {
         const find = (query: string) => parser(el.find(query).first());
         const findAll = (query: string) =>
             el
@@ -84,3 +85,52 @@ export const useCheerioDomParser: UseDomParser = (stringDom: string) => {
 
     return parser($("html"));
 };
+
+// * Havent tested this one
+// export const customAxiosImpl: CustomFetch = async (url, options) => {
+//     const response = await axios({
+//         url,
+//         method: options.method || "get",
+//         headers: options.headers,
+//         data: options.body,
+//     });
+
+//     return {
+//         text: () => Promise.resolve(response.data.toString()),
+//         json: <T>() => Promise.resolve(response.data as T),
+//         status: response.status,
+//     };
+// };
+
+// * This is broken as we XMLHttpRequest is not on node
+// export const useXMLHttpRequestImpl: CustomFetch = (url, options) => {
+//     return new Promise<CustomFetchResponse>((resolve, reject) => {
+//         const xhr = new XMLHttpRequest();
+//         xhr.open(options.method || "GET", url, true);
+
+//         if (options.headers) {
+//             for (const [header, value] of Object.entries(options.headers)) {
+//                 xhr.setRequestHeader(header, value);
+//             }
+//         }
+
+//         xhr.onload = function () {
+//             const response: CustomFetchResponse = {
+//                 text: () => Promise.resolve(xhr.responseText),
+//                 json: <T>() =>
+//                     Promise.resolve(JSON.parse(xhr.responseText) as T),
+//                 status: xhr.status,
+//             };
+//             resolve(response);
+//         };
+
+//         xhr.onerror = function () {
+//             reject(new Error("XMLHttpRequest failed"));
+//         };
+//         if (options.body) {
+//             xhr.send(options.body);
+//         } else {
+//             xhr.send();
+//         }
+//     });
+// };
