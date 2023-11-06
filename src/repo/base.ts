@@ -1,6 +1,7 @@
 import { CloudFlareConfig, Result } from "../interfaces";
 import {
     Book,
+    Extension,
     Pagination,
     SearchResult,
     Sort,
@@ -18,13 +19,13 @@ interface RepositoryBase {
 
     request: <T>(
         url: string,
-        params: string | Record<string, string> | string[][] | URLSearchParams,
+        params?: string | Record<string, string> | string[][] | URLSearchParams,
     ) => Promise<Result<T>>;
 
     getUri: (
         type: UriType,
         mediaId: string,
-        mime: string,
+        mime: Extension,
         pageNumber?: number,
     ) => string;
 
@@ -34,7 +35,7 @@ interface RepositoryBase {
 
     paginate: (page: number) => Promise<Pagination>;
 
-    random: (retry: number) => Promise<Book>;
+    random: (retry?: number) => Promise<Book>;
 }
 
 export default RepositoryBase;

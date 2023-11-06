@@ -1,23 +1,30 @@
 import { CloudFlareConfig, CustomFetch, LilithRepo } from "../interfaces";
+import { UseDomParser, useDefaultDomParser } from "../parser/domParser";
 
 import RepositoryBase from "../repo/base";
 
 import NHentai from "../repo/nhentai";
 
+export interface APILoaderConfigurations {
+    headers: CloudFlareConfig;
+    fetchImpl: CustomFetch;
+    domParser: UseDomParser;
+}
+
 export interface UseAPILoaderProps {
     repo: LilithRepo;
-    config?: CloudFlareConfig;
-    fetchImpl?: CustomFetch;
-    domParser?: (stringDom: string, type: string) => Document;
+    configurations: Partial<APILoaderConfigurations>;
 }
 export const useAPILoader = ({
     repo,
-    config,
-    fetchImpl = fetch,
-    domParser = new DOMParser().parseFromString,
+    configurations: {
+        headers,
+        fetchImpl = fetch,
+        domParser = useDefaultDomParser,
+    },
 }: UseAPILoaderProps): RepositoryBase => {
     switch (repo) {
         default:
-            return new NHentai(config, fetchImpl, domParser);
+            return new NHentai(headers, fetchImpl, domParser);
     }
 };

@@ -1,3 +1,5 @@
+import { UseDomParserImpl } from "../parser/domParser";
+
 export enum LilithRepo {
     NHentai = "NHentai",
 }
@@ -5,7 +7,7 @@ export enum LilithRepo {
 export interface Result<T> {
     statusCode: number;
     json: () => Promise<T>;
-    getDocument: () => Promise<Document>;
+    getDocument: () => Promise<UseDomParserImpl>;
 }
 
 export type CustomFetch = (
@@ -15,23 +17,18 @@ export type CustomFetch = (
 
 export interface CustomFetchResponse {
     text: () => Promise<string>;
-    json: () => Promise<unknown>;
+    json: <T>() => Promise<T>;
     status: number;
 }
 
 export interface CustomFetchInitOptions {
     method: "GET" | "POST";
-    headers: CustomHeaders;
+    headers: CloudFlareConfig;
     credentials: "include" | "omit" | "same-origin";
 }
 
-interface CustomHeaders {
-    [x: string]: string;
-    "User-Agent": string;
-}
 export interface CloudFlareConfig {
-    userAgent: string;
-    cfClearance: string;
+    [x: string]: string;
+    ["User-Agent"]: string;
+    cookie: string;
 }
-
-export type DOMParserImpl = (stringDom: string, type: string) => Document;

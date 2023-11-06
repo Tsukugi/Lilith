@@ -1,5 +1,11 @@
 export type UriType = "cover" | "page" | "thumbnail";
 
+export enum Extension {
+    j = "jpg",
+    p = "png",
+    g = "gif",
+}
+
 export enum Sort {
     RECENT = "recent",
     POPULAR_TODAY = "popular-today",

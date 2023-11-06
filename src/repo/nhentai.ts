@@ -2,7 +2,6 @@ import {
     CloudFlareConfig,
     CustomFetch,
     CustomFetchInitOptions,
-    DOMParserImpl,
     Result,
 } from "../interfaces";
 import {
@@ -14,8 +13,11 @@ import {
     Thumbnail,
     Image,
     UriType,
+    Extension,
+    Genre,
 } from "../interfaces/base";
 import { NHentaiPaginateResult, NHentaiResult } from "../interfaces/nhentai";
+import { UseDomParser, UseDomParserImpl } from "../parser/domParser";
 import RepositoryBase from "./base";
 
 class NHentai implements RepositoryBase {
@@ -31,12 +33,12 @@ class NHentai implements RepositoryBase {
     config: CloudFlareConfig | null = null;
 
     localFetch: CustomFetch;
-    localDomParser: DOMParserImpl;
+    localDomParser: UseDomParser;
 
     constructor(
         config: CloudFlareConfig | null = null,
         fetchImpl: CustomFetch,
-        domParserImpl: DOMParserImpl,
+        domParserImpl: UseDomParser,
     ) {
         this.config = config;
         this.localFetch = fetchImpl;
@@ -57,9 +59,7 @@ class NHentai implements RepositoryBase {
             );
         }
 
-        const headers = {
-            "User-Agent": this.config.userAgent,
-        };
+        const headers = { ...this.config };
 
         const requestOptions: CustomFetchInitOptions = {
             method: "GET",
@@ -73,10 +73,10 @@ class NHentai implements RepositoryBase {
         const response = await this.localFetch(apiUrl, requestOptions);
 
         const getDocument = async () =>
-            this.localDomParser(await response.text(), "text/html");
+            this.localDomParser(await response.text());
 
         return {
-            json: response.json as () => Promise<T>,
+            json: response.json,
             statusCode: response.status,
             getDocument,
         };
@@ -85,15 +85,15 @@ class NHentai implements RepositoryBase {
     getUri(
         type: UriType,
         mediaId: string,
-        mime: string,
+        mime: Extension,
         pageNumber?: number,
     ): string {
         if (type === "cover")
-            return `${this.TINY_IMAGE_BASE_URL}/${mediaId}/cover.${mime}`;
+            return `${this.TINY_IMAGE_BASE_URL}${mediaId}/cover.${mime}`;
         if (type === "thumbnail")
-            return `${this.TINY_IMAGE_BASE_URL}/${mediaId}/thumb.${mime}`;
+            return `${this.TINY_IMAGE_BASE_URL}${mediaId}/thumb.${mime}`;
         if (type === "page" && pageNumber !== undefined)
-            return `${this.IMAGE_BASE_URL}/${mediaId}/${pageNumber}.${mime}`;
+            return `${this.IMAGE_BASE_URL}${mediaId}/${pageNumber}.${mime}`;
         throw new Error("Invalid type or missing page number.");
     }
 
@@ -101,60 +101,70 @@ class NHentai implements RepositoryBase {
         const response = await this.request<NHentaiResult>(
             `${this.API_URL}/gallery/${identifier}`,
         );
-        if (response && response.statusCode === 200) {
-            const book = await response.json();
-            const chapter: Chapter = {
-                id: `defaultId`,
-                pages: book.images.pages.map((page, index) => ({
-                    uri: this.getUri(
-                        "page",
-                        book.media_id,
-                        book.images.thumbnail.t,
-                        index + 1,
-                    ),
-                    width: page.w,
-                    height: page.h,
-                })),
-            };
-            const Book: Book = {
-                title: {
-                    english: book.title.english,
-                    japanese: book.title.japanese,
-                    other: book.title.pretty,
-                },
-                id: `${book.id}`,
-                authors: book.tags
-                    .filter((tag) => tag.type === "artist")
-                    .map((tag) => tag.name),
-                genres: book.tags
-                    .filter((tag) => tag.type === "tag")
-                    .map((tag) => ({
-                        id: `${tag.id}`,
-                        name: tag.name,
-                    })),
-                thumbnail: {
-                    uri: this.getUri(
-                        "thumbnail",
-                        book.media_id,
-                        book.images.thumbnail.t,
-                    ),
-                    width: book.images.thumbnail.w,
-                    height: book.images.thumbnail.h,
-                },
-                cover: {
-                    uri: this.getUri(
-                        "cover",
-                        book.media_id,
-                        book.images.thumbnail.t,
-                    ),
-                    width: book.images.cover.w,
-                    height: book.images.cover.h,
-                },
-                chapters: [chapter],
-            };
-            return Book;
-        }
-        return null;
+
+        if (!response || response?.statusCode !== 200) return null;
+
+        const book = await response.json();
+        const chapter: Chapter = {
+            id: `${book.id}`,
+            pages: book.images.pages.map((page, index) => ({
+                uri: this.getUri(
+                    "page",
+                    book.media_id,
+                    Extension[book.images.thumbnail.t],
+                    index + 1,
+                ),
+                width: page.w,
+                height: page.h,
+            })),
+        };
+
+        const { english, japanese, pretty } = book.title;
+
+        const authors: string[] = [];
+        const genres: Genre[] = [];
+
+        book.tags.forEach((tag) => {
+            if (tag.type === "artist") {
+                authors.push(tag.name);
+            }
+            if (tag.type === "tag") {
+                genres.push({
+                    id: `${tag.id}`,
+                    name: tag.name,
+                });
+            }
+        });
+
+        const thumbnailExtension = Extension[book.images.thumbnail.t];
+        const coverExtension = Extension[book.images.cover.t];
+
+        const Book: Book = {
+            title: {
+                english,
+                japanese,
+                other: pretty,
+            },
+            id: `${book.id}`,
+            authors,
+            genres,
+            thumbnail: {
+                uri: this.getUri(
+                    "thumbnail",
+                    book.media_id,
+                    thumbnailExtension,
+                ),
+                width: book.images.thumbnail.w,
+                height: book.images.thumbnail.h,
+            },
+            cover: {
+                uri: this.getUri("cover", book.media_id, coverExtension),
+                width: book.images.cover.w,
+                height: book.images.cover.h,
+            },
+            chapters: [chapter],
+        };
+        return Book;
     }
 
     async search(
@@ -176,38 +186,47 @@ class NHentai implements RepositoryBase {
             results: [],
         };
 
-        const container = document.querySelector("div.container");
-
+        const container = document.find("div.container");
         if (!container) return emptyResponse;
 
-        const lastPageAnchor: HTMLAnchorElement = document.querySelector(
-            "section.pagination a.last",
-        );
+        const lastPageAnchor = document
+            .find("section.pagination a.last")
+            .getElement();
 
-        const totalPages =
-            +new URL(lastPageAnchor.href).searchParams.get("page") || 1;
+        const { href } = lastPageAnchor.attributes;
 
-        const searchResults: HTMLAnchorElement[] = Array.from(
-            container.querySelectorAll("div.gallery > a"),
-        );
+        const pageNumberRegex = /page=(\d+)/;
+        const match = href.match(pageNumberRegex);
+
+        const totalPages = match ? +match[1] : 1;
+
+        const searchResults: UseDomParserImpl[] =
+            container.findAll("div.gallery > a");
 
         if (!searchResults || searchResults.length === 0) return emptyResponse;
 
-        const thumbnails: Thumbnail[] = searchResults.map((gallery) => {
-            const bookId = gallery.href.split("/").find((p) => p.length > 5); // A code should never be less than 6 digits
-            const resultCover = gallery.querySelector("img");
+        const thumbnails: Thumbnail[] = searchResults.map((searchElement) => {
+            const { href } = searchElement.getElement().attributes;
+
+            const bookId = href.split("/").find((p) => p.length > 5); // A code should never be less than 6 digits
+
+            const resultCover = searchElement.find("img").getElement();
+            const { width, height } = resultCover.attributes;
+
             const cover: Image = {
-                uri: (resultCover && resultCover["data-src"]) || "",
-                width: resultCover?.width || 0,
-                height: resultCover?.height || 0,
+                uri: resultCover?.["data-src"] || "",
+                width: width || 0,
+                height: height || 0,
             };
-            const title: string =
-                gallery.querySelector("div")?.textContent || "";
+
+            const resultTitle = searchElement.find(".caption")?.getElement();
+
+            const title: string = resultTitle?.textContent || "";
 
             return {
                 id: bookId,
                 cover: cover,
-                title: title,
+                title,
             };
         });
 
@@ -242,7 +261,7 @@ class NHentai implements RepositoryBase {
         const thumbnails: Thumbnail[] = (data.result || []).map((result) => {
             const cover = result.images.cover;
             const coverImage: Image = {
-                uri: this.getUri("cover", result.media_id, cover.t),
+                uri: this.getUri("cover", result.media_id, Extension[cover.t]),
                 width: cover.w,
                 height: cover.h,
             };
@@ -266,7 +285,8 @@ class NHentai implements RepositoryBase {
 
         const document = await response.getDocument();
 
-        const idElement = document.querySelector("h3#gallery_id");
+        const idElement = document.find("h3#gallery_id").getElement();
+
         if (!idElement || !idElement.textContent) {
             throw new Error("Could not find ID element in the response.");
         }
