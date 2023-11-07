@@ -1,10 +1,11 @@
 export interface ElementProps {
     textContent: string;
-    attributes: Partial<Attributes>;
+    attributes: Partial<ElementAttributes>;
 }
 
-export interface Attributes {
+export interface ElementAttributes {
     href: string;
+    src: string;
     "data-src": string;
     width: number;
     height: number;

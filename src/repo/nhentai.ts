@@ -212,10 +212,10 @@ class NHentai implements RepositoryBase {
             const bookId = href.split("/").find((p) => p.length > 5); // A code should never be less than 6 digits
 
             const resultCover = searchElement.find("img").getElement();
-            const { width, height } = resultCover.attributes;
+            const { width, height, src } = resultCover.attributes;
 
             const cover: Image = {
-                uri: resultCover?.["data-src"] || "",
+                uri: resultCover.attributes?.["data-src"] || src || "",
                 width: width || 0,
                 height: height || 0,
             };

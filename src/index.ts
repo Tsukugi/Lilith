@@ -30,5 +30,5 @@ export {
     UseDomParser,
     UseDomParserImpl,
     ElementProps,
-    Attributes,
+    ElementAttributes as Attributes,
 } from "./parser/domParser";

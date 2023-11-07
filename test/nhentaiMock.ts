@@ -4,7 +4,7 @@ import {
     CustomFetchResponse,
 } from "../src/interfaces";
 import {
-    Attributes,
+    ElementAttributes,
     ElementProps,
     UseDomParser,
     UseDomParserImpl,
@@ -68,7 +68,7 @@ export const useCheerioDomParser: UseDomParser = (stringDom: string) => {
                 .map((_, element) => parser($(element)))
                 .get();
         const getElement = (): ElementProps => {
-            const attributes: Partial<Attributes> = {
+            const attributes: Partial<ElementAttributes> = {
                 href: el.attr("href") || "",
                 "data-src": el.attr("data-src") || "",
                 width: parseInt(el.attr("width") || "0", 10),

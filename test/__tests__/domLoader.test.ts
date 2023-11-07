@@ -10,6 +10,10 @@ import {
 } from "../nhentaiMock";
 import RepositoryBase from "../../src/repo/base";
 
+import { useLilithLog } from "../testLogs";
+
+const { log, warn } = useLilithLog(false);
+
 describe("DOMLoader", () => {
     let loader: RepositoryBase = {} as RepositoryBase;
     beforeEach(() => {
@@ -26,7 +30,7 @@ describe("DOMLoader", () => {
     test("CustomFetchImpl", async () => {
         const thumbnail = loader.getUri("thumbnail", "2726143", Extension.j);
 
-        console.log(thumbnail);
+        log(thumbnail);
         expect(thumbnail).toBeDefined();
 
         const image = await customFetchImpl(thumbnail, {
@@ -39,14 +43,14 @@ describe("DOMLoader", () => {
         });
 
         if (image.status !== 200) {
-            console.warn(
+            warn(
                 "[CustomFetchImpl]: No image found",
                 image.status,
                 "please check the test",
             );
         }
 
-        console.log(image);
+        log(image);
         expect(image).toBeDefined();
     });
 
@@ -54,9 +58,9 @@ describe("DOMLoader", () => {
         const res = await loader.get("480154");
 
         if (res === null)
-            console.warn("[Custom fetch for JSON] Resource was not found");
+            warn("[Custom fetch for JSON] Resource was not found");
 
-        console.log(res);
+        log(res);
         expect(res).toBeDefined();
     });
 
@@ -72,9 +76,9 @@ describe("DOMLoader", () => {
         const res = await randomLoader.random();
 
         if (res === null)
-            console.warn("[Custom fetch for JSON] Resource was not found");
+            warn("[Custom fetch for JSON] Resource was not found");
 
-        console.log(res);
+        log(res);
         expect(res).toBeDefined();
     });
 
@@ -82,9 +86,9 @@ describe("DOMLoader", () => {
         const res = await loader.search("ass", 1, Sort.POPULAR);
 
         if (res === null)
-            console.warn("[Custom fetch for JSON] Resource was not found");
+            warn("[Custom fetch for JSON] Resource was not found");
 
-        console.log(res);
+        log(res);
         expect(res).toBeDefined();
     });
 });
