@@ -67,7 +67,7 @@ const getOutput = ({ type, name }) => {
 
     return {
         path: resolve("dist"),
-        filename: `${name || type}.bundle.${ext}`,
+        filename: `[name].${name || type}.bundle.${ext}`,
         library: { type },
     };
 };

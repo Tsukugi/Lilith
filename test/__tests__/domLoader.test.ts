@@ -1,17 +1,13 @@
 import { beforeEach, describe, expect, test } from "@jest/globals";
-import { LilithRepo, useAPILoader } from "../../src";
+import { useAPILoader } from "../../src/api/loader";
+import { useCheerioDomParser, useNodeFetch } from "../../src/impl";
 import { Extension, Sort } from "../../src/interfaces/base";
-import {
-    cookies,
-    useCheerioDomParser,
-    customFetchImpl,
-    TextMocksForDomParser,
-    fetchMock,
-} from "../nhentaiMock";
-import RepositoryBase from "../../src/repo/base";
+import { LilithRepo } from "../../src/interfaces";
+
+import { cookies, TextMocksForDomParser, fetchMock } from "../nhentaiMock";
+import { RepositoryBase } from "../../src/repo/base";
 
 import { useLilithLog } from "../testLogs";
-
 const { log, warn } = useLilithLog(false);
 
 describe("DOMLoader", () => {
@@ -33,7 +29,7 @@ describe("DOMLoader", () => {
         log(thumbnail);
         expect(thumbnail).toBeDefined();
 
-        const image = await customFetchImpl(thumbnail, {
+        const image = await useNodeFetch(thumbnail, {
             method: "GET",
             headers: {
                 "User-Agent": cookies.userAgent,

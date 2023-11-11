@@ -1,4 +1,5 @@
-import { CloudFlareConfig, Result } from "../interfaces";
+import { CloudFlareConfig, CustomFetch, Result } from "../interfaces";
+import { UseDomParser } from "../parser/domParser";
 import {
     Book,
     Extension,
@@ -8,14 +9,16 @@ import {
     UriType,
 } from "../interfaces/base";
 
-interface RepositoryBase {
-    readonly BASE_URL: string;
-    readonly API_URL: string;
-    readonly IMAGE_BASE_URL: string;
-    readonly AVATAR_URL: string;
-    readonly TINY_IMAGE_BASE_URL: string;
+export interface Domains {
+    readonly baseUrl: string;
+    readonly apiUrl: string;
+    readonly imgBaseUrl: string;
+    readonly avatarUrl: string;
+    readonly tinyImgBaseUrl: string;
+}
 
-    config: CloudFlareConfig | null;
+export interface RepositoryBase {
+    domains: Domains;
 
     request: <T>(
         url: string,
@@ -38,4 +41,10 @@ interface RepositoryBase {
     random: (retry?: number) => Promise<Book>;
 }
 
-export default RepositoryBase;
+export interface RepositoryBaseProps {
+    headers: CloudFlareConfig;
+    fetch: CustomFetch;
+    domParser: UseDomParser;
+}
+
+export type RepositoryTemplate = (props: RepositoryBaseProps) => RepositoryBase;

@@ -1,14 +1,14 @@
 {
     "name": "@atsu/lilith",
-    "version": "0.2.3",
+    "version": "0.3.0",
     "description": "API mapper for different services",
-    "main": "./dist/umd.bundle.js",
+    "main": "./dist/main.umd.bundle.js",
     "exports": {
         "node": {
-            "import": "./dist/commonjs2.bundle.cjs",
-            "require": "./dist/commonjs.bundle.cjs"
+            "import": "./dist/main.commonjs2.bundle.cjs",
+            "require": "./dist/main.commonjs.bundle.cjs"
         },
-        "default": "./dist/umd.bundle.js"
+        "default": "./dist/main.umd.bundle.js"
     },
     "types": "./dist/index.d.ts",
     "scripts": {

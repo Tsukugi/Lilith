@@ -5,6 +5,11 @@ import {
     getResolveFallback,
 } from "./webpack.helper.mjs";
 
+const entries = {
+    main: "./src/index.ts", // First entry point
+    impl: "./src/impl.ts", // Second entry point
+};
+
 export default [
     getConfigTemplate({
         module: {
@@ -12,7 +17,7 @@ export default [
                 getCustomTsLoaderOptions({ configFile: "tsconfig.esm.json" }),
             ],
         },
-        entry: ["./src/index.ts"],
+        entry: entries,
         output: getOutput({ type: "umd" }),
         resolve: getResolveFallback(),
     }),
@@ -22,7 +27,7 @@ export default [
                 getCustomTsLoaderOptions({ configFile: "tsconfig.cjs.json" }),
             ],
         },
-        entry: ["./src/index.ts"],
+        entry: entries,
         target: "node",
         externalsPresets: { node: true }, // in order to ignore built-in modules like path, fs, etc.
         output: getOutput({ type: "commonjs2", name: "commonjs2" }),
@@ -33,7 +38,7 @@ export default [
                 getCustomTsLoaderOptions({ configFile: "tsconfig.cjs.json" }),
             ],
         },
-        entry: ["./src/index.ts"],
+        entry: entries,
         target: "node",
         externalsPresets: { node: true }, // in order to ignore built-in modules like path, fs, etc.
         output: getOutput({ type: "commonjs", name: "commonjs" }),

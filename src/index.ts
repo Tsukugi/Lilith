@@ -1,10 +1,4 @@
-export {
-    useAPILoader,
-    UseAPILoaderProps,
-    APILoaderConfigurations,
-} from "./api/loader";
-
-export {
+export type {
     LilithRepo,
     CustomFetch,
     CustomFetchInitOptions,
@@ -12,7 +6,7 @@ export {
     CloudFlareConfig,
 } from "./interfaces/index";
 
-export {
+export type {
     UriType,
     Sort,
     Image,
@@ -26,9 +20,12 @@ export {
     Extension,
 } from "./interfaces/base";
 
-export {
+export type {
     UseDomParser,
     UseDomParserImpl,
     ElementProps,
-    ElementAttributes as Attributes,
+    ElementAttributes,
 } from "./parser/domParser";
+
+export type { RepositoryBase } from "./repo/base";
+export { useNHentaiRepository } from "./repo/nhentai";

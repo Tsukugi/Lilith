@@ -1,9 +1,4 @@
-import {
-    CloudFlareConfig,
-    CustomFetch,
-    CustomFetchInitOptions,
-    Result,
-} from "../interfaces";
+import { CustomFetchInitOptions, Result } from "../interfaces";
 import {
     Book,
     Chapter,
@@ -17,35 +12,21 @@ import {
     Genre,
 } from "../interfaces/base";
 import { NHentaiPaginateResult, NHentaiResult } from "../interfaces/nhentai";
-import { UseDomParser, UseDomParserImpl } from "../parser/domParser";
-import RepositoryBase from "./base";
+import { UseDomParserImpl } from "../parser/domParser";
+import { RepositoryTemplate } from "./base";
 
-class NHentai implements RepositoryBase {
-    readonly BASE_URL: string = "https://nhentai.net/";
-    readonly API_URL: string = "https://nhentai.net/api/";
-    readonly IMAGE_BASE_URL: string = "https://i.nhentai.net/galleries/";
-    readonly AVATAR_URL: string = "https://i5.nhentai.net/";
-    readonly TINY_IMAGE_BASE_URL: string = this.IMAGE_BASE_URL.replace(
-        "/i.",
-        "/t.",
-    );
+export const useNHentaiRepository: RepositoryTemplate = ({
+    fetch,
+    domParser,
+    headers,
+}) => {
+    const baseUrl = "https://nhentai.net/";
+    const apiUrl = "https://nhentai.net/api/";
+    const imgBaseUrl = "https://i.nhentai.net/galleries/";
+    const avatarUrl = "https://i5.nhentai.net/";
+    const tinyImgBaseUrl = imgBaseUrl.replace("/i.", "/t.");
 
-    config: CloudFlareConfig | null = null;
-
-    localFetch: CustomFetch;
-    localDomParser: UseDomParser;
-
-    constructor(
-        config: CloudFlareConfig | null = null,
-        fetchImpl: CustomFetch,
-        domParserImpl: UseDomParser,
-    ) {
-        this.config = config;
-        this.localFetch = fetchImpl;
-        this.localDomParser = domParserImpl;
-    }
-
-    request = async <T>(
+    const request = async <T>(
         url: string,
         params:
             | string
@@ -53,7 +34,7 @@ class NHentai implements RepositoryBase {
             | string[][]
             | URLSearchParams = {},
     ): Promise<Result<T>> => {
-        if (!this.config) {
+        if (!headers) {
             throw new Error(
                 "cloudflare cookie and user-agent invalid, provide a different one.",
             );
@@ -62,8 +43,8 @@ class NHentai implements RepositoryBase {
         const requestOptions: CustomFetchInitOptions = {
             method: "GET",
             headers: {
-                cookie: this.config.cookie,
-                "User-Agent": this.config["User-Agent"],
+                cookie: headers.cookie,
+                "User-Agent": headers["User-Agent"],
             },
             credentials: "include",
         };
@@ -71,10 +52,9 @@ class NHentai implements RepositoryBase {
         const queryString = new URLSearchParams(params).toString();
         const apiUrl = `${url}?${queryString}`;
 
-        const response = await this.localFetch(apiUrl, requestOptions);
+        const response = await fetch(apiUrl, requestOptions);
 
-        const getDocument = async () =>
-            this.localDomParser(await response.text());
+        const getDocument = async () => domParser(await response.text());
 
         return {
             json: response.json,
@@ -83,24 +63,24 @@ class NHentai implements RepositoryBase {
         };
     };
 
-    getUri(
+    const getUri = (
         type: UriType,
         mediaId: string,
         mime: Extension,
         pageNumber?: number,
-    ): string {
+    ): string => {
         if (type === "cover")
-            return `${this.TINY_IMAGE_BASE_URL}${mediaId}/cover.${mime}`;
+            return `${tinyImgBaseUrl}${mediaId}/cover.${mime}`;
         if (type === "thumbnail")
-            return `${this.TINY_IMAGE_BASE_URL}${mediaId}/thumb.${mime}`;
+            return `${tinyImgBaseUrl}${mediaId}/thumb.${mime}`;
         if (type === "page" && pageNumber !== undefined)
-            return `${this.IMAGE_BASE_URL}${mediaId}/${pageNumber}.${mime}`;
+            return `${imgBaseUrl}${mediaId}/${pageNumber}.${mime}`;
         throw new Error("Invalid type or missing page number.");
-    }
+    };
 
-    async get(identifier: string): Promise<Book | null> {
-        const response = await this.request<NHentaiResult>(
-            `${this.API_URL}/gallery/${identifier}`,
+    const get = async (identifier: string): Promise<Book | null> => {
+        const response = await request<NHentaiResult>(
+            `${apiUrl}/gallery/${identifier}`,
         );
 
         if (!response || response?.statusCode !== 200) return null;
@@ -109,7 +89,7 @@ class NHentai implements RepositoryBase {
         const chapter: Chapter = {
             id: `${book.id}`,
             pages: book.images.pages.map((page, index) => ({
-                uri: this.getUri(
+                uri: getUri(
                     "page",
                     book.media_id,
                     Extension[book.images.thumbnail.t],
@@ -150,31 +130,27 @@ class NHentai implements RepositoryBase {
             authors,
             genres,
             thumbnail: {
-                uri: this.getUri(
-                    "thumbnail",
-                    book.media_id,
-                    thumbnailExtension,
-                ),
+                uri: getUri("thumbnail", book.media_id, thumbnailExtension),
                 width: book.images.thumbnail.w,
                 height: book.images.thumbnail.h,
             },
             cover: {
-                uri: this.getUri("cover", book.media_id, coverExtension),
+                uri: getUri("cover", book.media_id, coverExtension),
                 width: book.images.cover.w,
                 height: book.images.cover.h,
             },
             chapters: [chapter],
         };
         return Book;
-    }
+    };
 
-    async search(
+    const search = async (
         query: string,
         page: number,
         sort: Sort = Sort.RECENT,
-    ): Promise<SearchResult> {
-        const response = await this.request(
-            `${this.BASE_URL}/search?q=${query}&sort=${sort}&page=${page}`,
+    ): Promise<SearchResult> => {
+        const response = await request(
+            `${baseUrl}/search?q=${query}&sort=${sort}&page=${page}`,
         );
 
         const document = await response.getDocument();
@@ -238,11 +214,11 @@ class NHentai implements RepositoryBase {
             totalResults: 25 * totalPages,
             results: thumbnails,
         };
-    }
+    };
 
-    async paginate(page: number): Promise<Pagination> {
-        const response = await this.request<NHentaiPaginateResult>(
-            `${this.API_URL}/galleries/all?page=${page}`,
+    const paginate = async (page: number): Promise<Pagination> => {
+        const response = await request<NHentaiPaginateResult>(
+            `${apiUrl}/galleries/all?page=${page}`,
         );
 
         if (response.statusCode !== 200) {
@@ -262,7 +238,7 @@ class NHentai implements RepositoryBase {
         const thumbnails: Thumbnail[] = (data.result || []).map((result) => {
             const cover = result.images.cover;
             const coverImage: Image = {
-                uri: this.getUri("cover", result.media_id, Extension[cover.t]),
+                uri: getUri("cover", result.media_id, Extension[cover.t]),
                 width: cover.w,
                 height: cover.h,
             };
@@ -279,10 +255,10 @@ class NHentai implements RepositoryBase {
             totalPages: numPages,
             results: thumbnails,
         };
-    }
+    };
 
-    async random(retry: number = 0): Promise<Book> {
-        const response = await this.request(`${this.BASE_URL}/random`);
+    const random = async (retry: number = 0): Promise<Book> => {
+        const response = await request(`${baseUrl}/random`);
 
         const document = await response.getDocument();
 
@@ -293,17 +269,25 @@ class NHentai implements RepositoryBase {
         }
 
         const id = idElement.textContent.replace("#", "");
-        const book = (await this.get(id)) || null;
+        const book = (await get(id)) || null;
 
         if (!book) {
             if (retry === 4) {
                 throw new Error("Could not fetch a random book.");
             }
-            return this.random(retry + 1);
+            return random(retry + 1);
         }
 
         return book;
-    }
-}
+    };
 
-export default NHentai;
+    return {
+        domains: { baseUrl, imgBaseUrl, apiUrl, avatarUrl, tinyImgBaseUrl },
+        get,
+        getUri,
+        search,
+        paginate,
+        random,
+        request,
+    };
+};

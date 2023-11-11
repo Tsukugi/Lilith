@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, test } from "@jest/globals";
 
-import { useAPILoader } from "./../../src/index";
+import { useAPILoader } from "./../../src/api/loader";
 import { LilithRepo } from "../../src/interfaces";
 import {
     Book,
@@ -9,15 +9,10 @@ import {
     SearchResult,
     Sort,
 } from "../../src/interfaces/base";
-import {
-    TextMocksForDomParser,
-    cookies,
-    customFetchImpl,
-    fetchMock,
-    useCheerioDomParser,
-} from "../nhentaiMock";
-import RepositoryBase from "../../src/repo/base";
+import { TextMocksForDomParser, cookies, fetchMock } from "../nhentaiMock";
+import { RepositoryBase } from "../../src/repo/base";
 import { useLilithLog } from "../testLogs";
+import { useCheerioDomParser } from "../../src/impl";
 
 const { log, warn } = useLilithLog(false);
 
@@ -29,7 +24,8 @@ describe("Lilith", () => {
                 repo: LilithRepo.NHentai,
                 configurations: {
                     headers: cookies,
-                    fetchImpl: customFetchImpl,
+                    //fetchImpl: useNodeFetch,
+                    fetchImpl: () => fetchMock(),
                     domParser: useCheerioDomParser,
                 },
             });
