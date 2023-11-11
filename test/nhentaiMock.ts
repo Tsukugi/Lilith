@@ -1,4 +1,4 @@
-import { Headers, CustomFetchResponse } from "../src/interfaces";
+import { Headers, CustomFetchResponse } from "../src/interfaces/fetch";
 import getMock from "./__mocks__/getMock.json";
 import { randomMock } from "./__mocks__/randomMock";
 import { searchMock } from "./__mocks__/searchMock";

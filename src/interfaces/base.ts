@@ -1,3 +1,6 @@
+import { Headers, CustomFetch, Result } from "./fetch";
+import { UseDomParser } from "./domParser";
+
 export type UriType = "cover" | "page" | "thumbnail";
 
 export enum Extension {
@@ -65,3 +68,43 @@ export interface Pagination {
     totalPages: number;
     results: Thumbnail[];
 }
+
+export interface Domains {
+    readonly baseUrl: string;
+    readonly apiUrl: string;
+    readonly imgBaseUrl: string;
+    readonly avatarUrl: string;
+    readonly tinyImgBaseUrl: string;
+}
+
+export interface RepositoryBase {
+    domains: Domains;
+
+    request: <T>(
+        url: string,
+        params?: string | Record<string, string> | string[][] | URLSearchParams,
+    ) => Promise<Result<T>>;
+
+    getUri: (
+        type: UriType,
+        mediaId: string,
+        mime: Extension,
+        pageNumber?: number,
+    ) => string;
+
+    get: (identifier: string) => Promise<Book | null>;
+
+    search: (query: string, page: number, sort: Sort) => Promise<SearchResult>;
+
+    paginate: (page: number) => Promise<Pagination>;
+
+    random: (retry?: number) => Promise<Book>;
+}
+
+export interface RepositoryBaseProps {
+    headers: Headers;
+    fetch: CustomFetch;
+    domParser: UseDomParser;
+}
+
+export type RepositoryTemplate = (props: RepositoryBaseProps) => RepositoryBase;

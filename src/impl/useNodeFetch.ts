@@ -1,6 +1,6 @@
 import fetch from "node-fetch";
 
-import { CustomFetch, CustomFetchResponse } from "../interfaces";
+import { CustomFetch, CustomFetchResponse } from "../interfaces/fetch";
 
 export const useNodeFetch: CustomFetch = async (
     url,

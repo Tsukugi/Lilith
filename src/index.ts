@@ -3,7 +3,7 @@ export type {
     CustomFetchInitOptions,
     CustomFetchResponse,
     Headers,
-} from "./interfaces/index";
+} from "./interfaces/fetch";
 
 export { Extension, UriType, Sort } from "./interfaces/base";
 
@@ -23,9 +23,9 @@ export type {
     UseDomParserImpl,
     ElementProps,
     ElementAttributes,
-} from "./parser/domParser";
+} from "./interfaces/domParser";
 
-export type { RepositoryBase } from "./repo/base";
+export type { RepositoryBase } from "./interfaces/base";
 export { useNHentaiRepository } from "./repo/nhentai";
 export { useCheerioDomParser } from "./impl/useCheerioDomParser";
 export { useNodeFetch } from "./impl/useNodeFetch";

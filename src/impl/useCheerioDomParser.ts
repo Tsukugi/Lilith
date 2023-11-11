@@ -4,7 +4,7 @@ import {
     ElementProps,
     UseDomParser,
     UseDomParserImpl,
-} from "../parser/domParser";
+} from "../interfaces/domParser";
 
 export const useCheerioDomParser: UseDomParser = (stringDom: string) => {
     const $ = load(stringDom);

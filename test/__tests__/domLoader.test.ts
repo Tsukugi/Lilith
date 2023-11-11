@@ -1,13 +1,13 @@
 import { beforeEach, describe, expect, test } from "@jest/globals";
+
 import { useAPILoader } from "../../src/api/loader";
 import { useCheerioDomParser } from "../../src/impl/useCheerioDomParser";
 import { useNodeFetch } from "../../src/impl/useNodeFetch";
 
-import { Extension, Sort } from "../../src/interfaces/base";
+import { Extension, Sort, RepositoryBase } from "../../src/interfaces/base";
 import { LilithRepo } from "../../src/interfaces";
 
 import { cookies, TextMocksForDomParser, fetchMock } from "../nhentaiMock";
-import { RepositoryBase } from "../../src/repo/base";
 
 import { useLilithLog } from "../testLogs";
 const { log, warn } = useLilithLog(false);

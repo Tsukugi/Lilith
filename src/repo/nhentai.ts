@@ -1,4 +1,4 @@
-import { CustomFetchInitOptions, Result } from "../interfaces";
+import { CustomFetchInitOptions, Result } from "../interfaces/fetch";
 import {
     Book,
     Chapter,
@@ -10,10 +10,10 @@ import {
     UriType,
     Extension,
     Genre,
+    RepositoryTemplate,
 } from "../interfaces/base";
 import { NHentaiPaginateResult, NHentaiResult } from "../interfaces/nhentai";
-import { UseDomParserImpl } from "../parser/domParser";
-import { RepositoryTemplate } from "./base";
+import { UseDomParserImpl } from "../interfaces/domParser";
 
 export const useNHentaiRepository: RepositoryTemplate = ({
     fetch,

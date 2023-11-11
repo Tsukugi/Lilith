@@ -1,6 +1,10 @@
 import { beforeEach, describe, expect, test } from "@jest/globals";
 
-import { useAPILoader } from "./../../src/api/loader";
+import { TextMocksForDomParser, cookies, fetchMock } from "../nhentaiMock";
+import { useLilithLog } from "../testLogs";
+import { useCheerioDomParser } from "../../src/impl/useCheerioDomParser";
+import { useAPILoader } from "../../src/api/loader";
+
 import { LilithRepo } from "../../src/interfaces";
 import {
     Book,
@@ -8,11 +12,8 @@ import {
     Pagination,
     SearchResult,
     Sort,
+    RepositoryBase,
 } from "../../src/interfaces/base";
-import { TextMocksForDomParser, cookies, fetchMock } from "../nhentaiMock";
-import { RepositoryBase } from "../../src/repo/base";
-import { useLilithLog } from "../testLogs";
-import { useCheerioDomParser } from "../../src/impl/useCheerioDomParser";
 
 const { log, warn } = useLilithLog(false);
 

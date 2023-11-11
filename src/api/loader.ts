@@ -1,13 +1,12 @@
-import { Headers, CustomFetch, LilithRepo } from "../interfaces";
-import { UseDomParser } from "../parser/domParser";
+import { Headers, CustomFetch } from "../interfaces/fetch";
+import { UseDomParser } from "../interfaces/domParser";
+import { RepositoryBase } from "../interfaces/base";
 
 import { useCheerioDomParser } from "../impl/useCheerioDomParser";
 import { useNodeFetch } from "../impl/useNodeFetch";
 
-import { RepositoryBase } from "../repo/base";
-
 import { useNHentaiRepository } from "../repo/nhentai";
-
+import { LilithRepo } from "../interfaces";
 export interface APILoaderConfigurations {
     headers: Headers;
     fetchImpl: CustomFetch;

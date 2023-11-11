@@ -14,7 +14,11 @@
         "allowSyntheticDefaultImports": true,
         "noEmit": true,
         "types": ["node"],
-        "resolveJsonModule": true
+        "resolveJsonModule": true,
+        "baseUrl": "./",
+        "paths": {
+            "@src/*": ["./src/*"]
+        }
     },
     "include": ["src/**/*.ts"],
     "exclude": ["src/tests", "node_modules"]
