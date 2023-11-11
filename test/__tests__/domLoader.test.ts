@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, test } from "@jest/globals";
 import { useAPILoader } from "../../src/api/loader";
-import { useCheerioDomParser, useNodeFetch } from "../../src/impl";
+import { useCheerioDomParser } from "../../src/impl/useCheerioDomParser";
+import { useNodeFetch } from "../../src/impl/useNodeFetch";
+
 import { Extension, Sort } from "../../src/interfaces/base";
 import { LilithRepo } from "../../src/interfaces";
 

@@ -1,5 +1,8 @@
 import { CloudFlareConfig, CustomFetch, LilithRepo } from "../interfaces";
-import { UseDomParser, useDefaultDomParser } from "../parser/domParser";
+import { UseDomParser } from "../parser/domParser";
+
+import { useCheerioDomParser } from "../impl/useCheerioDomParser";
+import { useNodeFetch } from "../impl/useNodeFetch";
 
 import { RepositoryBase } from "../repo/base";
 
@@ -19,8 +22,8 @@ export const useAPILoader = ({
     repo,
     configurations: {
         headers,
-        fetchImpl = fetch,
-        domParser = useDefaultDomParser,
+        fetchImpl = useNodeFetch,
+        domParser = useCheerioDomParser,
     },
 }: UseAPILoaderProps): RepositoryBase => {
     switch (repo) {

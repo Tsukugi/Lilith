@@ -12,7 +12,7 @@ import {
 import { TextMocksForDomParser, cookies, fetchMock } from "../nhentaiMock";
 import { RepositoryBase } from "../../src/repo/base";
 import { useLilithLog } from "../testLogs";
-import { useCheerioDomParser } from "../../src/impl";
+import { useCheerioDomParser } from "../../src/impl/useCheerioDomParser";
 
 const { log, warn } = useLilithLog(false);
 

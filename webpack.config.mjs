@@ -7,7 +7,6 @@ import {
 
 const entries = {
     main: "./src/index.ts", // First entry point
-    impl: "./src/impl.ts", // Second entry point
 };
 
 export default [
