@@ -1,11 +1,11 @@
-import { CloudFlareConfig, CustomFetchResponse } from "../src/interfaces";
+import { Headers, CustomFetchResponse } from "../src/interfaces";
 import getMock from "./__mocks__/getMock.json";
 import { randomMock } from "./__mocks__/randomMock";
 import { searchMock } from "./__mocks__/searchMock";
 
 //import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 
-export const cookies: CloudFlareConfig = {
+export const cookies: Headers = {
     "User-Agent": "",
     cookie: "",
 };

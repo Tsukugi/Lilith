@@ -1,14 +1,13 @@
 export type {
-    LilithRepo,
     CustomFetch,
     CustomFetchInitOptions,
     CustomFetchResponse,
-    CloudFlareConfig,
+    Headers,
 } from "./interfaces/index";
 
+export { Extension, UriType, Sort } from "./interfaces/base";
+
 export type {
-    UriType,
-    Sort,
     Image,
     Chapter,
     Genre,
@@ -17,7 +16,6 @@ export type {
     Thumbnail,
     SearchResult,
     Pagination,
-    Extension,
 } from "./interfaces/base";
 
 export type {

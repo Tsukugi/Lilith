@@ -1,4 +1,4 @@
-import { CloudFlareConfig, CustomFetch, Result } from "../interfaces";
+import { Headers, CustomFetch, Result } from "../interfaces";
 import { UseDomParser } from "../parser/domParser";
 import {
     Book,
@@ -42,7 +42,7 @@ export interface RepositoryBase {
 }
 
 export interface RepositoryBaseProps {
-    headers: CloudFlareConfig;
+    headers: Headers;
     fetch: CustomFetch;
     domParser: UseDomParser;
 }

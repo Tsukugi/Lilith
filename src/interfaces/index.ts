@@ -23,12 +23,12 @@ export interface CustomFetchResponse {
 
 export interface CustomFetchInitOptions {
     method: "GET" | "POST";
-    headers: CloudFlareConfig;
+    headers: Headers;
     credentials: "include" | "omit" | "same-origin";
     body?: XMLHttpRequestBodyInit | null;
 }
 
-export interface CloudFlareConfig {
+export interface Headers {
     [x: string]: string;
     ["User-Agent"]: string;
     cookie: string;

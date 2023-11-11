@@ -1,4 +1,4 @@
-import { CloudFlareConfig, CustomFetch, LilithRepo } from "../interfaces";
+import { Headers, CustomFetch, LilithRepo } from "../interfaces";
 import { UseDomParser } from "../parser/domParser";
 
 import { useCheerioDomParser } from "../impl/useCheerioDomParser";
@@ -9,7 +9,7 @@ import { RepositoryBase } from "../repo/base";
 import { useNHentaiRepository } from "../repo/nhentai";
 
 export interface APILoaderConfigurations {
-    headers: CloudFlareConfig;
+    headers: Headers;
     fetchImpl: CustomFetch;
     domParser: UseDomParser;
 }
