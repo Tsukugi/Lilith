@@ -16,7 +16,7 @@ import {
     MangaDexRelationship,
     MangadexResult,
 } from "../interfaces/repositories/mangadex";
-import { RequestParams } from "./utils";
+import { useLilithLog } from "./log";
 
 enum RelationshipTypes {
     coverArt = "cover_art",
@@ -43,6 +43,7 @@ const getTranslatedValue = (locales: Record<MangaDexLanguage, string>) => {
 export const useMangaDexRepository: RepositoryTemplate = ({
     fetch,
     domParser,
+    debug = false,
 }) => {
     const baseUrl = "https://mangadex.org";
     const apiUrl = "https://api.mangadex.org";
@@ -52,15 +53,15 @@ export const useMangaDexRepository: RepositoryTemplate = ({
 
     const request = async <T>(
         url: string,
-        params: RequestParams = {},
+        params: string = "",
     ): Promise<Result<T>> => {
         try {
             const requestOptions: Partial<CustomFetchInitOptions> = {
                 method: "GET",
             };
 
-            const queryString = new URLSearchParams(params).toString();
-            const apiUrl = `${url}?${queryString}`;
+            const apiUrl = params ? `${url}?${params}` : url;
+            useLilithLog(debug).log(apiUrl);
 
             const response = await fetch(apiUrl, requestOptions);
 
@@ -102,11 +103,7 @@ export const useMangaDexRepository: RepositoryTemplate = ({
     const getBook = async (identifier: string): Promise<Book | null> => {
         const manga = await request<MangadexResult<MangaDexBook>>(
             `${apiUrl}/manga/${identifier}`,
-            [
-                ["includes[]", RelationshipTypes.coverArt],
-                ["includes[]", RelationshipTypes.author],
-                ["includes[]", RelationshipTypes.tag],
-            ],
+            `includes[]=${RelationshipTypes.coverArt}&includes[]=${RelationshipTypes.author}`,
         );
 
         if (!manga || manga?.statusCode !== 200) {
@@ -115,7 +112,7 @@ export const useMangaDexRepository: RepositoryTemplate = ({
 
         const feed = await request<MangadexResult<MangaDexBook[]>>(
             `${apiUrl}/manga/${identifier}/feed`,
-            { "order[chapter]": "desc" },
+            `order[chapter]=asc`,
         );
 
         if (!feed || feed?.statusCode !== 200) {
@@ -128,25 +125,38 @@ export const useMangaDexRepository: RepositoryTemplate = ({
         const relationships: Record<string, unknown> = (() => {
             const res = {};
             mangaResult.data.relationships.forEach((rel) => {
+                console.log(rel);
                 res[rel.type] = rel.attributes;
             });
             return res;
         })();
-        const cover = relationships.cover_art as MangaDexCoverArt;
-        const author = relationships.author as MangaDexAuthor;
 
-        const { title } = mangaResult.data.attributes;
+        const { fileName } = relationships[
+            RelationshipTypes.coverArt
+        ] as MangaDexCoverArt;
+        const { name } = relationships[
+            RelationshipTypes.author
+        ] as MangaDexAuthor;
+
+        if (!fileName) throw new LilithError(404, "No cover found");
+
+        const { tags, title } = mangaResult.data.attributes;
+
+        const genres = tags.map((tag) =>
+            getTranslatedValue(tag.attributes.name),
+        );
+
+        const cover = {
+            uri: `${tinyImgBaseUrl}/${mangaResult.data.id}/${fileName}.${imageSize}.jpg`,
+        };
+
         return {
             id: identifier,
             title: getTranslatedValue(title),
-            author: author.name,
+            author: name,
             chapters: chaptersResult.data.map((chapter) => chapter.id),
-            cover: {
-                uri: `${tinyImgBaseUrl}/${mangaResult.data.id}/${cover.fileName}.${imageSize}.jpg`,
-            },
-            genres: mangaResult.data.attributes.tags.map((tag) =>
-                getTranslatedValue(tag.attributes.name),
-            ),
+            cover,
+            genres,
         };
     };
 
@@ -156,10 +166,7 @@ export const useMangaDexRepository: RepositoryTemplate = ({
     ): Promise<SearchResult> => {
         const response = await request<MangadexResult<MangaDexBook[]>>(
             `${apiUrl}/manga`,
-            {
-                title: query,
-                "includes[]": RelationshipTypes.coverArt, // To retrieve the thumbnails
-            },
+            `title=${query}&includes[]=${RelationshipTypes.coverArt}`,
         );
 
         if (!response || response?.statusCode !== 200) {

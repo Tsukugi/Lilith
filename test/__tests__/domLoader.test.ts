@@ -1,15 +1,14 @@
 import { beforeEach, describe, expect, test } from "@jest/globals";
 
 import { useAPILoader } from "../../src/api/loader";
-import { useCheerioDomParser } from "../../src/impl/useCheerioDomParser";
 
 import { Sort, RepositoryBase } from "../../src/interfaces/base";
 import { LilithRepo } from "../../src/interfaces";
 
 import { cookies, TextMocksForDomParser, fetchMock } from "../nhentaiMock";
-
-import { useLilithLog } from "../testLogs";
-const { log, warn } = useLilithLog(false);
+import { useLilithLog } from "../../src/repo/log";
+const debug = false;
+const { log, warn } = useLilithLog(debug);
 
 describe("DOMLoader", () => {
     let loader: RepositoryBase = {} as RepositoryBase;
@@ -19,7 +18,7 @@ describe("DOMLoader", () => {
             configurations: {
                 headers: cookies,
                 fetchImpl: () => fetchMock({}, TextMocksForDomParser.Search),
-                domParser: useCheerioDomParser,
+                debug,
             },
         });
     });
@@ -40,7 +39,6 @@ describe("DOMLoader", () => {
             configurations: {
                 headers: cookies,
                 fetchImpl: () => fetchMock({}, TextMocksForDomParser.Random),
-                domParser: useCheerioDomParser,
             },
         });
         const res = await randomLoader.randomBook();

@@ -18,12 +18,7 @@ export type {
     Pagination,
 } from "./interfaces/base";
 
-export type {
-    UseDomParser,
-    UseDomParserImpl,
-    ElementProps,
-    ElementAttributes,
-} from "./interfaces/domParser";
+export type { UseDomParser, UseDomParserImpl } from "./interfaces/domParser";
 
 export type { RepositoryBase } from "./interfaces/base";
 export { useNHentaiRepository } from "./repo/nhentai";

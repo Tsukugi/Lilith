@@ -18,20 +18,22 @@ import {
     NHentaiResult,
 } from "../interfaces/repositories/nhentai";
 import { UseDomParserImpl } from "../interfaces/domParser";
+import { useLilithLog } from "./log";
 
 export const useNHentaiRepository: RepositoryTemplate = ({
     fetch,
     domParser,
     headers,
+    debug = false,
 }) => {
-    const baseUrl = "https://nhentai.net/";
-    const apiUrl = "https://nhentai.net/api/";
-    const imgBaseUrl = "https://i.nhentai.net/galleries/";
+    const baseUrl = "https://nhentai.net";
+    const apiUrl = "https://nhentai.net/api";
+    const imgBaseUrl = "https://i.nhentai.net/galleries";
     const tinyImgBaseUrl = imgBaseUrl.replace("/i.", "/t.");
 
     const request = async <T>(
         url: string,
-        params: Record<string, string> = {},
+        params: string = "",
     ): Promise<Result<T>> => {
         if (!headers) {
             throw new LilithError(
@@ -49,8 +51,8 @@ export const useNHentaiRepository: RepositoryTemplate = ({
                 credentials: "include",
             };
 
-            const queryString = new URLSearchParams(params).toString();
-            const apiUrl = `${url}?${queryString}`;
+            const apiUrl = params ? `${url}?${params}` : url;
+            useLilithLog(debug).log(apiUrl);
 
             const response = await fetch(apiUrl, requestOptions);
 
@@ -82,7 +84,7 @@ export const useNHentaiRepository: RepositoryTemplate = ({
             return `${tinyImgBaseUrl}${mediaId}/thumb.${mime}`;
         if (type === "page" && pageNumber !== undefined)
             return `${imgBaseUrl}${mediaId}/${pageNumber}.${mime}`;
-        throw new Error("Invalid type or missing page number.");
+        throw new LilithError(500, "Invalid type or missing page number.");
     };
 
     const getChapter = async (chapterId: string): Promise<Chapter> => {
@@ -158,7 +160,7 @@ export const useNHentaiRepository: RepositoryTemplate = ({
 
     const search = async (
         query: string,
-        page: number,
+        page: number = 1,
         sort: Sort = Sort.RECENT,
     ): Promise<SearchResult> => {
         const response = await request(
@@ -167,20 +169,31 @@ export const useNHentaiRepository: RepositoryTemplate = ({
 
         const document = await response.getDocument();
 
-        const container = document.find("div.container");
-        if (!container) {
-            throw new LilithError(404, "No container found");
+        const cloudflareDomCheck = document
+            .find("div#content")
+            .getAttribute("id");
+
+        if (!cloudflareDomCheck) {
+            throw new LilithError(
+                401,
+                "Cloudflare challenge triggered, we should provide the correct Cloudlflare clearance",
+            );
         }
 
+        const container = document.find("div.container");
         const lastPageAnchor = document
             .find("section.pagination a.last")
-            .getElement();
+            .getAttribute("href");
 
-        const { href } = lastPageAnchor.attributes;
+        if (!container || !lastPageAnchor) {
+            throw new LilithError(
+                404,
+                "DOM Parser failed to find necessary elements needed for this process",
+            );
+        }
 
         const pageNumberRegex = /page=(\d+)/;
-        const match = href.match(pageNumberRegex);
-
+        const match = lastPageAnchor.match(pageNumberRegex);
         const totalPages = match ? +match[1] : 1;
 
         const searchResults: UseDomParserImpl[] =
@@ -191,22 +204,23 @@ export const useNHentaiRepository: RepositoryTemplate = ({
         }
 
         const thumbnails: Thumbnail[] = searchResults.map((searchElement) => {
-            const { href } = searchElement.getElement().attributes;
+            const bookId = searchElement
 
-            const bookId = href.split("/").find((p) => p.length > 5); // A code should never be less than 6 digits
+                .getAttribute("href")
+                .split("/")
+                .find((p) => p.length > 5); // A code should never be less than 6 digits
 
-            const resultCover = searchElement.find("img").getElement();
-            const { width, height, src } = resultCover.attributes;
+            const resultCover = searchElement.find("img");
 
+            const { getAttribute } = resultCover;
             const cover: Image = {
-                uri: resultCover.attributes?.["data-src"] || src || "",
-                width: width || 0,
-                height: height || 0,
+                uri: getAttribute("data-src") || getAttribute("src") || "",
+                width: +getAttribute("width") || 0,
+                height: +getAttribute("height") || 0,
             };
 
-            const resultTitle = searchElement.find(".caption")?.getElement();
-
-            const title: string = resultTitle?.textContent || "";
+            const title: string =
+                searchElement.find(".caption")?.getText() || "";
 
             return {
                 id: bookId,
@@ -271,16 +285,16 @@ export const useNHentaiRepository: RepositoryTemplate = ({
 
         const document = await response.getDocument();
 
-        const idElement = document.find("h3#gallery_id").getElement();
+        const idElement = document.find("h3#gallery_id");
 
-        if (!idElement || !idElement.textContent) {
+        if (!idElement || !idElement.getText()) {
             throw new LilithError(
                 404,
                 "Could not find ID element in the response.",
             );
         }
 
-        const id = idElement.textContent.replace("#", "");
+        const id = idElement.getText().replace("#", "");
         const result = (await onGet(id)) || null;
 
         if (!result) {

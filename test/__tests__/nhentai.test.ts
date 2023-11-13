@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, test } from "@jest/globals";
 
 import { TextMocksForDomParser, cookies, fetchMock } from "../nhentaiMock";
-import { useLilithLog } from "../testLogs";
+import { useLilithLog } from "../../src/repo/log";
 import { useCheerioDomParser } from "../../src/impl/useCheerioDomParser";
 import { useAPILoader } from "../../src/api/loader";
 
@@ -24,7 +24,6 @@ describe("Lilith", () => {
                 repo: LilithRepo.NHentai,
                 configurations: {
                     headers: cookies,
-                    fetchImpl: () => fetchMock(),
                     domParser: useCheerioDomParser,
                 },
             });
@@ -38,15 +37,15 @@ describe("Lilith", () => {
             expect(res).toBeDefined();
         });
         test("getBook", async () => {
-            const book: Book = await loader.getBook("ass");
+            const book: Book = await loader.getBook("480154");
             log(book);
             expect(book).toBeDefined();
         });
         test("Search", async () => {
             const search: SearchResult = await loader.search(
                 "atago",
-                2,
-                Sort.POPULAR_WEEK,
+                1,
+                Sort.RECENT,
             );
             log(search);
             log(search.results.map((result) => result.cover));

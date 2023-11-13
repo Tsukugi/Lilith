@@ -78,10 +78,7 @@ export interface Domains {
 export interface RepositoryBase {
     domains: Domains;
 
-    request: <T>(
-        url: string,
-        params?: Record<string, string>,
-    ) => Promise<Result<T>>;
+    request: <T>(url: string, params?: string) => Promise<Result<T>>;
 
     getChapter: (identifier: string) => Promise<Chapter>;
 
@@ -102,6 +99,7 @@ export interface RepositoryBaseProps {
     headers: Headers;
     fetch: CustomFetch;
     domParser: UseDomParser;
+    debug?: boolean;
 }
 
 export type RepositoryTemplate = (props: RepositoryBaseProps) => RepositoryBase;

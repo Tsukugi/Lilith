@@ -1,8 +1,6 @@
 import { beforeEach, describe, expect, test } from "@jest/globals";
 
-import { cookies } from "../nhentaiMock";
-import { useLilithLog } from "../testLogs";
-import { useCheerioDomParser } from "../../src/impl/useCheerioDomParser";
+import { useLilithLog } from "../../src/repo/log";
 import { useAPILoader } from "../../src/api/loader";
 
 import { LilithRepo } from "../../src/interfaces";
@@ -12,9 +10,9 @@ import {
     Book,
     Chapter,
 } from "../../src/interfaces/base";
-import { useNodeFetch } from "../../src/impl/useNodeFetch";
 
-const { log } = useLilithLog(false);
+const debug = false;
+const { log } = useLilithLog(debug);
 
 describe("Lilith", () => {
     describe("Test MangaDex ", () => {
@@ -23,9 +21,7 @@ describe("Lilith", () => {
             loader = useAPILoader({
                 repo: LilithRepo.MangaDex,
                 configurations: {
-                    headers: cookies,
-                    fetchImpl: useNodeFetch,
-                    domParser: useCheerioDomParser,
+                    debug,
                 },
             });
         });

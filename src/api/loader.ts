@@ -13,11 +13,12 @@ export interface APILoaderConfigurations {
     headers: Headers;
     fetchImpl: CustomFetch;
     domParser: UseDomParser;
+    debug: boolean;
 }
 
 export interface UseAPILoaderProps {
     repo: LilithRepo;
-    configurations: Partial<APILoaderConfigurations>;
+    configurations?: Partial<APILoaderConfigurations>;
 }
 export const useAPILoader = ({
     repo,
@@ -25,6 +26,7 @@ export const useAPILoader = ({
         headers,
         fetchImpl = useNodeFetch,
         domParser = useCheerioDomParser,
+        debug = false,
     },
 }: UseAPILoaderProps): RepositoryBase => {
     switch (repo) {
@@ -33,12 +35,14 @@ export const useAPILoader = ({
                 headers,
                 fetch: fetchImpl,
                 domParser,
+                debug,
             });
         default:
             return useNHentaiRepository({
                 headers,
                 fetch: fetchImpl,
                 domParser,
+                debug,
             });
     }
 };
