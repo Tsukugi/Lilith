@@ -12,7 +12,10 @@ import {
     Genre,
     RepositoryTemplate,
 } from "../interfaces/base";
-import { NHentaiPaginateResult, NHentaiResult } from "../interfaces/nhentai";
+import {
+    NHentaiPaginateResult,
+    NHentaiResult,
+} from "../interfaces/repositories/nhentai";
 import { UseDomParserImpl } from "../interfaces/domParser";
 
 export const useNHentaiRepository: RepositoryTemplate = ({
@@ -23,16 +26,11 @@ export const useNHentaiRepository: RepositoryTemplate = ({
     const baseUrl = "https://nhentai.net/";
     const apiUrl = "https://nhentai.net/api/";
     const imgBaseUrl = "https://i.nhentai.net/galleries/";
-    const avatarUrl = "https://i5.nhentai.net/";
     const tinyImgBaseUrl = imgBaseUrl.replace("/i.", "/t.");
 
     const request = async <T>(
         url: string,
-        params:
-            | string
-            | Record<string, string>
-            | string[][]
-            | URLSearchParams = {},
+        params: Record<string, string> = {},
     ): Promise<Result<T>> => {
         if (!headers) {
             throw new Error(
@@ -78,16 +76,16 @@ export const useNHentaiRepository: RepositoryTemplate = ({
         throw new Error("Invalid type or missing page number.");
     };
 
-    const get = async (identifier: string): Promise<Book | null> => {
-        const response = await request<NHentaiResult>(
-            `${apiUrl}/gallery/${identifier}`,
-        );
+    const getChapter = async (chapterId: string): Promise<Chapter> => {
+        /**
+         * NHentai doesn't use chapters, it directly gets the pages from the book, as 1 chapter books
+         */
+        const book = await (
+            await request<NHentaiResult>(`${apiUrl}/gallery/${chapterId}`)
+        ).json();
 
-        if (!response || response?.statusCode !== 200) return null;
-
-        const book = await response.json();
-        const chapter: Chapter = {
-            id: `${book.id}`,
+        return {
+            id: chapterId,
             pages: book.images.pages.map((page, index) => ({
                 uri: getUri(
                     "page",
@@ -99,16 +97,19 @@ export const useNHentaiRepository: RepositoryTemplate = ({
                 height: page.h,
             })),
         };
+    };
 
-        const { english, japanese, pretty } = book.title;
+    const getBook = async (id: string): Promise<Book | null> => {
+        const response = await request<NHentaiResult>(
+            `${apiUrl}/gallery/${id}`,
+        );
 
-        const authors: string[] = [];
+        if (!response || response?.statusCode !== 200) return null;
+
+        const book = await response.json();
+
         const genres: Genre[] = [];
-
         book.tags.forEach((tag) => {
-            if (tag.type === "artist") {
-                authors.push(tag.name);
-            }
             if (tag.type === "tag") {
                 genres.push({
                     id: `${tag.id}`,
@@ -117,29 +118,23 @@ export const useNHentaiRepository: RepositoryTemplate = ({
             }
         });
 
-        const thumbnailExtension = Extension[book.images.thumbnail.t];
-        const coverExtension = Extension[book.images.cover.t];
+        const { english, japanese, pretty } = book.title;
 
         const Book: Book = {
-            title: {
-                english,
-                japanese,
-                other: pretty,
-            },
+            title: english || japanese || pretty,
             id: `${book.id}`,
-            authors,
+            author: book.tags.find((tag) => tag.type === "artist").name,
             genres,
-            thumbnail: {
-                uri: getUri("thumbnail", book.media_id, thumbnailExtension),
-                width: book.images.thumbnail.w,
-                height: book.images.thumbnail.h,
-            },
             cover: {
-                uri: getUri("cover", book.media_id, coverExtension),
+                uri: getUri(
+                    "cover",
+                    book.media_id,
+                    Extension[book.images.cover.t],
+                ),
                 width: book.images.cover.w,
                 height: book.images.cover.h,
             },
-            chapters: [chapter],
+            chapters: [`${book.id}`],
         };
         return Book;
     };
@@ -257,7 +252,10 @@ export const useNHentaiRepository: RepositoryTemplate = ({
         };
     };
 
-    const random = async (retry: number = 0): Promise<Book> => {
+    const getRandomGeneric = async <T>(
+        retry: number = 0,
+        onGet: (id: string) => Promise<T>,
+    ): Promise<T> => {
         const response = await request(`${baseUrl}/random`);
 
         const document = await response.getDocument();
@@ -269,25 +267,25 @@ export const useNHentaiRepository: RepositoryTemplate = ({
         }
 
         const id = idElement.textContent.replace("#", "");
-        const book = (await get(id)) || null;
+        const result = (await onGet(id)) || null;
 
-        if (!book) {
-            if (retry === 4) {
+        if (!result) {
+            if (retry >= 3) {
                 throw new Error("Could not fetch a random book.");
             }
-            return random(retry + 1);
+            return getRandomGeneric(retry + 1, onGet);
         }
 
-        return book;
+        return result;
     };
 
     return {
-        domains: { baseUrl, imgBaseUrl, apiUrl, avatarUrl, tinyImgBaseUrl },
-        get,
-        getUri,
+        domains: { baseUrl, imgBaseUrl, apiUrl, tinyImgBaseUrl },
+        getBook,
+        getChapter,
         search,
         paginate,
-        random,
+        randomBook: (retry) => getRandomGeneric(retry, getBook),
         request,
     };
 };

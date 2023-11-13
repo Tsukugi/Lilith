@@ -18,8 +18,8 @@ export enum Sort {
 
 export interface Image {
     uri: string;
-    width: number;
-    height: number;
+    width?: number;
+    height?: number;
 }
 
 export interface Chapter {
@@ -39,13 +39,12 @@ export interface Title {
 }
 
 export interface Book {
-    title: Title;
     id: string;
-    authors: string[];
+    title: string;
+    author: string;
     genres: Genre[];
-    thumbnail: Image;
     cover: Image;
-    chapters: Chapter[];
+    chapters: string[];
 }
 
 export interface Thumbnail {
@@ -56,10 +55,10 @@ export interface Thumbnail {
 
 export interface SearchResult {
     query: string;
-    totalPages: number;
     page: number;
-    totalResults: number;
     results: Thumbnail[];
+    totalResults?: number;
+    totalPages?: number;
 }
 
 export interface Pagination {
@@ -73,7 +72,6 @@ export interface Domains {
     readonly baseUrl: string;
     readonly apiUrl: string;
     readonly imgBaseUrl: string;
-    readonly avatarUrl: string;
     readonly tinyImgBaseUrl: string;
 }
 
@@ -82,23 +80,18 @@ export interface RepositoryBase {
 
     request: <T>(
         url: string,
-        params?: string | Record<string, string> | string[][] | URLSearchParams,
+        params?: Record<string, string>,
     ) => Promise<Result<T>>;
 
-    getUri: (
-        type: UriType,
-        mediaId: string,
-        mime: Extension,
-        pageNumber?: number,
-    ) => string;
+    getChapter: (identifier: string) => Promise<Chapter | null>;
 
-    get: (identifier: string) => Promise<Book | null>;
+    getBook: (identifier: string) => Promise<Book | null>;
 
     search: (query: string, page: number, sort: Sort) => Promise<SearchResult>;
 
-    paginate: (page: number) => Promise<Pagination>;
+    randomBook: (retry?: number) => Promise<Book>;
 
-    random: (retry?: number) => Promise<Book>;
+    paginate?: (page: number) => Promise<Pagination>;
 }
 
 export interface RepositoryBaseProps {

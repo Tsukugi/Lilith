@@ -8,7 +8,7 @@ export interface Result<T> {
 
 export type CustomFetch = (
     url: string,
-    options: CustomFetchInitOptions,
+    options: Partial<CustomFetchInitOptions>,
 ) => Promise<CustomFetchResponse>;
 
 export interface CustomFetchResponse {

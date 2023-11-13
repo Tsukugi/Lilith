@@ -2,9 +2,8 @@ import { beforeEach, describe, expect, test } from "@jest/globals";
 
 import { useAPILoader } from "../../src/api/loader";
 import { useCheerioDomParser } from "../../src/impl/useCheerioDomParser";
-import { useNodeFetch } from "../../src/impl/useNodeFetch";
 
-import { Extension, Sort, RepositoryBase } from "../../src/interfaces/base";
+import { Sort, RepositoryBase } from "../../src/interfaces/base";
 import { LilithRepo } from "../../src/interfaces";
 
 import { cookies, TextMocksForDomParser, fetchMock } from "../nhentaiMock";
@@ -25,35 +24,8 @@ describe("DOMLoader", () => {
         });
     });
 
-    test("CustomFetchImpl", async () => {
-        const thumbnail = loader.getUri("thumbnail", "2726143", Extension.j);
-
-        log(thumbnail);
-        expect(thumbnail).toBeDefined();
-
-        const image = await useNodeFetch(thumbnail, {
-            method: "GET",
-            headers: {
-                "User-Agent": cookies.userAgent,
-                cookie: cookies.cfClearance,
-            },
-            credentials: "include",
-        });
-
-        if (image.status !== 200) {
-            warn(
-                "[CustomFetchImpl]: No image found",
-                image.status,
-                "please check the test",
-            );
-        }
-
-        log(image);
-        expect(image).toBeDefined();
-    });
-
     test("Custom fetch for JSON", async () => {
-        const res = await loader.get("480154");
+        const res = await loader.getChapter("480154");
 
         if (res === null)
             warn("[Custom fetch for JSON] Resource was not found");
@@ -71,7 +43,7 @@ describe("DOMLoader", () => {
                 domParser: useCheerioDomParser,
             },
         });
-        const res = await randomLoader.random();
+        const res = await randomLoader.randomBook();
 
         if (res === null)
             warn("[Custom fetch for JSON] Resource was not found");

@@ -5,8 +5,10 @@ import { RepositoryBase } from "../interfaces/base";
 import { useCheerioDomParser } from "../impl/useCheerioDomParser";
 import { useNodeFetch } from "../impl/useNodeFetch";
 
-import { useNHentaiRepository } from "../repo/nhentai";
 import { LilithRepo } from "../interfaces";
+
+import { useMangaDexRepository } from "../repo/mangadex";
+import { useNHentaiRepository } from "../repo/nhentai";
 export interface APILoaderConfigurations {
     headers: Headers;
     fetchImpl: CustomFetch;
@@ -26,6 +28,12 @@ export const useAPILoader = ({
     },
 }: UseAPILoaderProps): RepositoryBase => {
     switch (repo) {
+        case LilithRepo.MangaDex:
+            return useMangaDexRepository({
+                headers,
+                fetch: fetchImpl,
+                domParser,
+            });
         default:
             return useNHentaiRepository({
                 headers,

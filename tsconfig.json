@@ -15,10 +15,7 @@
         "noEmit": true,
         "types": ["node"],
         "resolveJsonModule": true,
-        "baseUrl": "./",
-        "paths": {
-            "@src/*": ["./src/*"]
-        }
+        "baseUrl": "./"
     },
     "include": ["src/**/*.ts"],
     "exclude": ["src/tests", "node_modules"]

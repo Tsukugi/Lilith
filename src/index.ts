@@ -29,3 +29,5 @@ export type { RepositoryBase } from "./interfaces/base";
 export { useNHentaiRepository } from "./repo/nhentai";
 export { useCheerioDomParser } from "./impl/useCheerioDomParser";
 export { useNodeFetch } from "./impl/useNodeFetch";
+
+export { useAPILoader, UseAPILoaderProps } from "./api/loader";
