@@ -30,4 +30,9 @@ export { useNHentaiRepository } from "./repo/nhentai";
 export { useCheerioDomParser } from "./impl/useCheerioDomParser";
 export { useNodeFetch } from "./impl/useNodeFetch";
 
-export { useAPILoader, UseAPILoaderProps } from "./api/loader";
+export {
+    useAPILoader,
+    UseAPILoaderProps,
+    APILoaderConfigurations,
+} from "./api/loader";
+export { LilithRepo } from "./interfaces";
