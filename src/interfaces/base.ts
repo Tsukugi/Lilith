@@ -83,11 +83,15 @@ export interface RepositoryBase {
         params?: Record<string, string>,
     ) => Promise<Result<T>>;
 
-    getChapter: (identifier: string) => Promise<Chapter | null>;
+    getChapter: (identifier: string) => Promise<Chapter>;
 
-    getBook: (identifier: string) => Promise<Book | null>;
+    getBook: (identifier: string) => Promise<Book>;
 
-    search: (query: string, page: number, sort: Sort) => Promise<SearchResult>;
+    search: (
+        query: string,
+        page?: number,
+        sort?: Sort,
+    ) => Promise<SearchResult>;
 
     randomBook: (retry?: number) => Promise<Book>;
 
@@ -101,3 +105,15 @@ export interface RepositoryBaseProps {
 }
 
 export type RepositoryTemplate = (props: RepositoryBaseProps) => RepositoryBase;
+
+export class LilithError {
+    status: number;
+    message: string;
+    data?: unknown;
+
+    constructor(status: number, message: string, data?: unknown) {
+        this.data = data;
+        this.status = status;
+        this.message = message;
+    }
+}

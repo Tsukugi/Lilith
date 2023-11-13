@@ -11,6 +11,7 @@ import {
     Extension,
     Genre,
     RepositoryTemplate,
+    LilithError,
 } from "../interfaces/base";
 import {
     NHentaiPaginateResult,
@@ -33,32 +34,40 @@ export const useNHentaiRepository: RepositoryTemplate = ({
         params: Record<string, string> = {},
     ): Promise<Result<T>> => {
         if (!headers) {
-            throw new Error(
+            throw new LilithError(
+                403,
                 "cloudflare cookie and user-agent invalid, provide a different one.",
             );
         }
+        try {
+            const requestOptions: CustomFetchInitOptions = {
+                method: "GET",
+                headers: {
+                    cookie: headers.cookie,
+                    "User-Agent": headers["User-Agent"],
+                },
+                credentials: "include",
+            };
 
-        const requestOptions: CustomFetchInitOptions = {
-            method: "GET",
-            headers: {
-                cookie: headers.cookie,
-                "User-Agent": headers["User-Agent"],
-            },
-            credentials: "include",
-        };
+            const queryString = new URLSearchParams(params).toString();
+            const apiUrl = `${url}?${queryString}`;
 
-        const queryString = new URLSearchParams(params).toString();
-        const apiUrl = `${url}?${queryString}`;
+            const response = await fetch(apiUrl, requestOptions);
 
-        const response = await fetch(apiUrl, requestOptions);
+            const getDocument = async () => domParser(await response.text());
 
-        const getDocument = async () => domParser(await response.text());
-
-        return {
-            json: response.json,
-            statusCode: response.status,
-            getDocument,
-        };
+            return {
+                json: response.json,
+                statusCode: response.status,
+                getDocument,
+            };
+        } catch (error) {
+            throw new LilithError(
+                error.status || 500,
+                "There was an error on the request",
+                error,
+            );
+        }
     };
 
     const getUri = (
@@ -80,9 +89,15 @@ export const useNHentaiRepository: RepositoryTemplate = ({
         /**
          * NHentai doesn't use chapters, it directly gets the pages from the book, as 1 chapter books
          */
-        const book = await (
-            await request<NHentaiResult>(`${apiUrl}/gallery/${chapterId}`)
-        ).json();
+        const response = await request<NHentaiResult>(
+            `${apiUrl}/gallery/${chapterId}`,
+        );
+
+        if (!response || response?.statusCode !== 200) {
+            throw new LilithError(response?.statusCode, "No chapter found");
+        }
+
+        const book = await response.json();
 
         return {
             id: chapterId,
@@ -99,12 +114,14 @@ export const useNHentaiRepository: RepositoryTemplate = ({
         };
     };
 
-    const getBook = async (id: string): Promise<Book | null> => {
+    const getBook = async (id: string): Promise<Book> => {
         const response = await request<NHentaiResult>(
             `${apiUrl}/gallery/${id}`,
         );
 
-        if (!response || response?.statusCode !== 200) return null;
+        if (!response || response?.statusCode !== 200) {
+            throw new LilithError(response?.statusCode, "No book found");
+        }
 
         const book = await response.json();
 
@@ -150,16 +167,10 @@ export const useNHentaiRepository: RepositoryTemplate = ({
 
         const document = await response.getDocument();
 
-        const emptyResponse: SearchResult = {
-            query: query,
-            totalPages: 1,
-            page: 1,
-            totalResults: 1,
-            results: [],
-        };
-
         const container = document.find("div.container");
-        if (!container) return emptyResponse;
+        if (!container) {
+            throw new LilithError(404, "No container found");
+        }
 
         const lastPageAnchor = document
             .find("section.pagination a.last")
@@ -175,7 +186,9 @@ export const useNHentaiRepository: RepositoryTemplate = ({
         const searchResults: UseDomParserImpl[] =
             container.findAll("div.gallery > a");
 
-        if (!searchResults || searchResults.length === 0) return emptyResponse;
+        if (!searchResults || searchResults.length === 0) {
+            throw new LilithError(404, "No search results found");
+        }
 
         const thumbnails: Thumbnail[] = searchResults.map((searchElement) => {
             const { href } = searchElement.getElement().attributes;
@@ -217,12 +230,10 @@ export const useNHentaiRepository: RepositoryTemplate = ({
         );
 
         if (response.statusCode !== 200) {
-            return {
-                page,
-                totalResults: 0,
-                totalPages: 0,
-                results: [],
-            };
+            throw new LilithError(
+                response.statusCode,
+                "Could not find a correct pagination",
+            );
         }
 
         const data = await response.json();
@@ -263,7 +274,10 @@ export const useNHentaiRepository: RepositoryTemplate = ({
         const idElement = document.find("h3#gallery_id").getElement();
 
         if (!idElement || !idElement.textContent) {
-            throw new Error("Could not find ID element in the response.");
+            throw new LilithError(
+                404,
+                "Could not find ID element in the response.",
+            );
         }
 
         const id = idElement.textContent.replace("#", "");
@@ -271,7 +285,7 @@ export const useNHentaiRepository: RepositoryTemplate = ({
 
         if (!result) {
             if (retry >= 3) {
-                throw new Error("Could not fetch a random book.");
+                throw new LilithError(404, "Could not fetch a random book.");
             }
             return getRandomGeneric(retry + 1, onGet);
         }

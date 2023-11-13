@@ -8,14 +8,13 @@ import { useAPILoader } from "../../src/api/loader";
 import { LilithRepo } from "../../src/interfaces";
 import {
     SearchResult,
-    Sort,
     RepositoryBase,
     Book,
     Chapter,
 } from "../../src/interfaces/base";
 import { useNodeFetch } from "../../src/impl/useNodeFetch";
 
-const { log } = useLilithLog(true);
+const { log } = useLilithLog(false);
 
 describe("Lilith", () => {
     describe("Test MangaDex ", () => {
@@ -30,32 +29,58 @@ describe("Lilith", () => {
                 },
             });
         });
+        test("Errors", async () => {
+            try {
+                const chapter: Chapter = await loader.getChapter(
+                    "adwadaawdadwadwad",
+                );
+                expect(chapter).toThrow();
+            } catch (error) {
+                log(error);
+            }
+            try {
+                const search: SearchResult = await loader.search(
+                    "adwadaawdadwadwad",
+                );
+                expect(search).toThrow();
+            } catch (error) {
+                log(error);
+            }
+        });
 
         test("Search", async () => {
-            const search: SearchResult | null = await loader.search(
-                "komi",
-                2,
-                Sort.POPULAR_WEEK,
-            );
+            const search: SearchResult = await loader.search("komi");
             log(search);
             log(search.results.map((res) => res.cover));
-            //  warn(search.results.map((result) => result.cover));
             expect(search.results[0].cover.uri).toBeTruthy();
             expect(search).toBeDefined();
         });
 
         test("GetBook", async () => {
-            const get: Book | null = await loader.getBook(
+            const book: Book = await loader.getBook(
                 "b5973113-d74f-41be-a97f-64bf315836f3",
             );
-            log(get);
-            expect(get).toBeDefined();
+            log(book);
+            expect(book).toBeDefined();
         });
 
         test("GetChapter", async () => {
-            const chapter: Chapter | null = await loader.getChapter(
+            const chapter: Chapter = await loader.getChapter(
                 "940f02a3-c4dc-4cc2-9275-5906fcbdb453",
             );
+            log(chapter);
+            expect(chapter).toBeDefined();
+        });
+
+        test("GetImageListFromFirstChapter", async () => {
+            const book: Book = await loader.getBook(
+                "b5973113-d74f-41be-a97f-64bf315836f3",
+            );
+            log(book);
+            expect(book).toBeDefined();
+            if (!book) return null;
+
+            const chapter: Chapter = await loader.getChapter(book?.chapters[0]);
             log(chapter);
             expect(chapter).toBeDefined();
         });

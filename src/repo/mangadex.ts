@@ -5,6 +5,7 @@ import {
     SearchResult,
     RepositoryTemplate,
     Chapter,
+    LilithError,
 } from "../interfaces/base";
 import {
     MangaDexAuthor,
@@ -24,7 +25,7 @@ enum RelationshipTypes {
     tag = "tag",
 }
 
-const imageSize: "256" | "512" = "256";
+const imageSize: "256" | "512" = "512";
 
 const supportedLocales: MangaDexLanguage[] = ["es", "en", "es-la"];
 const getTranslatedValue = (locales: Record<MangaDexLanguage, string>) => {
@@ -34,6 +35,11 @@ const getTranslatedValue = (locales: Record<MangaDexLanguage, string>) => {
     return locales[key];
 };
 
+/*
+ * MangaDex API docs https://api.mangadex.org/docs/swagger.html
+ * @param props
+ * @returns
+ */
 export const useMangaDexRepository: RepositoryTemplate = ({
     fetch,
     domParser,
@@ -48,29 +54,42 @@ export const useMangaDexRepository: RepositoryTemplate = ({
         url: string,
         params: RequestParams = {},
     ): Promise<Result<T>> => {
-        const requestOptions: Partial<CustomFetchInitOptions> = {
-            method: "GET",
-        };
+        try {
+            const requestOptions: Partial<CustomFetchInitOptions> = {
+                method: "GET",
+            };
 
-        const queryString = new URLSearchParams(params).toString();
-        const apiUrl = `${url}?${queryString}`;
+            const queryString = new URLSearchParams(params).toString();
+            const apiUrl = `${url}?${queryString}`;
 
-        const response = await fetch(apiUrl, requestOptions);
+            const response = await fetch(apiUrl, requestOptions);
 
-        const getDocument = async () => domParser(await response.text());
+            const getDocument = async () => domParser(await response.text());
 
-        return {
-            json: response.json,
-            statusCode: response.status,
-            getDocument,
-        };
+            return {
+                json: response.json,
+                statusCode: response.status,
+                getDocument,
+            };
+        } catch (error) {
+            throw new LilithError(
+                error.status || 500,
+                "There was an error on the request",
+                error,
+            );
+        }
     };
 
     const getChapter = async (identifier: string): Promise<Chapter | null> => {
-        const images = await request<MangaDexImageListResult>(
+        const response = await request<MangaDexImageListResult>(
             `${apiUrl}/at-home/server/${identifier}`,
         );
-        const imagesResult = await images.json();
+
+        if (!response || response?.statusCode !== 200) {
+            throw new LilithError(response?.statusCode, "No chapter found");
+        }
+
+        const imagesResult = await response.json();
 
         return {
             id: identifier,
@@ -90,10 +109,18 @@ export const useMangaDexRepository: RepositoryTemplate = ({
             ],
         );
 
+        if (!manga || manga?.statusCode !== 200) {
+            throw new LilithError(manga?.statusCode, "No manga found");
+        }
+
         const feed = await request<MangadexResult<MangaDexBook[]>>(
             `${apiUrl}/manga/${identifier}/feed`,
             { "order[chapter]": "desc" },
         );
+
+        if (!feed || feed?.statusCode !== 200) {
+            throw new LilithError(feed?.statusCode, "No manga feed found");
+        }
 
         const mangaResult = await manga.json();
         const chaptersResult = await feed.json();
@@ -135,6 +162,10 @@ export const useMangaDexRepository: RepositoryTemplate = ({
             },
         );
 
+        if (!response || response?.statusCode !== 200) {
+            throw new LilithError(response?.statusCode, "No search results");
+        }
+
         const result = await response.json();
 
         const makeCover = (book: MangaDexBook) => {
@@ -145,7 +176,10 @@ export const useMangaDexRepository: RepositoryTemplate = ({
                         relationship.type === RelationshipTypes.coverArt,
                 ) as MangaDexRelationship<MangaDexCoverArt>;
             if (!coverRelationship) {
-                throw "[makeCover] No relationship found for Book";
+                throw new LilithError(
+                    404,
+                    "[makeCover] No relationship found for Book",
+                );
             }
 
             const coverFilename = coverRelationship.attributes.fileName;
@@ -178,7 +212,9 @@ export const useMangaDexRepository: RepositoryTemplate = ({
             const result = await response.json();
             return await getBook(result.data.id);
         } catch (error) {
-            if (retry >= 3) throw new Error("Could not fetch a random book.");
+            if (retry >= 3) {
+                throw new LilithError(404, "Could not fetch a random book.");
+            }
             randomBook(retry + 1);
         }
     };
