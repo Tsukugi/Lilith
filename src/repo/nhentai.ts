@@ -79,11 +79,11 @@ export const useNHentaiRepository: RepositoryTemplate = ({
         pageNumber?: number,
     ): string => {
         if (type === "cover")
-            return `${tinyImgBaseUrl}${mediaId}/cover.${mime}`;
+            return `${tinyImgBaseUrl}/${mediaId}/cover.${mime}`;
         if (type === "thumbnail")
-            return `${tinyImgBaseUrl}${mediaId}/thumb.${mime}`;
+            return `${tinyImgBaseUrl}/${mediaId}/thumb.${mime}`;
         if (type === "page" && pageNumber !== undefined)
-            return `${imgBaseUrl}${mediaId}/${pageNumber}.${mime}`;
+            return `${imgBaseUrl}/${mediaId}/${pageNumber}.${mime}`;
         throw new LilithError(500, "Invalid type or missing page number.");
     };
 
