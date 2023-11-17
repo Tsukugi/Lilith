@@ -1,6 +1,6 @@
-<h1 align="center">Welcome to Lilith!</h1>
+<h1 align="center">Welcome to the Lilith Project!</h1>
 <p>
-  <img alt="Version" src="https://img.shields.io/badge/version-0.1.0-blue.svg?cacheSeconds=2592000" />
+  <img alt="Version" src="https://img.shields.io/badge/version-0.4.7-blue.svg?cacheSeconds=2592000" />
   <a href="#" target="_blank">
     <img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg" />
   </a>
@@ -20,57 +20,62 @@ npm i @atsu/lilith
 
 Lilith provides a API to get data in a format that is accessible from your app from different sources.
 
-Currently supported sources are: `NHentai`, more to come.
+Currently supported sources are: `NHentai` and `MangaDex`, more to come.
 
 This is a basic example on how to use it.
 
 ```ts
-import { useState } from "@atsu/lilith";
+import { useAPILoader } from "@atsu/lilith";
 
 const loader = useAPILoader({
-    repo: LilithRepo.NHentai, // Repository to use
-    config: cookies, // configuration for the loader
-    fetchImpl: fetch, // (optional) custom fetch implementation
+    repo: LilithRepo.MangaDex, // Repository to use
+    configurations: {}, // optional configurations for specific repositories
 });
 
-const book: Book | null = await loader.get("ass"); // We already get some data
+const results: SearchResult = await loader.search("komi"); // We already get some data
 ```
 
 ## How to extend it
 
-This project is thought to be extended with more sources, to achieve that, basically we would need a class that implements `RepositoryBase`
+This project is thought to be extended with more sources, to achieve that, basically we would need a new `useMyNewRepository` that is of type `RepositoryTemplate`
 
 ```ts
 // This is from src/repo/base.ts
-interface RepositoryBase {
-    readonly BASE_URL: string;
-    readonly API_URL: string;
-    readonly IMAGE_BASE_URL: string;
-    readonly AVATAR_URL: string;
-    readonly TINY_IMAGE_BASE_URL: string;
-
-    config: CloudFlareConfig | null;
-
-    request: <T>(
-        url: string,
-        params: string | Record<string, string> | string[][] | URLSearchParams,
-    ) => Promise<Result<T>>;
-
-    getUri: (
-        type: UriType,
-        mediaId: string,
-        mime: string,
-        pageNumber?: number,
-    ) => string;
-
-    get: (identifier: string) => Promise<Book | null>;
-
-    search: (query: string, page: number, sort: Sort) => Promise<SearchResult>;
-
-    paginate: (page: number) => Promise<Pagination>;
-
-    random: (retry: number) => Promise<Book>;
+export interface Domains {
+    readonly baseUrl: string;
+    readonly apiUrl: string;
+    readonly imgBaseUrl: string;
+    readonly tinyImgBaseUrl: string;
 }
+
+export interface RepositoryBase {
+    domains: Domains;
+
+    request: <T>(url: string, params?: string) => Promise<Result<T>>;
+
+    getChapter: (identifier: string) => Promise<Chapter>;
+
+    getBook: (identifier: string) => Promise<Book>;
+
+    search: (
+        query: string,
+        page?: number,
+        sort?: Sort,
+    ) => Promise<SearchResult>;
+
+    randomBook: (retry?: number) => Promise<Book>;
+
+    paginate?: (page: number) => Promise<Pagination>;
+}
+
+export interface RepositoryBaseProps {
+    headers: Headers;
+    fetch: CustomFetch;
+    domParser: UseDomParser;
+    debug?: boolean;
+}
+
+export type RepositoryTemplate = (props: RepositoryBaseProps) => RepositoryBase; // This one
 ```
 
 Add it in `src/repo/`
@@ -79,8 +84,8 @@ Add it in `src/repo/`
 // in src/interfaces/index.ts
 
 export enum LilithRepo {
-    NHentai = "NHentai",
-    // Add a new entry here, to allow users to choose it
+    /* ... Already supported entries */
+    myNewRepo = "myNewRepo", // Add a new entry here, to allow users to choose it
 }
 ```
 
@@ -88,12 +93,22 @@ And in the loader do the following:
 
 ```ts
 switch (repo) {
-    case LilithRepo.MyNewRepo: // Add your repo
-        return new NewRepoClass(config, fetchImpl); // And add your loader class
-    default:
-        return new NHentai(config, fetchImpl);
+    // Add your repo as a new case
+    case LilithRepo.MyNewRepo:
+        return new useMyNewRepository({
+            headers,
+            fetch,
+            domParser,
+            debug,
+        });
+
+    /* ...rest of the options */
 }
 ```
+
+One last thing to note is the tests, currently they are working with Jest, but they aren't as extensive nor strict as I would like. If you want to help on this, it would be awesome too.
+
+--- More documentation for test comming soon!
 
 ## Author
 

@@ -11,7 +11,7 @@ import { useMangaDexRepository } from "../repo/mangadex";
 import { useNHentaiRepository } from "../repo/nhentai";
 export interface APILoaderConfigurations {
     headers: Headers;
-    fetchImpl: CustomFetch;
+    fetch: CustomFetch;
     domParser: UseDomParser;
     debug: boolean;
 }
@@ -24,7 +24,7 @@ export const useAPILoader = ({
     repo,
     configurations: {
         headers,
-        fetchImpl = useNodeFetch,
+        fetch = useNodeFetch,
         domParser = useCheerioDomParser,
         debug = false,
     },
@@ -33,14 +33,14 @@ export const useAPILoader = ({
         case LilithRepo.MangaDex:
             return useMangaDexRepository({
                 headers,
-                fetch: fetchImpl,
+                fetch,
                 domParser,
                 debug,
             });
         default:
             return useNHentaiRepository({
                 headers,
-                fetch: fetchImpl,
+                fetch,
                 domParser,
                 debug,
             });
