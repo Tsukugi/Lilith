@@ -128,7 +128,12 @@ export const useNHentaiRepository: RepositoryTemplate = ({
         const book = await response.json();
 
         const genres: Genre[] = [];
+
+        let author = "unknown";
         book.tags.forEach((tag) => {
+            if (tag.type === "author" && author === "unknown") {
+                author = tag.name; // Get the first author
+            }
             if (tag.type === "tag") {
                 genres.push({
                     id: `${tag.id}`,
@@ -142,7 +147,7 @@ export const useNHentaiRepository: RepositoryTemplate = ({
         const Book: Book = {
             title: english || japanese || pretty,
             id: `${book.id}`,
-            author: book.tags.find((tag) => tag.type === "artist").name,
+            author,
             genres,
             cover: {
                 uri: getUri(
@@ -153,7 +158,7 @@ export const useNHentaiRepository: RepositoryTemplate = ({
                 width: book.images.cover.w,
                 height: book.images.cover.h,
             },
-            chapters: [`${book.id}`],
+            chapters: [`${book.id}`], //NHentai always provides 1 chapter books
         };
         return Book;
     };
