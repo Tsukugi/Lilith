@@ -21,7 +21,7 @@ export interface CustomFetchInitOptions {
     method: "GET" | "POST";
     headers: Headers;
     credentials: "include" | "omit" | "same-origin";
-    body?: XMLHttpRequestBodyInit | null;
+    body?: string; // TODO: Support me!
 }
 
 export interface Headers {
@@ -29,3 +29,6 @@ export interface Headers {
     ["User-Agent"]: string;
     cookie: string;
 }
+
+export type UrlParamPair = [string, UrlParamValue];
+export type UrlParamValue = string | number | boolean;

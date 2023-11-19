@@ -1,22 +1,32 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { CustomFetchInitOptions, Result } from "../interfaces/fetch";
+import {
+    CustomFetchInitOptions,
+    Result,
+    UrlParamPair,
+} from "../interfaces/fetch";
 import {
     Book,
     SearchResult,
     RepositoryTemplate,
     Chapter,
     LilithError,
+    LilithLanguage,
+    Tag,
+    SearchQueryOptions,
+    Sort,
 } from "../interfaces/base";
 import {
     MangaDexAuthor,
     MangaDexBook,
+    MangaDexChapter,
     MangaDexCoverArt,
     MangaDexImageListResult,
     MangaDexLanguage,
     MangaDexRelationship,
     MangadexResult,
 } from "../interfaces/repositories/mangadex";
-import { useLilithLog } from "./log";
+import { useLilithLog } from "./utils/log";
+import { useRequest } from "./utils/request";
 
 enum RelationshipTypes {
     coverArt = "cover_art",
@@ -27,24 +37,42 @@ enum RelationshipTypes {
 
 const imageSize: "256" | "512" = "512";
 
-const supportedLocales: MangaDexLanguage[] = ["es", "en", "es-la"];
-const getTranslatedValue = (locales: Record<MangaDexLanguage, string>) => {
-    const key: string = Object.keys(locales).find((key: MangaDexLanguage) =>
-        supportedLocales.includes(key),
-    );
-    return locales[key];
+const LanguageMapper: Record<LilithLanguage, MangaDexLanguage[]> = {
+    [LilithLanguage.english]: [MangaDexLanguage.EN],
+    [LilithLanguage.japanese]: [MangaDexLanguage.JA, MangaDexLanguage.JA_RO],
+    [LilithLanguage.spanish]: [MangaDexLanguage.ES, MangaDexLanguage.ES_LA],
+    [LilithLanguage.mandarin]: [
+        MangaDexLanguage.ZH,
+        MangaDexLanguage.ZH_HK,
+        MangaDexLanguage.ZH_RO,
+    ],
 };
+
+const reverseLanguageMapper = ((): Record<MangaDexLanguage, LilithLanguage> => {
+    const res = {} as Record<MangaDexLanguage, LilithLanguage>;
+    Object.keys(LanguageMapper).forEach((key) => {
+        LanguageMapper[key].forEach((value) => {
+            res[value] = key;
+        });
+    });
+    return res;
+})();
+const findCommonElements = <T>(array1: T[], array2: T[]): T[] => {
+    return array1.filter((element) => array2.includes(element));
+};
+
+const findFirstTranslatedValue = (record: Record<MangaDexLanguage, string>) =>
+    Object.values(record)[0] || "";
 
 /*
  * MangaDex API docs https://api.mangadex.org/docs/swagger.html
  * @param props
  * @returns
  */
-export const useMangaDexRepository: RepositoryTemplate = ({
-    fetch,
-    domParser,
-    debug = false,
-}) => {
+export const useMangaDexRepository: RepositoryTemplate = (props) => {
+    const { doRequest } = useRequest(props);
+    const { debug } = props;
+
     const baseUrl = "https://mangadex.org";
     const apiUrl = "https://api.mangadex.org";
 
@@ -53,32 +81,12 @@ export const useMangaDexRepository: RepositoryTemplate = ({
 
     const request = async <T>(
         url: string,
-        params: string = "",
+        params: UrlParamPair[] = [],
     ): Promise<Result<T>> => {
-        try {
-            const requestOptions: Partial<CustomFetchInitOptions> = {
-                method: "GET",
-            };
-
-            const apiUrl = params ? `${url}?${params}` : url;
-            useLilithLog(debug).log(apiUrl);
-
-            const response = await fetch(apiUrl, requestOptions);
-
-            const getDocument = async () => domParser(await response.text());
-
-            return {
-                json: response.json,
-                statusCode: response.status,
-                getDocument,
-            };
-        } catch (error) {
-            throw new LilithError(
-                error.status || 500,
-                "There was an error on the request",
-                error,
-            );
-        }
+        const requestOptions: Partial<CustomFetchInitOptions> = {
+            method: "GET",
+        };
+        return doRequest(url, params, requestOptions);
     };
 
     const getChapter = async (identifier: string): Promise<Chapter | null> => {
@@ -87,32 +95,57 @@ export const useMangaDexRepository: RepositoryTemplate = ({
         );
 
         if (!response || response?.statusCode !== 200) {
-            throw new LilithError(response?.statusCode, "No chapter found");
+            throw new LilithError(
+                response?.statusCode,
+                "No chapter images found",
+            );
         }
 
+        const chapter = await request<MangadexResult<MangaDexChapter>>(
+            `${apiUrl}/chapter/${identifier}`,
+        );
+
+        if (!chapter || chapter?.statusCode !== 200) {
+            throw new LilithError(response?.statusCode, "No chapter found");
+        }
         const imagesResult = await response.json();
+        const chapterResult = await chapter.json();
 
         return {
             id: identifier,
             pages: imagesResult.chapter.data.map((filename) => ({
                 uri: `${imgBaseUrl}/${imagesResult.chapter.hash}/${filename}`,
             })),
+
+            title:
+                chapterResult.data.attributes.title ||
+                chapterResult.data.attributes.chapter,
+            language:
+                reverseLanguageMapper[
+                    chapterResult.data.attributes.translatedLanguage
+                ],
         };
     };
 
-    const getBook = async (identifier: string): Promise<Book | null> => {
+    const getBook = async (
+        identifier: string,
+        requiredLanguages: LilithLanguage[] = Object.values(LilithLanguage),
+    ): Promise<Book | null> => {
         const manga = await request<MangadexResult<MangaDexBook>>(
             `${apiUrl}/manga/${identifier}`,
-            `includes[]=${RelationshipTypes.coverArt}&includes[]=${RelationshipTypes.author}`,
+            [
+                ["includes[]", RelationshipTypes.coverArt],
+                ["includes[]", RelationshipTypes.author],
+            ],
         );
 
         if (!manga || manga?.statusCode !== 200) {
             throw new LilithError(manga?.statusCode, "No manga found");
         }
 
-        const feed = await request<MangadexResult<MangaDexBook[]>>(
+        const feed = await request<MangadexResult<MangaDexChapter[]>>(
             `${apiUrl}/manga/${identifier}/feed`,
-            `order[chapter]=asc`,
+            [["order[chapter]", "asc"]],
         );
 
         if (!feed || feed?.statusCode !== 200) {
@@ -125,7 +158,6 @@ export const useMangaDexRepository: RepositoryTemplate = ({
         const relationships: Record<string, unknown> = (() => {
             const res = {};
             mangaResult.data.relationships.forEach((rel) => {
-                console.log(rel);
                 res[rel.type] = rel.attributes;
             });
             return res;
@@ -140,11 +172,25 @@ export const useMangaDexRepository: RepositoryTemplate = ({
 
         if (!fileName) throw new LilithError(404, "No cover found");
 
-        const { tags, title } = mangaResult.data.attributes;
+        const { tags, title, availableTranslatedLanguages } =
+            mangaResult.data.attributes;
 
-        const genres = tags.map((tag) =>
-            getTranslatedValue(tag.attributes.name),
+        const supportedTranslations = findCommonElements(
+            requiredLanguages.flatMap((lang) => LanguageMapper[lang]),
+            availableTranslatedLanguages,
         );
+        const doesHaveTranslations = supportedTranslations.length > 0;
+        if (!doesHaveTranslations) {
+            throw new LilithError(
+                404,
+                "No translation for the requested language available",
+            );
+        }
+
+        const lilithTags: Tag[] = tags.map((tag) => ({
+            id: tag.id,
+            name: findFirstTranslatedValue(tag.attributes.name), // Get the first language found
+        }));
 
         const cover = {
             uri: `${tinyImgBaseUrl}/${mangaResult.data.id}/${fileName}.${imageSize}.jpg`,
@@ -152,21 +198,48 @@ export const useMangaDexRepository: RepositoryTemplate = ({
 
         return {
             id: identifier,
-            title: getTranslatedValue(title),
+            title: findFirstTranslatedValue(title),
             author: name,
-            chapters: chaptersResult.data.map((chapter) => chapter.id),
+            chapters: chaptersResult.data
+                .filter((chapter) =>
+                    supportedTranslations.includes(
+                        chapter.attributes.translatedLanguage,
+                    ),
+                )
+                .map((chapter) => ({
+                    id: chapter.id,
+                    title:
+                        chapter.attributes.title ||
+                        `${findFirstTranslatedValue(title)} ${
+                            chapter.attributes.chapter
+                        }`,
+                    /// It is safe to find as we filter out the non supported
+                    language:
+                        reverseLanguageMapper[
+                            chapter.attributes.translatedLanguage
+                        ],
+                })),
             cover,
-            genres,
+            tags: lilithTags,
         };
     };
 
     const search = async (
         query: string,
-        page: number = 1,
+        options?: Partial<SearchQueryOptions>,
     ): Promise<SearchResult> => {
+        const innerOptions: Partial<SearchQueryOptions> = {
+            page: 1,
+            sort: Sort.RECENT,
+            ...options,
+        };
+
         const response = await request<MangadexResult<MangaDexBook[]>>(
             `${apiUrl}/manga`,
-            `title=${query}&includes[]=${RelationshipTypes.coverArt}`,
+            [
+                ["title", query],
+                ["includes[]", RelationshipTypes.coverArt],
+            ],
         );
 
         if (!response || response?.statusCode !== 200) {
@@ -196,7 +269,7 @@ export const useMangaDexRepository: RepositoryTemplate = ({
 
         return {
             query,
-            page,
+            page: innerOptions.page,
             results: result.data.map((manga) => {
                 return {
                     id: manga.id,

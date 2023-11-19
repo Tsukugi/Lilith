@@ -3,25 +3,35 @@ export type {
     CustomFetchInitOptions,
     CustomFetchResponse,
     Headers,
+    UrlParamPair,
+    UrlParamValue,
 } from "./interfaces/fetch";
 
-export { Extension, UriType, Sort } from "./interfaces/base";
+export { Extension, UriType, Sort, LilithLanguage } from "./interfaces/base";
 
 export type {
     Image,
     Chapter,
-    Genre,
+    Tag,
     Title,
     Book,
     Thumbnail,
     SearchResult,
     Pagination,
+    ChapterBase,
+    Domains,
+    RepositoryBaseProps,
+    RepositoryTemplate,
+    LilithError,
 } from "./interfaces/base";
 
 export type { UseDomParser, UseDomParserImpl } from "./interfaces/domParser";
 
 export type { RepositoryBase } from "./interfaces/base";
+
 export { useNHentaiRepository } from "./repo/nhentai";
+export { useMangaDexRepository } from "./repo/mangadex";
+
 export { useCheerioDomParser } from "./impl/useCheerioDomParser";
 export { useNodeFetch } from "./impl/useNodeFetch";
 

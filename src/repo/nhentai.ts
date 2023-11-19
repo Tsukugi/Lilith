@@ -1,4 +1,8 @@
-import { CustomFetchInitOptions, Result } from "../interfaces/fetch";
+import {
+    CustomFetchInitOptions,
+    Result,
+    UrlParamPair,
+} from "../interfaces/fetch";
 import {
     Book,
     Chapter,
@@ -9,23 +13,46 @@ import {
     Image,
     UriType,
     Extension,
-    Genre,
+    Tag,
     RepositoryTemplate,
     LilithError,
+    LilithLanguage,
+    SearchQueryOptions,
 } from "../interfaces/base";
 import {
     NHentaiPaginateResult,
     NHentaiResult,
+    NHentaiTag,
 } from "../interfaces/repositories/nhentai";
 import { UseDomParserImpl } from "../interfaces/domParser";
-import { useLilithLog } from "./log";
+import { useRequest } from "./utils/request";
 
-export const useNHentaiRepository: RepositoryTemplate = ({
-    fetch,
-    domParser,
-    headers,
-    debug = false,
-}) => {
+const parseTags = (tags: NHentaiTag[]): Record<string, NHentaiTag[]> => {
+    const res = {} as Record<string, NHentaiTag[]>;
+    tags.forEach((tag) => {
+        res[tag.type] = [...(res[tag.type] || []), tag];
+    });
+    return res;
+};
+
+const LanguageMapper: Record<string, LilithLanguage> = {
+    english: LilithLanguage.english,
+    japanese: LilithLanguage.japanese,
+    spanish: LilithLanguage.spanish,
+    mandarin: LilithLanguage.mandarin,
+    chinese: LilithLanguage.mandarin,
+};
+
+const getLanguageFromTags = (tags: NHentaiTag[]): string => {
+    const tagDict = parseTags(tags);
+    const languageTag = tagDict.language || [{ name: "unknown" } as NHentaiTag];
+    return languageTag[0].name; // If there are multiple (shouldn't be the case) pick the first match
+};
+
+export const useNHentaiRepository: RepositoryTemplate = (props) => {
+    const { headers } = props;
+    const { doRequest } = useRequest(props);
+
     const baseUrl = "https://nhentai.net";
     const apiUrl = "https://nhentai.net/api";
     const imgBaseUrl = "https://i.nhentai.net/galleries";
@@ -33,7 +60,7 @@ export const useNHentaiRepository: RepositoryTemplate = ({
 
     const request = async <T>(
         url: string,
-        params: string = "",
+        params: UrlParamPair[] = [],
     ): Promise<Result<T>> => {
         if (!headers) {
             throw new LilithError(
@@ -41,35 +68,16 @@ export const useNHentaiRepository: RepositoryTemplate = ({
                 "cloudflare cookie and user-agent invalid, provide a different one.",
             );
         }
-        try {
-            const requestOptions: CustomFetchInitOptions = {
-                method: "GET",
-                headers: {
-                    cookie: headers.cookie,
-                    "User-Agent": headers["User-Agent"],
-                },
-                credentials: "include",
-            };
+        const requestOptions: CustomFetchInitOptions = {
+            method: "GET",
+            headers: {
+                cookie: headers.cookie,
+                "User-Agent": headers["User-Agent"],
+            },
+            credentials: "include",
+        };
 
-            const apiUrl = params ? `${url}?${params}` : url;
-            useLilithLog(debug).log(apiUrl);
-
-            const response = await fetch(apiUrl, requestOptions);
-
-            const getDocument = async () => domParser(await response.text());
-
-            return {
-                json: response.json,
-                statusCode: response.status,
-                getDocument,
-            };
-        } catch (error) {
-            throw new LilithError(
-                error.status || 500,
-                "There was an error on the request",
-                error,
-            );
-        }
+        return doRequest(url, params, requestOptions);
     };
 
     const getUri = (
@@ -113,10 +121,16 @@ export const useNHentaiRepository: RepositoryTemplate = ({
                 width: page.w,
                 height: page.h,
             })),
+            language: LanguageMapper[getLanguageFromTags(book.tags)],
+            title:
+                book.title[getLanguageFromTags(book.tags)] || book.title.pretty,
         };
     };
 
-    const getBook = async (id: string): Promise<Book> => {
+    const getBook = async (
+        id: string,
+        requiredLanguages: LilithLanguage[] = Object.values(LilithLanguage),
+    ): Promise<Book> => {
         const response = await request<NHentaiResult>(
             `${apiUrl}/gallery/${id}`,
         );
@@ -127,7 +141,7 @@ export const useNHentaiRepository: RepositoryTemplate = ({
 
         const book = await response.json();
 
-        const genres: Genre[] = [];
+        const tags: Tag[] = [];
 
         let author = "unknown";
         book.tags.forEach((tag) => {
@@ -135,12 +149,22 @@ export const useNHentaiRepository: RepositoryTemplate = ({
                 author = tag.name; // Get the first author
             }
             if (tag.type === "tag") {
-                genres.push({
+                tags.push({
                     id: `${tag.id}`,
                     name: tag.name,
                 });
             }
         });
+
+        const lilithLanguage = LanguageMapper[getLanguageFromTags(book.tags)];
+
+        const matchesTranslation = requiredLanguages.includes(lilithLanguage);
+        if (!matchesTranslation) {
+            throw new LilithError(
+                404,
+                "No translation for the requested language available",
+            );
+        }
 
         const { english, japanese, pretty } = book.title;
 
@@ -148,7 +172,7 @@ export const useNHentaiRepository: RepositoryTemplate = ({
             title: english || japanese || pretty,
             id: `${book.id}`,
             author,
-            genres,
+            tags,
             cover: {
                 uri: getUri(
                     "cover",
@@ -158,19 +182,35 @@ export const useNHentaiRepository: RepositoryTemplate = ({
                 width: book.images.cover.w,
                 height: book.images.cover.h,
             },
-            chapters: [`${book.id}`], //NHentai always provides 1 chapter books
+            //NHentai always provides 1 chapter books
+            chapters: [
+                {
+                    id: `${book.id}`,
+                    title:
+                        book.title[getLanguageFromTags(book.tags)] ||
+                        book.title.pretty,
+                    language: lilithLanguage,
+                },
+            ],
         };
         return Book;
     };
 
     const search = async (
         query: string,
-        page: number = 1,
-        sort: Sort = Sort.RECENT,
+        options?: Partial<SearchQueryOptions>,
     ): Promise<SearchResult> => {
-        const response = await request(
-            `${baseUrl}/search?q=${query}&sort=${sort}&page=${page}`,
-        );
+        const innerOptions: Partial<SearchQueryOptions> = {
+            page: 1,
+            sort: Sort.RECENT,
+            ...options,
+        };
+
+        const response = await request(`${baseUrl}/search`, [
+            ["q", query],
+            ["sort", innerOptions.sort],
+            ["page", innerOptions.page],
+        ]);
 
         const document = await response.getDocument();
 
@@ -237,7 +277,7 @@ export const useNHentaiRepository: RepositoryTemplate = ({
         return {
             query: query,
             totalPages,
-            page: page,
+            page: innerOptions.page,
             totalResults: 25 * totalPages,
             results: thumbnails,
         };

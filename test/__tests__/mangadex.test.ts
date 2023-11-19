@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, test } from "@jest/globals";
 
-import { useLilithLog } from "../../src/repo/log";
+import { useLilithLog } from "../../src/repo/utils/log";
 import { useAPILoader } from "../../src/api/loader";
 
 import { LilithRepo } from "../../src/interfaces";
@@ -76,7 +76,9 @@ describe("Lilith", () => {
             expect(book).toBeDefined();
             if (!book) return null;
 
-            const chapter: Chapter = await loader.getChapter(book?.chapters[0]);
+            const chapter: Chapter = await loader.getChapter(
+                book?.chapters[0].id,
+            );
             log(chapter);
             expect(chapter).toBeDefined();
         });

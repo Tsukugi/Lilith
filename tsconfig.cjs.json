@@ -3,6 +3,7 @@
         "module": "es6",
         "target": "es6",
         "moduleResolution": "node",
+        "lib": ["es2019"],
         "outDir": "./dist",
         "rootDir": "./src",
         "esModuleInterop": true,

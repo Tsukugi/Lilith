@@ -1,26 +1,27 @@
-export type MangaDexLanguage =
-    | "en"
-    | "ko"
-    | "ja-ro"
-    | "es"
-    | "es-la"
-    | "ja"
-    | "zh"
-    | "ko-ro"
-    | "zh-hk"
-    | "zh-ro"
-    | "de"
-    | "pt-br"
-    | "el"
-    | "id"
-    | "fa"
-    | "la"
-    | "vi"
-    | "fr"
-    | "tr"
-    | "ms"
-    | "pl"
-    | "ru";
+export enum MangaDexLanguage {
+    EN = "en",
+    KO = "ko",
+    JA_RO = "ja-ro",
+    ES = "es",
+    ES_LA = "es-la",
+    JA = "ja",
+    ZH = "zh",
+    KO_RO = "ko-ro",
+    ZH_HK = "zh-hk",
+    ZH_RO = "zh-ro",
+    DE = "de",
+    PT_BR = "pt-br",
+    EL = "el",
+    ID = "id",
+    FA = "fa",
+    LA = "la",
+    VI = "vi",
+    FR = "fr",
+    TR = "tr",
+    MS = "ms",
+    PL = "pl",
+    RU = "ru",
+}
 
 type MangaDexSiteKey =
     | "al"
@@ -42,6 +43,7 @@ export interface MangaDexAttribute<T> {
     id: string;
     type: string;
     attributes: T;
+    relationships: MangaDexRelationship[];
 }
 
 export interface MangaDexRelationship<T = unknown>
@@ -59,10 +61,7 @@ export interface MangadexResult<T> {
 }
 
 export interface MangaDexBook
-    extends MangaDexAttribute<MangaDexBookAttributes> {
-    attributes: MangaDexBookAttributes;
-    relationships: MangaDexRelationship[];
-}
+    extends MangaDexAttribute<MangaDexBookAttributes> {}
 
 export interface MangaDexCoverArt {
     description: string;
@@ -100,6 +99,23 @@ export interface MangaDexTag {
     name: Record<MangaDexLanguage, string>;
     description: Record<string, unknown>;
     group: string;
+    version: number;
+}
+
+export interface MangaDexChapter
+    extends MangaDexAttribute<MangaDexChapterAttributes> {}
+
+export interface MangaDexChapterAttributes {
+    volume: string;
+    chapter: string;
+    title: string;
+    translatedLanguage: MangaDexLanguage;
+    externalUrl: string;
+    publishAt: string;
+    readableAt: string;
+    createdAt: string;
+    updatedAt: string;
+    pages: number;
     version: number;
 }
 
@@ -143,14 +159,15 @@ export interface MangaDexAggregateResult {
         {
             volume: string;
             count: number;
-            chapters: Record<string, MangaDexChapter>;
+            chapters: Record<
+                string,
+                {
+                    chapter: string;
+                    id: string;
+                    others: string[];
+                    count: number;
+                }
+            >;
         }
     >;
-}
-
-interface MangaDexChapter {
-    chapter: string;
-    id: string;
-    others: string[];
-    count: number;
 }

@@ -1,7 +1,14 @@
-import { Headers, CustomFetch, Result } from "./fetch";
+import { Headers, CustomFetch, Result, UrlParamPair } from "./fetch";
 import { UseDomParser } from "./domParser";
 
 export type UriType = "cover" | "page" | "thumbnail";
+
+export enum LilithLanguage {
+    english = "en",
+    japanese = "jp",
+    spanish = "es",
+    mandarin = "zh",
+}
 
 export enum Extension {
     j = "jpg",
@@ -22,12 +29,16 @@ export interface Image {
     height?: number;
 }
 
-export interface Chapter {
+export interface ChapterBase {
     id: string;
+    title: string;
+    language: LilithLanguage;
+}
+export interface Chapter extends ChapterBase {
     pages: Image[];
 }
 
-export interface Genre {
+export interface Tag {
     id: string;
     name: string;
 }
@@ -42,9 +53,9 @@ export interface Book {
     id: string;
     title: string;
     author: string;
-    genres: Genre[];
+    tags: Tag[];
     cover: Image;
-    chapters: string[];
+    chapters: ChapterBase[];
 }
 
 export interface Thumbnail {
@@ -75,19 +86,28 @@ export interface Domains {
     readonly tinyImgBaseUrl: string;
 }
 
+export interface SearchQueryOptions {
+    requiredTags?: Tag[];
+    requiredLanguages?: LilithLanguage[];
+    page: number; // To be deprecated
+    sort: Sort; // To be deprecated
+}
+
 export interface RepositoryBase {
     domains: Domains;
 
-    request: <T>(url: string, params?: string) => Promise<Result<T>>;
+    request: <T>(url: string, params?: UrlParamPair[]) => Promise<Result<T>>;
 
     getChapter: (identifier: string) => Promise<Chapter>;
 
-    getBook: (identifier: string) => Promise<Book>;
+    getBook: (
+        identifier: string,
+        requiredLanguages?: LilithLanguage[],
+    ) => Promise<Book>;
 
     search: (
         query: string,
-        page?: number,
-        sort?: Sort,
+        options?: Partial<SearchQueryOptions>,
     ) => Promise<SearchResult>;
 
     randomBook: (retry?: number) => Promise<Book>;

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, test } from "@jest/globals";
 
 import { TextMocksForDomParser, cookies, fetchMock } from "../nhentaiMock";
-import { useLilithLog } from "../../src/repo/log";
+import { useLilithLog } from "../../src/repo/utils/log";
 import { useCheerioDomParser } from "../../src/impl/useCheerioDomParser";
 import { useAPILoader } from "../../src/api/loader";
 
@@ -10,11 +10,10 @@ import {
     Book,
     Pagination,
     SearchResult,
-    Sort,
     RepositoryBase,
 } from "../../src/interfaces/base";
-
-const { log } = useLilithLog(false);
+const debug = false;
+const { log } = useLilithLog(debug);
 
 describe("Lilith", () => {
     describe("Test nhentai ", () => {
@@ -25,6 +24,8 @@ describe("Lilith", () => {
                 configurations: {
                     headers: cookies,
                     domParser: useCheerioDomParser,
+                    fetch: () => fetchMock(),
+                    debug,
                 },
             });
         });
@@ -42,11 +43,7 @@ describe("Lilith", () => {
             expect(book).toBeDefined();
         });
         test("Search", async () => {
-            const search: SearchResult = await loader.search(
-                "atago",
-                1,
-                Sort.RECENT,
-            );
+            const search: SearchResult = await loader.search("atago");
             log(search);
             log(search.results.map((result) => result.cover));
             expect(search.results[0].cover.uri).toBeTruthy();
@@ -64,8 +61,7 @@ describe("Lilith", () => {
                 repo: LilithRepo.NHentai,
                 configurations: {
                     headers: cookies,
-                    fetchImpl: () =>
-                        fetchMock({}, TextMocksForDomParser.Random),
+                    fetch: () => fetchMock({}, TextMocksForDomParser.Random),
                     domParser: useCheerioDomParser,
                 },
             });

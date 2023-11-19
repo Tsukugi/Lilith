@@ -2,11 +2,11 @@ import { beforeEach, describe, expect, test } from "@jest/globals";
 
 import { useAPILoader } from "../../src/api/loader";
 
-import { Sort, RepositoryBase } from "../../src/interfaces/base";
+import { RepositoryBase } from "../../src/interfaces/base";
 import { LilithRepo } from "../../src/interfaces";
 
 import { cookies, TextMocksForDomParser, fetchMock } from "../nhentaiMock";
-import { useLilithLog } from "../../src/repo/log";
+import { useLilithLog } from "../../src/repo/utils/log";
 const debug = false;
 const { log, warn } = useLilithLog(debug);
 
@@ -17,7 +17,7 @@ describe("DOMLoader", () => {
             repo: LilithRepo.NHentai,
             configurations: {
                 headers: cookies,
-                fetchImpl: () => fetchMock({}, TextMocksForDomParser.Search),
+                fetch: () => fetchMock({}, TextMocksForDomParser.Search),
                 debug,
             },
         });
@@ -38,7 +38,7 @@ describe("DOMLoader", () => {
             repo: LilithRepo.NHentai,
             configurations: {
                 headers: cookies,
-                fetchImpl: () => fetchMock({}, TextMocksForDomParser.Random),
+                fetch: () => fetchMock({}, TextMocksForDomParser.Random),
             },
         });
         const res = await randomLoader.randomBook();
@@ -51,7 +51,7 @@ describe("DOMLoader", () => {
     });
 
     test("Custom fetch for text", async () => {
-        const res = await loader.search("ass", 1, Sort.POPULAR);
+        const res = await loader.search("ass");
 
         if (res === null)
             warn("[Custom fetch for JSON] Resource was not found");
