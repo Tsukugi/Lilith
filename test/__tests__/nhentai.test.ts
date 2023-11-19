@@ -12,7 +12,8 @@ import {
     SearchResult,
     RepositoryBase,
 } from "../../src/interfaces/base";
-const debug = false;
+import { useNodeFetch } from "../../src/impl/useNodeFetch";
+const debug = true;
 const { log } = useLilithLog(debug);
 
 describe("Lilith", () => {
@@ -24,7 +25,7 @@ describe("Lilith", () => {
                 configurations: {
                     headers: cookies,
                     domParser: useCheerioDomParser,
-                    fetch: () => fetchMock(),
+                    fetch: useNodeFetch,
                     debug,
                 },
             });
@@ -38,22 +39,21 @@ describe("Lilith", () => {
             expect(res).toBeDefined();
         });
         test("getBook", async () => {
-            const book: Book = await loader.getBook("480154");
+            const book: Book = await loader.getBook("482151");
             log(book);
             expect(book).toBeDefined();
         });
         test("Search", async () => {
             const search: SearchResult = await loader.search("atago");
-            log(search);
-            log(search.results.map((result) => result.cover));
+            log(search.results.map((result) => result.cover.uri));
             expect(search.results[0].cover.uri).toBeTruthy();
             expect(search).toBeDefined();
         });
         test("Paginate", async () => {
             if (!loader.paginate) return;
             const page: Pagination = await loader.paginate(1);
-            log(page);
-            log(page.results.map((result) => result.cover));
+            log(page.results.map((result) => result.availableLanguages));
+            log(page.results.map((result) => result.cover.uri));
             expect(page).toBeDefined();
         });
         test("RandomBook", async () => {

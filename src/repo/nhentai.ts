@@ -27,14 +27,7 @@ import {
 } from "../interfaces/repositories/nhentai";
 import { UseDomParserImpl } from "../interfaces/domParser";
 import { useRequest } from "./utils/request";
-
-const parseTags = (tags: NHentaiTag[]): Record<string, NHentaiTag[]> => {
-    const res = {} as Record<string, NHentaiTag[]>;
-    tags.forEach((tag) => {
-        res[tag.type] = [...(res[tag.type] || []), tag];
-    });
-    return res;
-};
+import { useLilithLog } from "./utils/log";
 
 const LanguageCodeMapper: Record<string, LilithLanguage> = {
     "12227": LilithLanguage.english,
@@ -48,10 +41,12 @@ const LanguageMapper: Record<NHentaiLanguage, LilithLanguage> = {
     [NHentaiLanguage.chinese]: LilithLanguage.mandarin,
 };
 
-const getLanguageFromTags = (tags: NHentaiTag[]): string => {
-    const tagDict = parseTags(tags);
-    const languageTag = tagDict.language || [{ name: "unknown" } as NHentaiTag];
-    return languageTag[0].name; // If there are multiple (shouldn't be the case) pick the first match
+const getLanguageFromTags = (tags: NHentaiTag[]): NHentaiLanguage => {
+    const filteredTag = tags.find(
+        (tag) => tag.type === "language" && LanguageMapper[tag.name],
+    );
+    const result = filteredTag.name || NHentaiLanguage.japanese;
+    return result as NHentaiLanguage;
 };
 
 const extractLanguages = (title: string): LilithLanguage[] => {
@@ -66,7 +61,7 @@ const extractLanguages = (title: string): LilithLanguage[] => {
     return languages;
 };
 export const useNHentaiRepository: RepositoryTemplate = (props) => {
-    const { headers } = props;
+    const { headers, debug } = props;
     const { doRequest } = useRequest(props);
 
     const baseUrl = "https://nhentai.net";
@@ -173,13 +168,20 @@ export const useNHentaiRepository: RepositoryTemplate = (props) => {
             }
         });
 
-        const lilithLanguage = LanguageMapper[getLanguageFromTags(book.tags)];
+        const lilithLanguage: LilithLanguage =
+            LanguageMapper[getLanguageFromTags(book.tags)];
 
         const matchesTranslation = requiredLanguages.includes(lilithLanguage);
+        useLilithLog(debug).log({
+            lilithLanguage,
+            matchesTranslation,
+            tags: book.tags.map((tag) => [tag.type, tag.name]),
+        });
+
         if (!matchesTranslation) {
             throw new LilithError(
                 404,
-                "No translation for the requested language available",
+                `No translation for the requested language available, retrieved: ${lilithLanguage}`,
             );
         }
 
