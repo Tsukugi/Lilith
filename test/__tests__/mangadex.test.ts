@@ -10,7 +10,6 @@ import {
     Book,
     Chapter,
 } from "../../src/interfaces/base";
-import { warn } from "console";
 
 const debug = false;
 const { log } = useLilithLog(debug);
@@ -49,16 +48,17 @@ describe("Lilith", () => {
             const search: SearchResult = await loader.search("test");
             log(search);
             log(search.results.map((res) => res.cover));
-            warn(search.results.map((res) => res.availableLanguages));
+            log(search.results.map((res) => res.availableLanguages));
             expect(search.results[0].cover.uri).toBeTruthy();
             expect(search).toBeDefined();
         });
 
         test("GetBook", async () => {
             const book: Book = await loader.getBook(
-                "b5973113-d74f-41be-a97f-64bf315836f3",
+                "a96676e5-8ae2-425e-b549-7f15dd34a6d8",
             );
             log(book);
+            log(book.availableLanguages);
             expect(book).toBeDefined();
         });
 

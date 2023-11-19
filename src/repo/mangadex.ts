@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
     CustomFetchInitOptions,
     Result,
@@ -13,7 +12,6 @@ import {
     LilithLanguage,
     Tag,
     SearchQueryOptions,
-    Sort,
 } from "../interfaces/base";
 import {
     MangaDexAuthor,
@@ -163,16 +161,34 @@ export const useMangaDexRepository: RepositoryTemplate = (props) => {
             throw new LilithError(manga?.statusCode, "No manga found");
         }
 
+        const mangaResult = await manga.json();
+
+        const { tags, title, availableTranslatedLanguages } =
+            mangaResult.data.attributes;
+
+        const supportedTranslations = getSupportedTranslations(
+            requiredLanguages,
+            availableTranslatedLanguages,
+        );
+
+        useLilithLog(debug).log(
+            supportedTranslations,
+            availableTranslatedLanguages,
+        );
+
+        const languageParams: UrlParamPair[] = supportedTranslations.map(
+            (lang) => ["translatedLanguage[]", lang],
+        );
+
         const feed = await request<MangadexResult<MangaDexChapter[]>>(
             `${apiUrl}/manga/${identifier}/feed`,
-            [["order[chapter]", "asc"]],
+            [["order[chapter]", "asc"], ...languageParams],
         );
 
         if (!feed || feed?.statusCode !== 200) {
             throw new LilithError(feed?.statusCode, "No manga feed found");
         }
 
-        const mangaResult = await manga.json();
         const chaptersResult = await feed.json();
 
         const relationships: Record<string, unknown> = (() => {
@@ -191,14 +207,6 @@ export const useMangaDexRepository: RepositoryTemplate = (props) => {
         ] as MangaDexAuthor;
 
         if (!fileName) throw new LilithError(404, "No cover found");
-
-        const { tags, title, availableTranslatedLanguages } =
-            mangaResult.data.attributes;
-
-        const supportedTranslations = getSupportedTranslations(
-            requiredLanguages,
-            availableTranslatedLanguages,
-        );
 
         const lilithTags: Tag[] = tags.map((tag) => ({
             id: tag.id,
