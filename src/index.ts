@@ -15,7 +15,7 @@ export type {
     Tag,
     Title,
     Book,
-    Thumbnail,
+    BookBase,
     SearchResult,
     Pagination,
     ChapterBase,

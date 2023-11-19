@@ -27,6 +27,7 @@ import {
 } from "../interfaces/repositories/mangadex";
 import { useLilithLog } from "./utils/log";
 import { useRequest } from "./utils/request";
+import { ArrayUtils } from "./utils/array";
 
 enum RelationshipTypes {
     coverArt = "cover_art",
@@ -57,12 +58,32 @@ const reverseLanguageMapper = ((): Record<MangaDexLanguage, LilithLanguage> => {
     });
     return res;
 })();
-const findCommonElements = <T>(array1: T[], array2: T[]): T[] => {
-    return array1.filter((element) => array2.includes(element));
-};
 
 const findFirstTranslatedValue = (record: Record<MangaDexLanguage, string>) =>
     Object.values(record)[0] || "";
+
+const getSupportedTranslations = (
+    requiredLanguages: LilithLanguage[],
+    availableTranslatedLanguages: MangaDexLanguage[],
+) => {
+    const requiredMangaDexLanguages = requiredLanguages.flatMap(
+        (lang) => LanguageMapper[lang],
+    );
+    const supportedTranslations = ArrayUtils.findCommonElements(
+        requiredMangaDexLanguages,
+        availableTranslatedLanguages,
+    );
+
+    const doesHaveTranslations = supportedTranslations.length > 0;
+    if (!doesHaveTranslations) {
+        throw new LilithError(
+            404,
+            "No translation for the requested language available",
+        );
+    }
+
+    return supportedTranslations;
+};
 
 /*
  * MangaDex API docs https://api.mangadex.org/docs/swagger.html
@@ -175,21 +196,14 @@ export const useMangaDexRepository: RepositoryTemplate = (props) => {
         const { tags, title, availableTranslatedLanguages } =
             mangaResult.data.attributes;
 
-        const supportedTranslations = findCommonElements(
-            requiredLanguages.flatMap((lang) => LanguageMapper[lang]),
+        const supportedTranslations = getSupportedTranslations(
+            requiredLanguages,
             availableTranslatedLanguages,
         );
-        const doesHaveTranslations = supportedTranslations.length > 0;
-        if (!doesHaveTranslations) {
-            throw new LilithError(
-                404,
-                "No translation for the requested language available",
-            );
-        }
 
         const lilithTags: Tag[] = tags.map((tag) => ({
             id: tag.id,
-            name: findFirstTranslatedValue(tag.attributes.name), // Get the first language found
+            name: findFirstTranslatedValue(tag.attributes.name),
         }));
 
         const cover = {
@@ -209,10 +223,7 @@ export const useMangaDexRepository: RepositoryTemplate = (props) => {
                 .map((chapter) => ({
                     id: chapter.id,
                     title:
-                        chapter.attributes.title ||
-                        `${findFirstTranslatedValue(title)} ${
-                            chapter.attributes.chapter
-                        }`,
+                        chapter.attributes.title || chapter.attributes.chapter,
                     /// It is safe to find as we filter out the non supported
                     language:
                         reverseLanguageMapper[
@@ -221,6 +232,10 @@ export const useMangaDexRepository: RepositoryTemplate = (props) => {
                 })),
             cover,
             tags: lilithTags,
+            availableLanguages:
+                mangaResult.data.attributes.availableTranslatedLanguages
+                    .filter((lang) => supportedTranslations.includes(lang))
+                    .map((lang) => reverseLanguageMapper[lang]),
         };
     };
 
@@ -229,16 +244,22 @@ export const useMangaDexRepository: RepositoryTemplate = (props) => {
         options?: Partial<SearchQueryOptions>,
     ): Promise<SearchResult> => {
         const innerOptions: Partial<SearchQueryOptions> = {
-            page: 1,
-            sort: Sort.RECENT,
+            requiredLanguages: Object.values(LilithLanguage),
             ...options,
         };
+
+        const languageParams: UrlParamPair[] =
+            innerOptions.requiredLanguages.map((lang) => [
+                "availableTranslatedLanguage[]",
+                lang,
+            ]);
 
         const response = await request<MangadexResult<MangaDexBook[]>>(
             `${apiUrl}/manga`,
             [
                 ["title", query],
                 ["includes[]", RelationshipTypes.coverArt],
+                ...languageParams,
             ],
         );
 
@@ -271,6 +292,14 @@ export const useMangaDexRepository: RepositoryTemplate = (props) => {
             query,
             page: innerOptions.page,
             results: result.data.map((manga) => {
+                const supportedTranslations = getSupportedTranslations(
+                    innerOptions.requiredLanguages,
+                    manga.attributes.availableTranslatedLanguages,
+                );
+                const availableLanguages = supportedTranslations.map(
+                    (lang) => reverseLanguageMapper[lang],
+                );
+
                 return {
                     id: manga.id,
                     cover: {
@@ -279,6 +308,7 @@ export const useMangaDexRepository: RepositoryTemplate = (props) => {
                         height: 512,
                     },
                     title: manga.attributes.title.en,
+                    availableLanguages: [...new Set(availableLanguages)],
                 };
             }),
         };

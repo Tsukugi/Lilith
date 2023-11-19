@@ -49,34 +49,32 @@ export interface Title {
     other: string;
 }
 
-export interface Book {
+export interface BookBase {
     id: string;
-    title: string;
-    author: string;
-    tags: Tag[];
     cover: Image;
-    chapters: ChapterBase[];
+    title: string;
+    availableLanguages: LilithLanguage[];
 }
 
-export interface Thumbnail {
-    id: string;
-    cover: Image;
-    title: string;
+export interface Book extends BookBase {
+    author: string;
+    tags: Tag[];
+    chapters: ChapterBase[];
 }
 
 export interface SearchResult {
     query: string;
     page: number;
-    results: Thumbnail[];
-    totalResults?: number;
-    totalPages?: number;
+    results: BookBase[];
+    totalResults?: number; // To be deprecated
+    totalPages?: number; // To be deprecated
 }
 
 export interface Pagination {
     page: number;
     totalResults: number;
     totalPages: number;
-    results: Thumbnail[];
+    results: BookBase[];
 }
 
 export interface Domains {

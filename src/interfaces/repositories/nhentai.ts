@@ -37,3 +37,9 @@ export interface NHentaiPaginateResult {
     num_pages: number;
     per_page: number;
 }
+
+export enum NHentaiLanguage {
+    english = "english",
+    japanese = "japanese",
+    chinese = "chinese",
+}

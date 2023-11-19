@@ -11,7 +11,7 @@ const useParamIfExists = (
     key: string,
     value: UrlParamValue | undefined,
 ): string => {
-    return value ? `&${key}=${value}` : "";
+    return value !== undefined ? `${key}=${value}` : "";
 };
 const useUrlWithParams = (url: string, params?: UrlParamPair[]) => {
     if (!params || params.length === 0) return url;
@@ -20,7 +20,7 @@ const useUrlWithParams = (url: string, params?: UrlParamPair[]) => {
     params.forEach((param) => {
         const value = useParamIfExists(param[0], param[1]);
         if (!value) return;
-        const separator = useParams !== "" ? "&" : "";
+        const separator = useParams ? "&" : "";
         useParams = `${useParams}${separator}${value}`;
     });
 
@@ -60,4 +60,9 @@ export const useRequest = ({
     };
 
     return { doRequest };
+};
+
+export const RequestUtils = {
+    useUrlWithParams,
+    useParamIfExists,
 };

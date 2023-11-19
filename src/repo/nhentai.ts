@@ -9,7 +9,7 @@ import {
     Pagination,
     SearchResult,
     Sort,
-    Thumbnail,
+    BookBase,
     Image,
     UriType,
     Extension,
@@ -20,6 +20,7 @@ import {
     SearchQueryOptions,
 } from "../interfaces/base";
 import {
+    NHentaiLanguage,
     NHentaiPaginateResult,
     NHentaiResult,
     NHentaiTag,
@@ -35,12 +36,16 @@ const parseTags = (tags: NHentaiTag[]): Record<string, NHentaiTag[]> => {
     return res;
 };
 
-const LanguageMapper: Record<string, LilithLanguage> = {
-    english: LilithLanguage.english,
-    japanese: LilithLanguage.japanese,
-    spanish: LilithLanguage.spanish,
-    mandarin: LilithLanguage.mandarin,
-    chinese: LilithLanguage.mandarin,
+const LanguageCodeMapper: Record<string, LilithLanguage> = {
+    "12227": LilithLanguage.english,
+    "29963": LilithLanguage.mandarin,
+    "6346": LilithLanguage.japanese,
+};
+
+const LanguageMapper: Record<NHentaiLanguage, LilithLanguage> = {
+    [NHentaiLanguage.english]: LilithLanguage.english,
+    [NHentaiLanguage.japanese]: LilithLanguage.japanese,
+    [NHentaiLanguage.chinese]: LilithLanguage.mandarin,
 };
 
 const getLanguageFromTags = (tags: NHentaiTag[]): string => {
@@ -49,6 +54,17 @@ const getLanguageFromTags = (tags: NHentaiTag[]): string => {
     return languageTag[0].name; // If there are multiple (shouldn't be the case) pick the first match
 };
 
+const extractLanguages = (title: string): LilithLanguage[] => {
+    const matches = title.toLowerCase().match(/\[(.*?)\]/g);
+    const posibleLanguages = matches
+        ? matches.map((match) => match.slice(1, -1))
+        : [];
+    const languages: LilithLanguage[] = posibleLanguages
+        .filter((lang) => Object.keys(LanguageMapper).includes(lang))
+        .map((lang) => LanguageMapper[lang]);
+
+    return languages;
+};
 export const useNHentaiRepository: RepositoryTemplate = (props) => {
     const { headers } = props;
     const { doRequest } = useRequest(props);
@@ -192,6 +208,7 @@ export const useNHentaiRepository: RepositoryTemplate = (props) => {
                     language: lilithLanguage,
                 },
             ],
+            availableLanguages: [lilithLanguage],
         };
         return Book;
     };
@@ -242,20 +259,21 @@ export const useNHentaiRepository: RepositoryTemplate = (props) => {
         const totalPages = match ? +match[1] : 1;
 
         const searchResults: UseDomParserImpl[] =
-            container.findAll("div.gallery > a");
+            container.findAll("div.gallery");
 
         if (!searchResults || searchResults.length === 0) {
             throw new LilithError(404, "No search results found");
         }
 
-        const thumbnails: Thumbnail[] = searchResults.map((searchElement) => {
-            const bookId = searchElement
+        const books: BookBase[] = searchResults.map((searchElement) => {
+            const anchorElement = searchElement.find("> a");
+            const bookId = anchorElement
 
                 .getAttribute("href")
                 .split("/")
                 .find((p) => p.length > 5); // A code should never be less than 6 digits
 
-            const resultCover = searchElement.find("img");
+            const resultCover = anchorElement.find("img");
 
             const { getAttribute } = resultCover;
             const cover: Image = {
@@ -264,13 +282,26 @@ export const useNHentaiRepository: RepositoryTemplate = (props) => {
                 height: +getAttribute("height") || 0,
             };
 
-            const title: string =
-                searchElement.find(".caption")?.getText() || "";
+            const titleElement = anchorElement.find(".caption");
+            const title: string = titleElement?.getText() || "";
+
+            let availableLanguages: LilithLanguage[] = searchElement
+                .getAttribute("data-tags")
+                .split(" ")
+                .filter((code) =>
+                    Object.keys(LanguageCodeMapper).includes(code),
+                )
+                .map((code) => LanguageCodeMapper[code]);
+
+            if (availableLanguages.length === 0) {
+                availableLanguages = extractLanguages(title);
+            }
 
             return {
                 id: bookId,
                 cover: cover,
                 title,
+                availableLanguages,
             };
         });
 
@@ -279,7 +310,7 @@ export const useNHentaiRepository: RepositoryTemplate = (props) => {
             totalPages,
             page: innerOptions.page,
             totalResults: 25 * totalPages,
-            results: thumbnails,
+            results: books,
         };
     };
 
@@ -300,7 +331,7 @@ export const useNHentaiRepository: RepositoryTemplate = (props) => {
         const perPageEntries = data.per_page || 0;
         const totalResults = numPages * perPageEntries;
 
-        const thumbnails: Thumbnail[] = (data.result || []).map((result) => {
+        const books: BookBase[] = (data.result || []).map((result) => {
             const cover = result.images.cover;
             const coverImage: Image = {
                 uri: getUri("cover", result.media_id, Extension[cover.t]),
@@ -311,6 +342,9 @@ export const useNHentaiRepository: RepositoryTemplate = (props) => {
                 id: `${result.id}`,
                 title: result.title.english,
                 cover: coverImage,
+                availableLanguages: [
+                    LanguageMapper[getLanguageFromTags(result.tags)],
+                ],
             };
         });
 
@@ -318,7 +352,7 @@ export const useNHentaiRepository: RepositoryTemplate = (props) => {
             page,
             totalResults,
             totalPages: numPages,
-            results: thumbnails,
+            results: books,
         };
     };
 
