@@ -140,6 +140,7 @@ export const useNHentaiRepository: RepositoryTemplate = (props) => {
             language: LanguageMapper[getLanguageFromTags(book.tags)],
             title:
                 book.title[getLanguageFromTags(book.tags)] || book.title.pretty,
+            chapterNumber: 1,
         };
     };
 
@@ -206,6 +207,7 @@ export const useNHentaiRepository: RepositoryTemplate = (props) => {
                         book.title[getLanguageFromTags(book.tags)] ||
                         book.title.pretty,
                     language: lilithLanguage,
+                    chapterNumber: 1,
                 },
             ],
             availableLanguages: [lilithLanguage],

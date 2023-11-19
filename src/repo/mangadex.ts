@@ -138,13 +138,12 @@ export const useMangaDexRepository: RepositoryTemplate = (props) => {
                 uri: `${imgBaseUrl}/${imagesResult.chapter.hash}/${filename}`,
             })),
 
-            title:
-                chapterResult.data.attributes.title ||
-                chapterResult.data.attributes.chapter,
+            title: chapterResult.data.attributes.title,
             language:
                 reverseLanguageMapper[
                     chapterResult.data.attributes.translatedLanguage
                 ],
+            chapterNumber: +chapterResult.data.attributes.chapter,
         };
     };
 
@@ -222,13 +221,14 @@ export const useMangaDexRepository: RepositoryTemplate = (props) => {
                 )
                 .map((chapter) => ({
                     id: chapter.id,
-                    title:
-                        chapter.attributes.title || chapter.attributes.chapter,
+                    title: chapter.attributes.title,
                     /// It is safe to find as we filter out the non supported
                     language:
                         reverseLanguageMapper[
                             chapter.attributes.translatedLanguage
                         ],
+
+                    chapterNumber: +chapter.attributes.chapter,
                 })),
             cover,
             tags: lilithTags,

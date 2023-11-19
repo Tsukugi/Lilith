@@ -33,6 +33,7 @@ export interface ChapterBase {
     id: string;
     title: string;
     language: LilithLanguage;
+    chapterNumber: number;
 }
 export interface Chapter extends ChapterBase {
     pages: Image[];
