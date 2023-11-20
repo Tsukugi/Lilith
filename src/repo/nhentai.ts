@@ -28,6 +28,7 @@ import {
 import { UseDomParserImpl } from "../interfaces/domParser";
 import { useRequest } from "./utils/request";
 import { useLilithLog } from "./utils/log";
+import { PromiseTools } from "./utils/promise";
 
 const LanguageCodeMapper: Record<string, LilithLanguage> = {
     "12227": LilithLanguage.english,
@@ -217,7 +218,7 @@ export const useNHentaiRepository: RepositoryTemplate = (props) => {
         return Book;
     };
 
-    const search = async (
+    const searchGeneric = async (
         query: string,
         options?: Partial<SearchQueryOptions>,
     ): Promise<SearchResult> => {
@@ -316,6 +317,41 @@ export const useNHentaiRepository: RepositoryTemplate = (props) => {
             totalResults: 25 * totalPages,
             results: books,
         };
+    };
+
+    const search = async (
+        query: string,
+        options?: Partial<SearchQueryOptions>,
+    ): Promise<SearchResult> => {
+        const innerOptions: Partial<SearchQueryOptions> = {
+            page: 1,
+            sort: Sort.RECENT,
+            ...options,
+        };
+
+        const pageSize = 4; // Each page has 25 entries so we ar aiming at 100
+
+        let sequentialRes: SearchResult = { results: [] } as SearchResult;
+
+        await PromiseTools.recursivePromiseChain({
+            promises: new Array(pageSize).fill(null).map(
+                (_, index) => () =>
+                    searchGeneric(query, {
+                        ...innerOptions,
+                        page: index + 1,
+                    }),
+            ),
+            numLevels: pageSize,
+            onPromiseSettled: async (result) => {
+                sequentialRes = {
+                    ...sequentialRes,
+                    ...result,
+                    results: [...sequentialRes.results, ...result.results],
+                };
+            },
+        });
+
+        return sequentialRes;
     };
 
     const paginate = async (page: number): Promise<Pagination> => {

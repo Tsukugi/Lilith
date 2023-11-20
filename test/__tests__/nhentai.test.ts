@@ -13,7 +13,7 @@ import {
     RepositoryBase,
 } from "../../src/interfaces/base";
 import { useNodeFetch } from "../../src/impl/useNodeFetch";
-const debug = true;
+const debug = false;
 const { log } = useLilithLog(debug);
 
 describe("Lilith", () => {
@@ -44,7 +44,7 @@ describe("Lilith", () => {
             expect(book).toBeDefined();
         });
         test("Search", async () => {
-            const search: SearchResult = await loader.search("atago");
+            const search: SearchResult = await loader.search("ass");
             log(search.results.map((result) => result.cover.uri));
             expect(search.results[0].cover.uri).toBeTruthy();
             expect(search).toBeDefined();

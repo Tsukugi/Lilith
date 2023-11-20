@@ -6,9 +6,8 @@ import { searchMock } from "./__mocks__/searchMock";
 //import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 
 export const cookies: Headers = {
-    "User-Agent":
-        "Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/119.0",
-    cookie: "cf_clearance=c1YVq7VO3jhJ8xYRRhUvyuEQkgazg22lMT3ZLR1I0Oo-1699994336-0-1-c1c10939.aa378de9.96c056d9-160.0.0; csrftoken=HPjWJkyKRrMKkL7jlz0TeciIVCxtSr6zVrqnUilw4si4hwlOcyGrDt1ty2SXVMWA",
+    "User-Agent": "",
+    cookie: "",
 };
 
 export enum TextMocksForDomParser {
