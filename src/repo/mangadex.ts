@@ -326,7 +326,7 @@ export const useMangaDexRepository: RepositoryTemplate = (props) => {
                         width: 256,
                         height: 512,
                     },
-                    title: manga.attributes.title.en,
+                    title: findFirstTranslatedValue(manga.attributes.title),
                     availableLanguages: [...new Set(availableLanguages)],
                 };
             }),
