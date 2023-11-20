@@ -234,7 +234,7 @@ export const useNHentaiRepository: RepositoryTemplate = (props) => {
         const response = await request(`${baseUrl}/search`, [
             ["q", query],
             ["sort", innerOptions.sort],
-            ["page", page],
+            ["page", innerOptions.page],
         ]);
 
         const document = await response.getDocument();
@@ -340,15 +340,13 @@ export const useNHentaiRepository: RepositoryTemplate = (props) => {
         let sequentialRes: SearchResult = { results: [] } as SearchResult;
 
         await PromiseTools.recursivePromiseChain({
-            promises: new Array(pagination.length)
-                .fill(null)
-                .map(
-                    (_, index) => () =>
-                        searchGeneric(query, {
-                            ...innerOptions,
-                            page: index + pagination[0],
-                        }),
-                ),
+            promises: new Array(pagination.length).fill(null).map(
+                (_, index) => () =>
+                    searchGeneric(query, {
+                        ...innerOptions,
+                        page: index + pagination[0],
+                    }),
+            ),
             numLevels: pagination.length,
             onPromiseSettled: async (result) => {
                 sequentialRes = {
