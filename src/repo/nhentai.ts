@@ -8,7 +8,6 @@ import {
     Chapter,
     Pagination,
     SearchResult,
-    Sort,
     BookBase,
     Image,
     UriType,
@@ -29,6 +28,8 @@ import { UseDomParserImpl } from "../interfaces/domParser";
 import { useRequest } from "./utils/request";
 import { useLilithLog } from "./utils/log";
 import { PromiseTools } from "./utils/promise";
+import { DefaultSearchOptions } from "./base";
+import { useRangeFinder } from "./utils/range";
 
 const LanguageCodeMapper: Record<string, LilithLanguage> = {
     "12227": LilithLanguage.english,
@@ -61,6 +62,9 @@ const extractLanguages = (title: string): LilithLanguage[] => {
 
     return languages;
 };
+
+const nHentaiPageResultSize = 25; //Nhentai search pages have this size
+
 export const useNHentaiRepository: RepositoryTemplate = (props) => {
     const { headers, debug } = props;
     const { doRequest } = useRequest(props);
@@ -223,15 +227,14 @@ export const useNHentaiRepository: RepositoryTemplate = (props) => {
         options?: Partial<SearchQueryOptions>,
     ): Promise<SearchResult> => {
         const innerOptions: Partial<SearchQueryOptions> = {
-            page: 1,
-            sort: Sort.RECENT,
+            ...DefaultSearchOptions,
             ...options,
         };
 
         const response = await request(`${baseUrl}/search`, [
             ["q", query],
             ["sort", innerOptions.sort],
-            ["page", innerOptions.page],
+            ["page", page],
         ]);
 
         const document = await response.getDocument();
@@ -314,7 +317,7 @@ export const useNHentaiRepository: RepositoryTemplate = (props) => {
             query: query,
             totalPages,
             page: innerOptions.page,
-            totalResults: 25 * totalPages,
+            totalResults: nHentaiPageResultSize * totalPages,
             results: books,
         };
     };
@@ -323,25 +326,30 @@ export const useNHentaiRepository: RepositoryTemplate = (props) => {
         query: string,
         options?: Partial<SearchQueryOptions>,
     ): Promise<SearchResult> => {
-        const innerOptions: Partial<SearchQueryOptions> = {
-            page: 1,
-            sort: Sort.RECENT,
+        const innerOptions: SearchQueryOptions = {
+            ...DefaultSearchOptions,
             ...options,
         };
 
-        const pageSize = 4; // Each page has 25 entries so we ar aiming at 100
+        const { pageToRange, rangeToPagination } = useRangeFinder({
+            pageSize: innerOptions.size,
+        });
 
+        const range = pageToRange(innerOptions.page);
+        const pagination = rangeToPagination(range.startIndex, range.endIndex);
         let sequentialRes: SearchResult = { results: [] } as SearchResult;
 
         await PromiseTools.recursivePromiseChain({
-            promises: new Array(pageSize).fill(null).map(
-                (_, index) => () =>
-                    searchGeneric(query, {
-                        ...innerOptions,
-                        page: index + 1,
-                    }),
-            ),
-            numLevels: pageSize,
+            promises: new Array(pagination.length)
+                .fill(null)
+                .map(
+                    (_, index) => () =>
+                        searchGeneric(query, {
+                            ...innerOptions,
+                            page: index + pagination[0],
+                        }),
+                ),
+            numLevels: pagination.length,
             onPromiseSettled: async (result) => {
                 sequentialRes = {
                     ...sequentialRes,
@@ -351,7 +359,10 @@ export const useNHentaiRepository: RepositoryTemplate = (props) => {
             },
         });
 
-        return sequentialRes;
+        return {
+            ...sequentialRes,
+            results: sequentialRes.results,
+        };
     };
 
     const paginate = async (page: number): Promise<Pagination> => {

@@ -5,7 +5,7 @@ import { useAPILoader } from "../../src/api/loader";
 import { RepositoryBase } from "../../src/interfaces/base";
 import { LilithRepo } from "../../src/interfaces";
 
-import { cookies, TextMocksForDomParser, fetchMock } from "../nhentaiMock";
+import { headers, TextMocksForDomParser, fetchMock } from "../nhentaiMock";
 import { useLilithLog } from "../../src/repo/utils/log";
 const debug = false;
 const { log, warn } = useLilithLog(debug);
@@ -16,7 +16,7 @@ describe("DOMLoader", () => {
         loader = useAPILoader({
             repo: LilithRepo.NHentai,
             configurations: {
-                headers: cookies,
+                headers,
                 fetch: () => fetchMock({}, TextMocksForDomParser.Search),
                 debug,
             },
@@ -37,7 +37,7 @@ describe("DOMLoader", () => {
         const randomLoader = useAPILoader({
             repo: LilithRepo.NHentai,
             configurations: {
-                headers: cookies,
+                headers,
                 fetch: () => fetchMock({}, TextMocksForDomParser.Random),
             },
         });

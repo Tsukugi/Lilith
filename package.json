@@ -1,6 +1,6 @@
 {
     "name": "@atsu/lilith",
-    "version": "0.6.5",
+    "version": "0.7.0",
     "description": "API mapper for different services",
     "main": "./dist/main.umd.bundle.js",
     "exports": {
@@ -49,6 +49,7 @@
         "@typescript-eslint/eslint-plugin": "^6.9.1",
         "@typescript-eslint/parser": "^6.9.1",
         "cheerio": "^1.0.0-rc.12",
+        "dotenv": "^16.3.1",
         "eslint": "^7.17.0",
         "eslint-config-prettier": "^8.3.0",
         "jest": "^29.7.0",

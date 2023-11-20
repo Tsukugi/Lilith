@@ -26,6 +26,8 @@ import {
 import { useLilithLog } from "./utils/log";
 import { useRequest } from "./utils/request";
 import { ArrayUtils } from "./utils/array";
+import { DefaultSearchOptions } from "./base";
+import { useRangeFinder } from "./utils/range";
 
 enum RelationshipTypes {
     coverArt = "cover_art",
@@ -171,10 +173,10 @@ export const useMangaDexRepository: RepositoryTemplate = (props) => {
             availableTranslatedLanguages,
         );
 
-        useLilithLog(debug).log(
+        useLilithLog(debug).log({
             supportedTranslations,
             availableTranslatedLanguages,
-        );
+        });
 
         const languageParams: UrlParamPair[] = supportedTranslations.map(
             (lang) => ["translatedLanguage[]", lang],
@@ -252,9 +254,12 @@ export const useMangaDexRepository: RepositoryTemplate = (props) => {
         options?: Partial<SearchQueryOptions>,
     ): Promise<SearchResult> => {
         const innerOptions: Partial<SearchQueryOptions> = {
-            requiredLanguages: Object.values(LilithLanguage),
+            ...DefaultSearchOptions,
             ...options,
         };
+
+        const { pageToRange } = useRangeFinder({ pageSize: innerOptions.size });
+        const { startIndex } = pageToRange(innerOptions.page);
 
         const languageParams: UrlParamPair[] =
             innerOptions.requiredLanguages.map((lang) => [
@@ -262,11 +267,18 @@ export const useMangaDexRepository: RepositoryTemplate = (props) => {
                 lang,
             ]);
 
+        useLilithLog(debug).log({
+            startIndex,
+            innerOptions,
+        });
+
         const response = await request<MangadexResult<MangaDexBook[]>>(
             `${apiUrl}/manga`,
             [
                 ["title", query],
                 ["includes[]", RelationshipTypes.coverArt],
+                ["limit", innerOptions.size],
+                ["offset", startIndex],
                 ...languageParams,
             ],
         );
@@ -279,11 +291,10 @@ export const useMangaDexRepository: RepositoryTemplate = (props) => {
 
         const makeCover = (book: MangaDexBook) => {
             const mangaId = book.id;
-            const coverRelationship: MangaDexRelationship<MangaDexCoverArt> =
-                book.relationships.find(
-                    (relationship) =>
-                        relationship.type === RelationshipTypes.coverArt,
-                ) as MangaDexRelationship<MangaDexCoverArt>;
+            const coverRelationship = book.relationships.find(
+                (relationship) =>
+                    relationship.type === RelationshipTypes.coverArt,
+            ) as MangaDexRelationship<MangaDexCoverArt>;
             if (!coverRelationship) {
                 throw new LilithError(
                     404,

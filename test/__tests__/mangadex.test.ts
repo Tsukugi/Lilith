@@ -14,6 +14,9 @@ import {
 const debug = false;
 const { log } = useLilithLog(debug);
 
+const SmallBookId = "b5973113-d74f-41be-a97f-64bf315836f3";
+const TestChapterId = "940f02a3-c4dc-4cc2-9275-5906fcbdb453";
+
 describe("Lilith", () => {
     describe("Test MangaDex ", () => {
         let loader: RepositoryBase = {} as RepositoryBase;
@@ -51,29 +54,30 @@ describe("Lilith", () => {
             log(search.results.map((res) => res.availableLanguages));
             expect(search.results[0].cover.uri).toBeTruthy();
             expect(search).toBeDefined();
+
+            const search2: SearchResult = await loader.search("touhou", {
+                page: 2,
+                size: 3,
+            });
+            log(search2);
+            expect(search2).toBeDefined();
         });
 
         test("GetBook", async () => {
-            const book: Book = await loader.getBook(
-                "a96676e5-8ae2-425e-b549-7f15dd34a6d8",
-            );
+            const book: Book = await loader.getBook(SmallBookId);
             log(book);
             log(book.availableLanguages);
             expect(book).toBeDefined();
         });
 
         test("GetChapter", async () => {
-            const chapter: Chapter = await loader.getChapter(
-                "940f02a3-c4dc-4cc2-9275-5906fcbdb453",
-            );
+            const chapter: Chapter = await loader.getChapter(TestChapterId);
             log(chapter);
             expect(chapter).toBeDefined();
         });
 
         test("GetImageListFromFirstChapter", async () => {
-            const book: Book = await loader.getBook(
-                "b5973113-d74f-41be-a97f-64bf315836f3",
-            );
+            const book: Book = await loader.getBook(SmallBookId);
             log(book);
             expect(book).toBeDefined();
             if (!book) return null;

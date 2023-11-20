@@ -1,13 +1,19 @@
-import { Headers, CustomFetchResponse } from "../src/interfaces/fetch";
+import { CustomFetchResponse } from "../src/interfaces/fetch";
 import getMock from "./__mocks__/getMock.json";
 import { randomMock } from "./__mocks__/randomMock";
 import { searchMock } from "./__mocks__/searchMock";
+import dotenv from "dotenv";
 
 //import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 
-export const cookies: Headers = {
-    "User-Agent": "",
-    cookie: "",
+dotenv.config();
+
+const userAgent = process.env.USER_AGENT || "";
+const cookie = process.env.COOKIE || "";
+
+export const headers = {
+    "User-Agent": userAgent,
+    cookie: cookie,
 };
 
 export enum TextMocksForDomParser {

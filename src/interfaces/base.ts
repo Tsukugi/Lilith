@@ -88,7 +88,8 @@ export interface Domains {
 export interface SearchQueryOptions {
     requiredTags?: Tag[];
     requiredLanguages?: LilithLanguage[];
-    page: number; // To be deprecated
+    size?: number; // Defaults to MaxSize
+    page: number;
     sort: Sort; // To be deprecated
 }
 
