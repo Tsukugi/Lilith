@@ -30,6 +30,7 @@ import { useLilithLog } from "./utils/log";
 import { PromiseTools } from "./utils/promise";
 import { DefaultSearchOptions } from "./base";
 import { useRangeFinder } from "./utils/range";
+import { ArrayUtils } from "./utils/array";
 
 const LanguageCodeMapper: Record<string, LilithLanguage> = {
     "12227": LilithLanguage.english,
@@ -274,45 +275,57 @@ export const useNHentaiRepository: RepositoryTemplate = (props) => {
             throw new LilithError(404, "No search results found");
         }
 
-        const books: BookBase[] = searchResults.map((searchElement) => {
-            const anchorElement = searchElement.find("> a");
-            const bookId = anchorElement
-
-                .getAttribute("href")
-                .split("/")
-                .find((p) => p.length > 5); // A code should never be less than 6 digits
-
-            const resultCover = anchorElement.find("img");
-
-            const { getAttribute } = resultCover;
-            const cover: Image = {
-                uri: getAttribute("data-src") || getAttribute("src") || "",
-                width: +getAttribute("width") || 0,
-                height: +getAttribute("height") || 0,
-            };
-
-            const titleElement = anchorElement.find(".caption");
-            const title: string = titleElement?.getText() || "";
-
-            let availableLanguages: LilithLanguage[] = searchElement
+        const getLanguageFromAttribute = (
+            el: UseDomParserImpl,
+        ): LilithLanguage[] =>
+            el
                 .getAttribute("data-tags")
                 .split(" ")
                 .filter((code) =>
                     Object.keys(LanguageCodeMapper).includes(code),
                 )
                 .map((code) => LanguageCodeMapper[code]);
+        const books: BookBase[] = searchResults
+            .filter((searchElement) => {
+                ArrayUtils.findCommonElements(
+                    getLanguageFromAttribute(searchElement),
+                    innerOptions.requiredLanguages,
+                ).length > 0;
+            })
+            .map((searchElement) => {
+                const anchorElement = searchElement.find("> a");
+                const bookId = anchorElement
 
-            if (availableLanguages.length === 0) {
-                availableLanguages = extractLanguages(title);
-            }
+                    .getAttribute("href")
+                    .split("/")
+                    .find((p) => p.length > 5); // A code should never be less than 6 digits
 
-            return {
-                id: bookId,
-                cover: cover,
-                title,
-                availableLanguages,
-            };
-        });
+                const resultCover = anchorElement.find("img");
+
+                const { getAttribute } = resultCover;
+                const cover: Image = {
+                    uri: getAttribute("data-src") || getAttribute("src") || "",
+                    width: +getAttribute("width") || 0,
+                    height: +getAttribute("height") || 0,
+                };
+
+                const titleElement = anchorElement.find(".caption");
+                const title: string = titleElement?.getText() || "";
+
+                let availableLanguages: LilithLanguage[] =
+                    getLanguageFromAttribute(searchElement);
+
+                if (availableLanguages.length === 0) {
+                    availableLanguages = extractLanguages(title);
+                }
+
+                return {
+                    id: bookId,
+                    cover: cover,
+                    title,
+                    availableLanguages,
+                };
+            });
 
         return {
             query: query,
