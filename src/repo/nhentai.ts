@@ -178,6 +178,7 @@ export const useNHentaiRepository: RepositoryTemplate = (props) => {
 
         const matchesTranslation = requiredLanguages.includes(lilithLanguage);
         useLilithLog(debug).log({
+            requiredLanguages,
             lilithLanguage,
             matchesTranslation,
             tags: book.tags.map((tag) => [tag.type, tag.name]),

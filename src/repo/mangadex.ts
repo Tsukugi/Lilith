@@ -78,7 +78,7 @@ const getSupportedTranslations = (
     if (!doesHaveTranslations) {
         throw new LilithError(
             404,
-            "No translation for the requested language available",
+            `No translation for the requested language available, retrieved: ${supportedTranslations}`,
         );
     }
 
