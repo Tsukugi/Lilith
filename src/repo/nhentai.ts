@@ -292,10 +292,12 @@ export const useNHentaiRepository: RepositoryTemplate = (props) => {
 
         const books: BookBase[] = searchResults
             .filter((searchElement) => {
-                ArrayUtils.findCommonElements(
-                    getLanguageFromAttribute(searchElement),
-                    innerOptions.requiredLanguages,
-                ).length > 0;
+                return (
+                    ArrayUtils.findCommonElements(
+                        getLanguageFromAttribute(searchElement),
+                        innerOptions.requiredLanguages,
+                    ).length > 0
+                );
             })
             .map((searchElement) => {
                 const anchorElement = searchElement.find("> a");
