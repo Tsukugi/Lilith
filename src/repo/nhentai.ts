@@ -277,14 +277,19 @@ export const useNHentaiRepository: RepositoryTemplate = (props) => {
 
         const getLanguageFromAttribute = (
             el: UseDomParserImpl,
-        ): LilithLanguage[] =>
-            el
+        ): LilithLanguage[] => {
+            const languagesRetrieved = el
                 .getAttribute("data-tags")
                 .split(" ")
                 .filter((code) =>
                     Object.keys(LanguageCodeMapper).includes(code),
                 )
                 .map((code) => LanguageCodeMapper[code]);
+
+            useLilithLog(debug).log({ languagesRetrieved });
+            return languagesRetrieved;
+        };
+
         const books: BookBase[] = searchResults
             .filter((searchElement) => {
                 ArrayUtils.findCommonElements(
