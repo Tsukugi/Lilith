@@ -1,33 +1,32 @@
 import {
-    CustomFetchInitOptions,
-    Result,
-    UrlParamPair,
-} from "../interfaces/fetch";
-import {
-    Book,
-    SearchResult,
+    LilithLanguage,
     RepositoryTemplate,
     Chapter,
-    LilithError,
-    LilithLanguage,
+    Book,
     Tag,
     SearchQueryOptions,
-} from "../interfaces/base";
+    SearchResult,
+} from "../../interfaces/base";
 import {
-    MangaDexAuthor,
-    MangaDexBook,
-    MangaDexChapter,
-    MangaDexCoverArt,
-    MangaDexImageListResult,
+    UrlParamPair,
+    Result,
+    CustomFetchInitOptions,
+} from "../../interfaces/fetch";
+import {
     MangaDexLanguage,
-    MangaDexRelationship,
+    MangaDexImageListResult,
     MangadexResult,
-} from "../interfaces/repositories/mangadex";
-import { useLilithLog } from "./utils/log";
-import { useRequest } from "./utils/request";
-import { ArrayUtils } from "./utils/array";
-import { DefaultSearchOptions } from "./base";
-import { useRangeFinder } from "./utils/range";
+    MangaDexChapter,
+    MangaDexBook,
+    MangaDexCoverArt,
+    MangaDexAuthor,
+    MangaDexRelationship,
+} from "../../interfaces/repositories/mangadex";
+import { LilithError, DefaultSearchOptions } from "../base";
+import { ArrayUtils } from "../utils/array";
+import { useLilithLog } from "../utils/log";
+import { useRangeFinder } from "../utils/range";
+import { useRequest } from "../utils/request";
 
 enum RelationshipTypes {
     coverArt = "cover_art",
@@ -352,7 +351,7 @@ export const useMangaDexRepository: RepositoryTemplate = (props) => {
         search,
         getBook,
         getChapter,
-        randomBook,
+        getRandomBook: randomBook,
         request,
     };
 };

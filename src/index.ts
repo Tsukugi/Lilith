@@ -22,12 +22,13 @@ export type {
     Domains,
     RepositoryBaseProps,
     RepositoryTemplate,
-    LilithError,
 } from "./interfaces/base";
 
 export type { UseDomParser, UseDomParserImpl } from "./interfaces/domParser";
 
 export type { RepositoryBase } from "./interfaces/base";
+
+export { MaxSearchSize, LilithError } from "./repo/base";
 
 export { useNHentaiRepository } from "./repo/nhentai";
 export { useMangaDexRepository } from "./repo/mangadex";

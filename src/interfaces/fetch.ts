@@ -32,3 +32,8 @@ export interface Headers {
 
 export type UrlParamPair = [string, UrlParamValue];
 export type UrlParamValue = string | number | boolean;
+
+export type LilithRequest = <T>(
+    url: string,
+    params?: UrlParamPair[],
+) => Promise<Result<T>>;

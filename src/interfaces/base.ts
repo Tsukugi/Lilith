@@ -1,5 +1,86 @@
-import { Headers, CustomFetch, Result, UrlParamPair } from "./fetch";
+import { Headers, CustomFetch } from "./fetch";
 import { UseDomParser } from "./domParser";
+
+/**
+ * Interface representing the base methods for a repository that interacts with book-related data.
+ */
+export interface RepositoryBase {
+    /**
+     * Retrieves a chapter based on its identifier.
+     * @param {string} identifier - The unique identifier of the chapter.
+     * @returns {Promise<Chapter>} - A Promise that resolves to the retrieved chapter.
+     */
+    getChapter: (identifier: string) => Promise<Chapter>;
+
+    /**
+     * Retrieves a book based on its identifier and optional required languages.
+     * @param {string} identifier - The unique identifier of the book.
+     * @param {LilithLanguage[]} [requiredLanguages] - Optional array of required languages.
+     * @returns {Promise<Book>} - A Promise that resolves to the retrieved book.
+     */
+    getBook: (
+        identifier: string,
+        requiredLanguages?: LilithLanguage[],
+    ) => Promise<Book>;
+
+    /**
+     * Searches for books based on a query and optional search options.
+     * @param {string} query - The search query.
+     * @param {Partial<SearchQueryOptions>} [options] - Optional search query options.
+     * @returns {Promise<SearchResult>} - A Promise that resolves to the search result.
+     */
+    search: (
+        query: string,
+        options?: Partial<SearchQueryOptions>,
+    ) => Promise<SearchResult>;
+
+    /**
+     * Retrieves a random book.
+     * @param {number} [retry] - Optional parameter to specify the number of retry attempts.
+     * @returns {Promise<Book>} - A Promise that resolves to the randomly retrieved book.
+     */
+    getRandomBook: (retry?: number) => Promise<Book>;
+
+    /**
+     * Retrieves the latest books based on the specified page.
+     * @param {number} page - The page number.
+     * @returns {Promise<Pagination>} - A Promise that resolves to the information for the latest books.
+     */
+    getLatestBooks?: (page: number) => Promise<Pagination>;
+
+    /**
+     * Retrieves a list of trending books.
+     * @returns {Promise<BookBase[]>} - A Promise that resolves to the list of trending books.
+     */
+    getTrendingBooks?: () => Promise<BookBase[]>;
+}
+
+/**
+ * Interface representing the properties required for creating a repository with base methods.
+ */
+export interface RepositoryBaseProps {
+    /**
+     * The headers to be included in the HTTP requests.
+     */
+    headers: Headers;
+
+    /**
+     * The custom fetch function used to make HTTP requests.
+     */
+    fetch: CustomFetch;
+
+    /**
+     * The DOM parser function used for parsing HTML content.
+     */
+    domParser: UseDomParser;
+
+    /**
+     * Optional flag indicating whether debugging information should be enabled.
+     */
+    debug?: boolean;
+}
+
+export type RepositoryTemplate = (props: RepositoryBaseProps) => RepositoryBase;
 
 export type UriType = "cover" | "page" | "thumbnail";
 
@@ -72,10 +153,10 @@ export interface SearchResult {
 }
 
 export interface Pagination {
-    page: number;
-    totalResults: number;
-    totalPages: number;
     results: BookBase[];
+    page: number;
+    totalResults?: number; // To be deprecated
+    totalPages?: number; // To be deprecated
 }
 
 export interface Domains {
@@ -91,47 +172,4 @@ export interface SearchQueryOptions {
     size?: number; // Defaults to MaxSize
     page: number;
     sort: Sort; // To be deprecated
-}
-
-export interface RepositoryBase {
-    domains: Domains;
-
-    request: <T>(url: string, params?: UrlParamPair[]) => Promise<Result<T>>;
-
-    getChapter: (identifier: string) => Promise<Chapter>;
-
-    getBook: (
-        identifier: string,
-        requiredLanguages?: LilithLanguage[],
-    ) => Promise<Book>;
-
-    search: (
-        query: string,
-        options?: Partial<SearchQueryOptions>,
-    ) => Promise<SearchResult>;
-
-    randomBook: (retry?: number) => Promise<Book>;
-
-    paginate?: (page: number) => Promise<Pagination>;
-}
-
-export interface RepositoryBaseProps {
-    headers: Headers;
-    fetch: CustomFetch;
-    domParser: UseDomParser;
-    debug?: boolean;
-}
-
-export type RepositoryTemplate = (props: RepositoryBaseProps) => RepositoryBase;
-
-export class LilithError {
-    status: number;
-    message: string;
-    data?: unknown;
-
-    constructor(status: number, message: string, data?: unknown) {
-        this.data = data;
-        this.status = status;
-        this.message = message;
-    }
 }

@@ -10,3 +10,15 @@ export const DefaultSearchOptions = {
     page: 1,
     size: MaxSearchSize,
 };
+
+export class LilithError {
+    status: number;
+    message: string;
+    data?: unknown;
+
+    constructor(status: number, message: string, data?: unknown) {
+        this.data = data;
+        this.status = status;
+        this.message = message;
+    }
+}
