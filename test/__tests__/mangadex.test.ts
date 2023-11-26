@@ -9,7 +9,7 @@ import {
     RepositoryBase,
     Book,
     Chapter,
-} from "../../src/interfaces/base";
+} from "../../src/repo/base/interfaces";
 
 const debug = false;
 const { log } = useLilithLog(debug);

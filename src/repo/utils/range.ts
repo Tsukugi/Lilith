@@ -1,5 +1,4 @@
-import { LilithError } from "../../interfaces/base";
-import { MaxSearchSize } from "../base";
+import { LilithError, MaxSearchSize } from "../base";
 
 interface UseRangeFinderProps {
     pageSize?: number;

@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, test } from "@jest/globals";
 
 import { useAPILoader } from "../../src/api/loader";
 
-import { RepositoryBase } from "../../src/interfaces/base";
+import { RepositoryBase } from "../../src/repo/base/interfaces";
 import { LilithRepo } from "../../src/interfaces";
 
 import { headers, TextMocksForDomParser, fetchMock } from "../nhentaiMock";
@@ -41,7 +41,7 @@ describe("DOMLoader", () => {
                 fetch: () => fetchMock({}, TextMocksForDomParser.Random),
             },
         });
-        const res = await randomLoader.randomBook();
+        const res = await randomLoader.getRandomBook();
 
         if (res === null)
             warn("[Custom fetch for JSON] Resource was not found");

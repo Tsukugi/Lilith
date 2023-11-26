@@ -1,8 +1,5 @@
-import { LilithLanguage } from "../../interfaces/base";
-import {
-    NHentaiLanguage,
-    NHentaiTag,
-} from "../../interfaces/repositories/nhentai";
+import { LilithLanguage } from "../base/interfaces";
+import { NHentaiLanguage, NHentaiTag } from "./interfaces";
 
 /**
  * The size of results per page in an NHentai search.
@@ -10,7 +7,7 @@ import {
 const NHentaiPageResultSize = 25;
 
 /**
- * Mapper that converts language codes to LilithLanguage enum values.
+ * Mapper that converts NHentai language codes to LilithLanguage enum values.
  */
 const LanguageCodeMapper: Record<string, LilithLanguage> = {
     "12227": LilithLanguage.english,

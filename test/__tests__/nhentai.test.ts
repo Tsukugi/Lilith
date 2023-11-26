@@ -11,8 +11,10 @@ import {
     Pagination,
     SearchResult,
     RepositoryBase,
-} from "../../src/interfaces/base";
+} from "../../src/repo/base/interfaces";
+
 import { useNodeFetch } from "../../src/impl/useNodeFetch";
+
 const debug = false;
 const { log } = useLilithLog(debug);
 
@@ -31,13 +33,6 @@ describe("Lilith", () => {
             });
         });
 
-        test("Request", async () => {
-            const res = await loader.request(
-                "https://nhentai.net/search?q=ass&sort=recent&page=1",
-            );
-            log(res);
-            expect(res).toBeDefined();
-        });
         test("getBook", async () => {
             const book: Book = await loader.getBook("482151");
             log(book);
@@ -50,18 +45,18 @@ describe("Lilith", () => {
             expect(search).toBeDefined();
         });
         test("Search offset", async () => {
-            const search2: SearchResult = await loader.search("ass", {
+            const search2: SearchResult = await loader.search("English", {
                 page: 2,
             });
             expect(search2).toBeDefined();
-            const search4: SearchResult = await loader.search("ass", {
+            const search4: SearchResult = await loader.search("English", {
                 page: 4,
             });
             expect(search4).toBeDefined();
         });
         test("Paginate", async () => {
-            if (!loader.paginate) return;
-            const page: Pagination = await loader.paginate(1);
+            if (!loader.getLatestBooks) return;
+            const page: Pagination = await loader.getLatestBooks(1);
             log(page.results.map((result) => result.availableLanguages));
             log(page.results.map((result) => result.cover.uri));
             expect(page).toBeDefined();
@@ -75,7 +70,7 @@ describe("Lilith", () => {
                     domParser: useCheerioDomParser,
                 },
             });
-            const book: Book = await randomLoader.randomBook();
+            const book: Book = await randomLoader.getRandomBook();
             log(book);
             expect(book).toBeDefined();
         });

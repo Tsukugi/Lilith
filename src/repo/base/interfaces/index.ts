@@ -1,5 +1,54 @@
-import { Headers, CustomFetch } from "./fetch";
-import { UseDomParser } from "./domParser";
+import { UseDomParser } from "../../../interfaces/domParser";
+import { CustomFetch, LilithHeaders } from "../../../interfaces/fetch";
+
+/**
+ * Type alias for a function that retrieves information about a chapter based on its identifier.
+ * @param {string} identifier - The unique identifier of the chapter.
+ * @returns {Promise<Chapter>} - A Promise that resolves to the retrieved chapter.
+ */
+export type GetChapter = (identifier: string) => Promise<Chapter>;
+
+/**
+ * Type alias for a function that retrieves information about a book based on its identifier.
+ * @param {string} identifier - The unique identifier of the book.
+ * @param {LilithLanguage[]} [requiredLanguages] - Optional array of required languages.
+ * @returns {Promise<Book>} - A Promise that resolves to the retrieved book.
+ */
+export type GetBook = (
+    identifier: string,
+    requiredLanguages?: LilithLanguage[],
+) => Promise<Book>;
+
+/**
+ * Type alias for a function that performs a search based on a query and optional search options.
+ * @param {string} query - The search query value.
+ * @param {Partial<SearchQueryOptions>} [options] - Optional search query options.
+ * @returns {Promise<SearchResult>} - A Promise that resolves to the search results.
+ */
+export type Search = (
+    query: string,
+    options?: Partial<SearchQueryOptions>,
+) => Promise<SearchResult>;
+
+/**
+ * Type alias for a function that retrieves a random book.
+ * @param {number} [retry] - Optional retry parameter.
+ * @returns {Promise<Book>} - A Promise that resolves to the retrieved random book.
+ */
+export type GetRandomBook = (retry?: number) => Promise<Book>;
+
+/**
+ * Type alias for a function that retrieves the latest books based on a page number.
+ * @param {number} page - The page number for the latest books.
+ * @returns {Promise<Pagination>} - A Promise that resolves to the latest books and pagination information.
+ */
+export type GetLatestBooks = (page: number) => Promise<Pagination>;
+
+/**
+ * Type alias for a function that retrieves the trending books.
+ * @returns {Promise<BookBase[]>} - A Promise that resolves to the trending books.
+ */
+export type GetTrendingBooks = () => Promise<BookBase[]>;
 
 /**
  * Interface representing the base methods for a repository that interacts with book-related data.
@@ -10,7 +59,7 @@ export interface RepositoryBase {
      * @param {string} identifier - The unique identifier of the chapter.
      * @returns {Promise<Chapter>} - A Promise that resolves to the retrieved chapter.
      */
-    getChapter: (identifier: string) => Promise<Chapter>;
+    getChapter: GetChapter;
 
     /**
      * Retrieves a book based on its identifier and optional required languages.
@@ -18,10 +67,7 @@ export interface RepositoryBase {
      * @param {LilithLanguage[]} [requiredLanguages] - Optional array of required languages.
      * @returns {Promise<Book>} - A Promise that resolves to the retrieved book.
      */
-    getBook: (
-        identifier: string,
-        requiredLanguages?: LilithLanguage[],
-    ) => Promise<Book>;
+    getBook: GetBook;
 
     /**
      * Searches for books based on a query and optional search options.
@@ -29,30 +75,27 @@ export interface RepositoryBase {
      * @param {Partial<SearchQueryOptions>} [options] - Optional search query options.
      * @returns {Promise<SearchResult>} - A Promise that resolves to the search result.
      */
-    search: (
-        query: string,
-        options?: Partial<SearchQueryOptions>,
-    ) => Promise<SearchResult>;
+    search: Search;
 
     /**
      * Retrieves a random book.
      * @param {number} [retry] - Optional parameter to specify the number of retry attempts.
      * @returns {Promise<Book>} - A Promise that resolves to the randomly retrieved book.
      */
-    getRandomBook: (retry?: number) => Promise<Book>;
+    getRandomBook: GetRandomBook;
 
     /**
      * Retrieves the latest books based on the specified page.
      * @param {number} page - The page number.
      * @returns {Promise<Pagination>} - A Promise that resolves to the information for the latest books.
      */
-    getLatestBooks?: (page: number) => Promise<Pagination>;
+    getLatestBooks?: GetLatestBooks;
 
     /**
      * Retrieves a list of trending books.
      * @returns {Promise<BookBase[]>} - A Promise that resolves to the list of trending books.
      */
-    getTrendingBooks?: () => Promise<BookBase[]>;
+    getTrendingBooks?: GetTrendingBooks;
 }
 
 /**
@@ -62,7 +105,7 @@ export interface RepositoryBaseProps {
     /**
      * The headers to be included in the HTTP requests.
      */
-    headers: Headers;
+    headers?: Partial<LilithHeaders>;
 
     /**
      * The custom fetch function used to make HTTP requests.

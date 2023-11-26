@@ -1,32 +1,35 @@
-import { Extension, LilithLanguage, Tag, UriType } from "../../interfaces/base";
-import { LilithRequest } from "../../interfaces/fetch";
-import { NHentaiResult } from "../../interfaces/repositories/nhentai";
-import { Book } from "../../interfaces/base";
-import { useLilithLog } from "../utils/log";
-import { NHentaiBase } from "./base";
-import { LilithError } from "../base";
-
-interface UseNHentaiBookProps {
-    apiUrl: string;
-    debug: boolean;
-
-    getUri: (
-        type: UriType,
-        mediaId: string,
-        mime: Extension,
-        pageNumber?: number,
-    ) => string;
-    request: LilithRequest;
-}
+import {
+    Extension,
+    GetBook,
+    LilithLanguage,
+    Tag,
+    Book,
+} from "../../base/interfaces";
+import { NHentaiResult, UseNHentaiMethodProps } from "../interfaces";
+import { useLilithLog } from "../../utils/log";
+import { NHentaiBase } from "../base";
+import { LilithError } from "../../base";
+/**
+ * Hook for interacting with NHentai books.
+ * @param {UseNHentaiMethodProps} props - Properties required for the hook.
+ * @returns {GetBook} - A function that retrieves information about a book based on its identifier.
+ */
 export const useNHentaiBook = ({
-    apiUrl,
+    domains: { apiUrl },
     debug,
     getUri,
     request,
-}: UseNHentaiBookProps) => {
+}: UseNHentaiMethodProps): GetBook => {
     const { LanguageMapper, getLanguageFromTags } = NHentaiBase;
 
-    const getBook = async (
+    /**
+     * Retrieves information about a book based on its identifier.
+     * @param {string} id - The unique identifier of the book.
+     * @param {LilithLanguage[]} [requiredLanguages] - Optional array of required languages.
+     * @returns {Promise<Book>} - A Promise that resolves to the retrieved book.
+     * @throws {LilithError} - Throws an error if the book is not found or no translation is available for the requested language.
+     */
+    return async (
         id: string,
         requiredLanguages: LilithLanguage[] = Object.values(LilithLanguage),
     ): Promise<Book> => {
@@ -89,7 +92,7 @@ export const useNHentaiBook = ({
                 width: book.images.cover.w,
                 height: book.images.cover.h,
             },
-            //NHentai always provides 1 chapter books
+            // NHentai always provides 1 chapter books
             chapters: [
                 {
                     id: `${book.id}`,
@@ -104,6 +107,4 @@ export const useNHentaiBook = ({
         };
         return Book;
     };
-
-    return { getBook };
 };

@@ -19,12 +19,12 @@ export interface CustomFetchResponse {
 
 export interface CustomFetchInitOptions {
     method: "GET" | "POST";
-    headers: Headers;
+    headers: LilithHeaders;
     credentials: "include" | "omit" | "same-origin";
     body?: string; // TODO: Support me!
 }
 
-export interface Headers {
+export interface LilithHeaders {
     [x: string]: string;
     ["User-Agent"]: string;
     cookie: string;

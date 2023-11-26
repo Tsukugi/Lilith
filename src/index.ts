@@ -2,12 +2,17 @@ export type {
     CustomFetch,
     CustomFetchInitOptions,
     CustomFetchResponse,
-    Headers,
+    LilithHeaders,
     UrlParamPair,
     UrlParamValue,
 } from "./interfaces/fetch";
 
-export { Extension, UriType, Sort, LilithLanguage } from "./interfaces/base";
+export {
+    Extension,
+    UriType,
+    Sort,
+    LilithLanguage,
+} from "./repo/base/interfaces";
 
 export type {
     Image,
@@ -22,11 +27,10 @@ export type {
     Domains,
     RepositoryBaseProps,
     RepositoryTemplate,
-} from "./interfaces/base";
+    RepositoryBase,
+} from "./repo/base/interfaces";
 
 export type { UseDomParser, UseDomParserImpl } from "./interfaces/domParser";
-
-export type { RepositoryBase } from "./interfaces/base";
 
 export { MaxSearchSize, LilithError } from "./repo/base";
 

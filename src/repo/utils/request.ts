@@ -1,10 +1,11 @@
-import { RepositoryBaseProps, LilithError } from "../../interfaces/base";
+import { RepositoryBaseProps } from "../base/interfaces";
 import {
     UrlParamValue,
     UrlParamPair,
     CustomFetchInitOptions,
     Result,
 } from "../../interfaces/fetch";
+import { LilithError } from "../base";
 import { useLilithLog } from "./log";
 
 const useParamIfExists = (
@@ -39,6 +40,7 @@ export const useRequest = ({
     ): Promise<Result<T>> => {
         try {
             const apiUrl = useUrlWithParams(url, params);
+
             useLilithLog(debug).log(apiUrl);
 
             const response = await fetch(apiUrl, requestOptions);

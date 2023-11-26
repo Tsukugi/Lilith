@@ -6,7 +6,7 @@ import {
     Tag,
     SearchQueryOptions,
     SearchResult,
-} from "../../interfaces/base";
+} from "../base/interfaces";
 import {
     UrlParamPair,
     Result,
@@ -21,7 +21,7 @@ import {
     MangaDexCoverArt,
     MangaDexAuthor,
     MangaDexRelationship,
-} from "../../interfaces/repositories/mangadex";
+} from "./interfaces";
 import { LilithError, DefaultSearchOptions } from "../base";
 import { ArrayUtils } from "../utils/array";
 import { useLilithLog } from "../utils/log";

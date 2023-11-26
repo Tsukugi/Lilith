@@ -1,4 +1,5 @@
-import { LilithLanguage, Sort } from "../interfaces/base";
+import { LilithLanguage, Sort } from "./interfaces";
+
 /*
  *  This is the size that will define a Page in Search(), we use 25 basically to fit NH search results
  */

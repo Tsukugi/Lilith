@@ -1,41 +1,41 @@
 import {
     BookBase,
-    Extension,
     LilithLanguage,
     SearchQueryOptions,
     SearchResult,
-    UriType,
     Image,
-} from "../../interfaces/base";
-import { UseDomParserImpl } from "../../interfaces/domParser";
-import { LilithRequest } from "../../interfaces/fetch";
-import { DefaultSearchOptions, LilithError } from "../base";
-import { ArrayUtils } from "../utils/array";
-import { useLilithLog } from "../utils/log";
-import { PromiseTools } from "../utils/promise";
-import { useRangeFinder } from "../utils/range";
-import { NHentaiBase } from "./base";
+    Search,
+} from "../../base/interfaces";
+import { UseDomParserImpl } from "../../../interfaces/domParser";
+import { DefaultSearchOptions, LilithError } from "../../base";
+import { ArrayUtils } from "../../utils/array";
+import { useLilithLog } from "../../utils/log";
+import { PromiseTools } from "../../utils/promise";
+import { useRangeFinder } from "../../utils/range";
+import { UseNHentaiMethodProps } from "../interfaces";
+import { NHentaiBase } from "../base";
 
-interface UseNHentaiSearchProps {
-    baseUrl: string;
-    debug: boolean;
-
-    getUri: (
-        type: UriType,
-        mediaId: string,
-        mime: Extension,
-        pageNumber?: number,
-    ) => string;
-    request: LilithRequest;
-}
+/**
+ * Custom hook for searching NHentai using the provided options and methods.
+ *
+ * @param {UseNHentaiMethodProps} options - The options and methods needed for NHentai search.
+ * @returns {Search} - The search function.
+ */
 export const useNHentaiSearch = ({
-    baseUrl,
+    domains: { baseUrl },
     debug,
     request,
-}: UseNHentaiSearchProps) => {
+}: UseNHentaiMethodProps): Search => {
     const { LanguageCodeMapper, extractLanguages, NHentaiPageResultSize } =
         NHentaiBase;
 
+    /**
+     * Internal function for generic NHentai search.
+     *
+     * @param {string} query - The search query.
+     * @param {Partial<SearchQueryOptions>} options - Additional search options.
+     * @returns {Promise<SearchResult>} - The search result.
+     */
     const searchGeneric = async (
         query: string,
         options?: Partial<SearchQueryOptions>,
@@ -157,7 +157,14 @@ export const useNHentaiSearch = ({
         };
     };
 
-    const search = async (
+    /**
+     * Main function for NHentai search, handling pagination and sequential search.
+     *
+     * @param {string} query - The search query.
+     * @param {Partial<SearchQueryOptions>} options - Additional search options.
+     * @returns {Promise<SearchResult>} - The search result.
+     */
+    return async (
         query: string,
         options?: Partial<SearchQueryOptions>,
     ): Promise<SearchResult> => {
@@ -197,6 +204,4 @@ export const useNHentaiSearch = ({
             results: sequentialRes.results,
         };
     };
-
-    return { search };
 };
