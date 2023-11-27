@@ -42,6 +42,7 @@ const extractLanguages = (title: string): LilithLanguage[] => {
     return languages;
 };
 
+//! Please rename to use{RepositoryName}Method and delete these comments
 export const useMethod = () => {
     return {
         extractLanguages,

@@ -13,7 +13,7 @@ import { useGetRandomBook } from "./methods/getRandomBook";
 import { useSearch } from "./methods/search";
 import { useLatest } from "./methods/latest";
 
-// ! Please rename to use{RepositoryName}Repository and delete these comments
+//! Please rename to use{RepositoryName}Repository and delete these comments
 export const useRepository: RepositoryTemplate = (props) => {
     const { headers } = props;
     const { doRequest } = useRequest(props);

@@ -1,5 +1,4 @@
 import { GetBook, LilithLanguage } from "../../base/interfaces";
-import { NHentaiResult } from "../../nhentai/interfaces";
 import { Book } from "../../base/interfaces";
 import { useLilithLog } from "../../utils/log";
 import { UseMethodProps } from "../interfaces";
@@ -16,9 +15,7 @@ export const useGetBook = (props: UseMethodProps): GetBook => {
         id: string,
         requiredLanguages: LilithLanguage[] = Object.values(LilithLanguage),
     ): Promise<Book> => {
-        const response = await request<NHentaiResult>(
-            `${apiUrl}/gallery/${id}`,
-        );
+        const response = await request(`${apiUrl}/gallery/${id}`);
 
         if (!response || response?.statusCode !== 200) {
             throw new LilithError(response?.statusCode, "No book found");

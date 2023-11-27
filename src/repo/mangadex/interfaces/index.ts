@@ -1,3 +1,11 @@
+import { LilithRequest } from "../../../interfaces/fetch";
+import { Domains, RepositoryBaseProps } from "../../base/interfaces";
+
+export interface UseMangaDexMethodProps extends RepositoryBaseProps {
+    domains: Domains;
+    request: LilithRequest;
+}
+
 export enum MangaDexLanguage {
     EN = "en",
     KO = "ko",
