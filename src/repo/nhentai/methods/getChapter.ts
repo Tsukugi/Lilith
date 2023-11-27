@@ -2,7 +2,7 @@ import { Chapter, Extension, GetChapter } from "../../base/interfaces";
 import { NHentaiResult, UseNHentaiMethodProps } from "../interfaces";
 import { LilithError } from "../../base";
 import { useLilithLog } from "../../utils/log";
-import { NHentaiBase } from "../base";
+import { useNHentaiMethods } from "./base";
 
 /**
  * Hook for interacting with NHentai chapters.
@@ -15,7 +15,7 @@ export const useNHentaiChapter = ({
     getUri,
     request,
 }: UseNHentaiMethodProps): GetChapter => {
-    const { LanguageMapper, getLanguageFromTags } = NHentaiBase;
+    const { LanguageMapper, getLanguageFromTags } = useNHentaiMethods();
 
     /**
      * Retrieves information about a chapter based on its identifier.

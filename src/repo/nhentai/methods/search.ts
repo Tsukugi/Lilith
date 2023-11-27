@@ -13,7 +13,7 @@ import { useLilithLog } from "../../utils/log";
 import { PromiseTools } from "../../utils/promise";
 import { useRangeFinder } from "../../utils/range";
 import { UseNHentaiMethodProps } from "../interfaces";
-import { NHentaiBase } from "../base";
+import { useNHentaiMethods } from "./base";
 
 /**
  * Custom hook for searching NHentai using the provided options and methods.
@@ -27,7 +27,7 @@ export const useNHentaiSearch = ({
     request,
 }: UseNHentaiMethodProps): Search => {
     const { LanguageCodeMapper, extractLanguages, NHentaiPageResultSize } =
-        NHentaiBase;
+        useNHentaiMethods();
 
     /**
      * Internal function for generic NHentai search.

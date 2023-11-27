@@ -7,7 +7,7 @@ import {
 } from "../../base/interfaces";
 import { NHentaiPaginateResult, UseNHentaiMethodProps } from "../interfaces";
 import { LilithError } from "../../base";
-import { NHentaiBase } from "../base";
+import { useNHentaiMethods } from "./base";
 
 /**
  * Custom hook for fetching the latest NHentai books using the provided options and methods.
@@ -23,7 +23,7 @@ export const useNHentaiLatest = (
         request,
         getUri,
     } = props;
-    const { LanguageMapper, getLanguageFromTags } = NHentaiBase;
+    const { LanguageMapper, getLanguageFromTags } = useNHentaiMethods();
 
     /**
      * Function for fetching the latest NHentai books for a specific page.

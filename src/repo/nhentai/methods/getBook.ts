@@ -7,7 +7,7 @@ import {
 } from "../../base/interfaces";
 import { NHentaiResult, UseNHentaiMethodProps } from "../interfaces";
 import { useLilithLog } from "../../utils/log";
-import { NHentaiBase } from "../base";
+import { useNHentaiMethods } from "./base";
 import { LilithError } from "../../base";
 /**
  * Hook for interacting with NHentai books.
@@ -20,7 +20,7 @@ export const useNHentaiBook = ({
     getUri,
     request,
 }: UseNHentaiMethodProps): GetBook => {
-    const { LanguageMapper, getLanguageFromTags } = NHentaiBase;
+    const { LanguageMapper, getLanguageFromTags } = useNHentaiMethods();
 
     /**
      * Retrieves information about a book based on its identifier.

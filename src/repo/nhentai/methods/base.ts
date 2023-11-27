@@ -1,5 +1,5 @@
-import { LilithLanguage } from "../base/interfaces";
-import { NHentaiLanguage, NHentaiTag } from "./interfaces";
+import { LilithLanguage } from "../../base/interfaces";
+import { NHentaiLanguage, NHentaiTag } from "../interfaces";
 
 /**
  * The size of results per page in an NHentai search.
@@ -57,10 +57,12 @@ const extractLanguages = (title: string): LilithLanguage[] => {
 /**
  * NHentaiBase object containing various utilities related to NHentai integration.
  */
-export const NHentaiBase = {
-    NHentaiPageResultSize,
-    LanguageMapper,
-    LanguageCodeMapper,
-    extractLanguages,
-    getLanguageFromTags,
+export const useNHentaiMethods = () => {
+    return {
+        NHentaiPageResultSize,
+        LanguageMapper,
+        LanguageCodeMapper,
+        extractLanguages,
+        getLanguageFromTags,
+    };
 };
