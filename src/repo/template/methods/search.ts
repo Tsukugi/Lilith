@@ -10,7 +10,7 @@ import { useLilithLog } from "../../utils/log";
 export const useSearchMethod = (props: UseMethodProps): Search => {
     const {
         domains: { baseUrl },
-        debug,
+        options: { debug },
         request,
     } = props;
 

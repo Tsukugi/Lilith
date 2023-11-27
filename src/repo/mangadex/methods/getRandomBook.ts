@@ -13,7 +13,7 @@ export const useMangaDexGetRandomBookMethod = (
 ): GetRandomBook => {
     const {
         domains: { apiUrl },
-        debug,
+        options: { debug },
         request,
     } = props;
 

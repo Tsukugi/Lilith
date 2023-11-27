@@ -19,7 +19,7 @@ export const useMangaDexGetChapterMethod = (
 ): GetChapter => {
     const {
         domains: { apiUrl, imgBaseUrl },
-        debug,
+        options: { debug },
         request,
     } = props;
 

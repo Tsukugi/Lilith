@@ -18,7 +18,7 @@ export const useMangaDexGetBookMethod = (
 ): GetBook => {
     const {
         domains: { apiUrl, tinyImgBaseUrl },
-        debug,
+        options: { debug },
         request,
     } = props;
 

@@ -23,9 +23,7 @@ describe("Lilith", () => {
         beforeEach(() => {
             loader = useAPILoader({
                 repo: LilithRepo.MangaDex,
-                configurations: {
-                    debug,
-                },
+                config: { options: { debug } },
             });
         });
         test("Errors", async () => {

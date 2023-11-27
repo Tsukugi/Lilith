@@ -13,7 +13,7 @@ export const useMangaDexGetTrendingBooksMethod = (
 ): GetTrendingBooks => {
     const {
         domains: { baseUrl },
-        debug,
+        options: { debug },
         request,
     } = props;
 

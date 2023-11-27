@@ -24,11 +24,11 @@ describe("Lilith", () => {
         beforeEach(() => {
             loader = useAPILoader({
                 repo: LilithRepo.NHentai,
-                configurations: {
+                config: {
                     headers,
                     domParser: useCheerioDomParser,
                     fetch: useNodeFetch,
-                    debug,
+                    options: { debug },
                 },
             });
         });
@@ -64,7 +64,7 @@ describe("Lilith", () => {
         test("RandomBook", async () => {
             const randomLoader = useAPILoader({
                 repo: LilithRepo.NHentai,
-                configurations: {
+                config: {
                     headers,
                     fetch: () => fetchMock({}, TextMocksForDomParser.Random),
                     domParser: useCheerioDomParser,

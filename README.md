@@ -99,7 +99,7 @@ switch (repo) {
             headers,
             fetch,
             domParser,
-            debug,
+            options: { debug },
         });
 
     /* ...rest of the options */

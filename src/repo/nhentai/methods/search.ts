@@ -1,19 +1,16 @@
 import {
     BookBase,
-    LilithLanguage,
     SearchQueryOptions,
     SearchResult,
-    Image,
     Search,
 } from "../../base/interfaces";
-import { UseDomParserImpl } from "../../../interfaces/domParser";
 import { DefaultSearchOptions, LilithError } from "../../base";
-import { ArrayUtils } from "../../utils/array";
 import { useLilithLog } from "../../utils/log";
 import { PromiseTools } from "../../utils/promise";
 import { useRangeFinder } from "../../utils/range";
 import { UseNHentaiMethodProps } from "../interfaces";
 import { useNHentaiMethods } from "./base";
+import { UseDomParserImpl } from "../../../interfaces/domParser";
 
 /**
  * Custom hook for searching NHentai using the provided options and methods.
@@ -23,11 +20,38 @@ import { useNHentaiMethods } from "./base";
  */
 export const useNHentaiSearchMethod = ({
     domains: { baseUrl },
-    debug,
+    options: { debug, requiredLanguages },
     request,
 }: UseNHentaiMethodProps): Search => {
-    const { LanguageCodeMapper, extractLanguages, NHentaiPageResultSize } =
-        useNHentaiMethods();
+    const { getGalleries, NHentaiPageResultSize } = useNHentaiMethods();
+
+    /**
+     * Function for extracting the total number of pages
+     *
+     * @param {UseDomParserImpl} document - The parsed DOM document.
+     * @returns {number} - The total number of pages.
+     */
+    const getTotalPages = (document: UseDomParserImpl): number => {
+        // Extracting the last page anchor from the document
+        const lastPageAnchor = document
+            .find("section.pagination a.last")
+            .getAttribute("href");
+
+        // Handling case where the last page anchor is not found
+        if (!lastPageAnchor) {
+            throw new LilithError(
+                404,
+                "DOM Parser failed to find necessary elements needed for this process",
+            );
+        }
+
+        // Extracting the page number from the last page anchor
+        const pageNumberRegex = /page=(\d+)/;
+        const match = lastPageAnchor.match(pageNumberRegex);
+
+        // Returning the total number of pages (or defaulting to 1 if not found)
+        return match ? +match[1] : 1;
+    };
 
     /**
      * Internal function for generic NHentai search.
@@ -53,98 +77,11 @@ export const useNHentaiSearchMethod = ({
 
         const document = await response.getDocument();
 
-        const cloudflareDomCheck = document
-            .find("div#content")
-            .getAttribute("id");
-
-        if (!cloudflareDomCheck) {
-            throw new LilithError(
-                401,
-                "Cloudflare challenge triggered, we should provide the correct Cloudlflare clearance",
-            );
-        }
-
-        const container = document.find("div.container");
-        const lastPageAnchor = document
-            .find("section.pagination a.last")
-            .getAttribute("href");
-
-        if (!container || !lastPageAnchor) {
-            throw new LilithError(
-                404,
-                "DOM Parser failed to find necessary elements needed for this process",
-            );
-        }
-
-        const pageNumberRegex = /page=(\d+)/;
-        const match = lastPageAnchor.match(pageNumberRegex);
-        const totalPages = match ? +match[1] : 1;
-
-        const searchResults: UseDomParserImpl[] =
-            container.findAll("div.gallery");
-
-        if (!searchResults || searchResults.length === 0) {
-            throw new LilithError(404, "No search results found");
-        }
-
-        const getLanguageFromAttribute = (
-            el: UseDomParserImpl,
-        ): LilithLanguage[] => {
-            const languagesRetrieved = el
-                .getAttribute("data-tags")
-                .split(" ")
-                .filter((code) =>
-                    Object.keys(LanguageCodeMapper).includes(code),
-                )
-                .map((code) => LanguageCodeMapper[code]);
-            return languagesRetrieved;
-        };
-
-        const books: BookBase[] = searchResults
-            .filter((searchElement) => {
-                return (
-                    ArrayUtils.findCommonElements(
-                        getLanguageFromAttribute(searchElement),
-                        innerOptions.requiredLanguages,
-                    ).length > 0
-                );
-            })
-            .map((searchElement) => {
-                const anchorElement = searchElement.find("> a");
-                const bookId = anchorElement
-
-                    .getAttribute("href")
-                    .split("/")
-                    .find((p) => p.length > 5); // A NH code should never be less than 6 digits
-
-                const resultCover = anchorElement.find("img");
-
-                const { getAttribute } = resultCover;
-                const cover: Image = {
-                    uri: getAttribute("data-src") || getAttribute("src") || "",
-                    width: +getAttribute("width") || 0,
-                    height: +getAttribute("height") || 0,
-                };
-
-                const titleElement = anchorElement.find(".caption");
-                const title: string = titleElement?.getText() || "";
-
-                let availableLanguages: LilithLanguage[] =
-                    getLanguageFromAttribute(searchElement);
-
-                if (availableLanguages.length === 0) {
-                    availableLanguages = extractLanguages(title);
-                }
-
-                return {
-                    id: bookId,
-                    cover: cover,
-                    title,
-                    availableLanguages,
-                };
-            });
+        const totalPages: number = getTotalPages(document);
+        const books: BookBase[] = getGalleries(document, requiredLanguages);
 
         useLilithLog(debug).log({
+            totalPages,
             availableLanguages: books.map((book) => book.availableLanguages),
         });
 

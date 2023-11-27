@@ -11,7 +11,7 @@ import { UseMethodProps } from "../interfaces";
 export const useGetChapterMethod = (props: UseMethodProps): GetChapter => {
     const {
         domains: { apiUrl },
-        debug,
+        options: { debug },
         request,
     } = props;
 

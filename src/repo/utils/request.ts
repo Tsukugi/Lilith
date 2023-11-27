@@ -31,7 +31,7 @@ const useUrlWithParams = (url: string, params?: UrlParamPair[]) => {
 export const useRequest = ({
     fetch,
     domParser,
-    debug,
+    options: { debug },
 }: RepositoryBaseProps) => {
     const doRequest = async <T>(
         url: string,

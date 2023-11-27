@@ -7,7 +7,7 @@ import { LilithError } from "../../base";
 export const useGetBookMethod = (props: UseMethodProps): GetBook => {
     const {
         domains: { apiUrl },
-        debug,
+        options: { debug },
         request,
     } = props;
 

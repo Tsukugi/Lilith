@@ -1,6 +1,3 @@
-import { LilithHeaders, CustomFetch } from "../interfaces/fetch";
-import { UseDomParser } from "../interfaces/domParser";
-
 import { useCheerioDomParser } from "../impl/useCheerioDomParser";
 import { useNodeFetch } from "../impl/useNodeFetch";
 
@@ -8,27 +5,38 @@ import { LilithRepo } from "../interfaces";
 
 import { useMangaDexRepository } from "../repo/mangadex";
 import { useNHentaiRepository } from "../repo/nhentai";
-import { RepositoryBase, RepositoryBaseProps } from "../repo/base/interfaces";
+import {
+    LilithLanguage,
+    RepositoryBase,
+    RepositoryBaseOptions,
+    RepositoryBaseProps,
+} from "../repo/base/interfaces";
+import { UseDomParser } from "../interfaces/domParser";
+import { CustomFetch, LilithHeaders } from "../interfaces/fetch";
+
 export interface APILoaderConfigurations {
-    headers: LilithHeaders;
+    headers?: Partial<LilithHeaders>;
     fetch: CustomFetch;
     domParser: UseDomParser;
-    debug: boolean;
+    options: Partial<RepositoryBaseOptions>;
 }
-
 export interface UseAPILoaderProps {
     repo: LilithRepo;
-    configurations?: Partial<APILoaderConfigurations>;
+    config?: Partial<APILoaderConfigurations>;
 }
 export const useAPILoader = ({
     repo,
-    configurations,
+    config,
 }: UseAPILoaderProps): RepositoryBase => {
     const innerConfigurations: RepositoryBaseProps = {
         fetch: useNodeFetch,
         domParser: useCheerioDomParser,
-        debug: false,
-        ...configurations,
+        ...config,
+        options: {
+            debug: false,
+            requiredLanguages: Object.values(LilithLanguage),
+            ...config.options,
+        },
     };
 
     switch (repo) {

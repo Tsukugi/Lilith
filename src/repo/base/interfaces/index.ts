@@ -14,10 +14,7 @@ export type GetChapter = (identifier: string) => Promise<Chapter>;
  * @param {LilithLanguage[]} [requiredLanguages] - Optional array of required languages.
  * @returns {Promise<Book>} - A Promise that resolves to the retrieved book.
  */
-export type GetBook = (
-    identifier: string,
-    requiredLanguages?: LilithLanguage[],
-) => Promise<Book>;
+export type GetBook = (identifier: string) => Promise<Book>;
 
 /**
  * Type alias for a function that performs a search based on a query and optional search options.
@@ -117,10 +114,15 @@ export interface RepositoryBaseProps {
      */
     domParser: UseDomParser;
 
+    options: RepositoryBaseOptions;
+}
+
+export interface RepositoryBaseOptions {
+    requiredLanguages: LilithLanguage[];
     /**
      * Optional flag indicating whether debugging information should be enabled.
      */
-    debug?: boolean;
+    debug: boolean;
 }
 
 export type RepositoryTemplate = (props: RepositoryBaseProps) => RepositoryBase;
@@ -147,7 +149,7 @@ export enum Sort {
     POPULAR = "popular",
 }
 
-export interface Image {
+export interface LilithImage {
     uri: string;
     width?: number;
     height?: number;
@@ -160,7 +162,7 @@ export interface ChapterBase {
     chapterNumber: number;
 }
 export interface Chapter extends ChapterBase {
-    pages: Image[];
+    pages: LilithImage[];
 }
 
 export interface Tag {
@@ -176,7 +178,7 @@ export interface Title {
 
 export interface BookBase {
     id: string;
-    cover: Image;
+    cover: LilithImage;
     title: string;
     availableLanguages: LilithLanguage[];
 }
@@ -210,9 +212,8 @@ export interface Domains {
 }
 
 export interface SearchQueryOptions {
-    requiredTags?: Tag[];
-    requiredLanguages?: LilithLanguage[];
-    size?: number; // Defaults to MaxSize
+    requiredTags?: Tag[]; // TODO: To be implemented
+    size?: number; // Should default to MaxSize
     page: number;
     sort: Sort; // To be deprecated
 }

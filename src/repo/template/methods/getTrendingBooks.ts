@@ -8,10 +8,12 @@ import { useLilithLog } from "../../utils/log";
  * @param {UseMethodProps} props - The options and methods needed for NHentai latest book retrieval.
  * @returns {GetTrendingBooks} - The function for fetching the latest books.
  */
-export const useGetTrendingBooksMethod = (props: UseMethodProps): GetTrendingBooks => {
+export const useGetTrendingBooksMethod = (
+    props: UseMethodProps,
+): GetTrendingBooks => {
     const {
         domains: { baseUrl },
-        debug,
+        options: { debug },
         request,
     } = props;
 

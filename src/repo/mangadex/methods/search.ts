@@ -21,7 +21,7 @@ export const useMangaDexSearchMethod = (
 ): Search => {
     const {
         domains: { apiUrl, tinyImgBaseUrl },
-        debug,
+        options: { debug, requiredLanguages },
         request,
     } = props;
 
@@ -45,11 +45,10 @@ export const useMangaDexSearchMethod = (
         const { pageToRange } = useRangeFinder({ pageSize: innerOptions.size });
         const { startIndex } = pageToRange(innerOptions.page);
 
-        const languageParams: UrlParamPair[] =
-            innerOptions.requiredLanguages.map((lang) => [
-                "availableTranslatedLanguage[]",
-                lang,
-            ]);
+        const languageParams: UrlParamPair[] = requiredLanguages.map((lang) => [
+            "availableTranslatedLanguage[]",
+            lang,
+        ]);
 
         useLilithLog(debug).log({
             startIndex,
@@ -96,7 +95,7 @@ export const useMangaDexSearchMethod = (
             page: innerOptions.page,
             results: result.data.map((manga) => {
                 const supportedTranslations = getSupportedTranslations(
-                    innerOptions.requiredLanguages,
+                    requiredLanguages,
                     manga.attributes.availableTranslatedLanguages,
                 );
                 const availableLanguages = supportedTranslations.map(

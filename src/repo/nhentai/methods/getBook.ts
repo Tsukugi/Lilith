@@ -16,7 +16,7 @@ import { LilithError } from "../../base";
  */
 export const useNHentaiGetBookmethod = ({
     domains: { apiUrl },
-    debug,
+    options: { debug },
     getUri,
     request,
 }: UseNHentaiMethodProps): GetBook => {

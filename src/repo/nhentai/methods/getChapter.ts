@@ -11,7 +11,7 @@ import { useNHentaiMethods } from "./base";
  */
 export const useNHentaiGetChapterMethod = ({
     domains: { apiUrl },
-    debug,
+    options: { debug },
     getUri,
     request,
 }: UseNHentaiMethodProps): GetChapter => {

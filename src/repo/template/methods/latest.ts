@@ -13,7 +13,7 @@ export const useGetLatestBooksMethod = (
 ): GetLatestBooks => {
     const {
         domains: { baseUrl },
-        debug,
+        options: { debug },
         request,
     } = props;
 

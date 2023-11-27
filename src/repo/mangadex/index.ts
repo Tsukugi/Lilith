@@ -15,7 +15,7 @@ import { useMangaDexGetTrendingBooksMethod } from "./methods/getTrendingBooks";
 
 export const useMangaDexRepository: RepositoryTemplate = (props) => {
     const { doRequest } = useRequest(props);
-    const { debug } = props;
+    const { options } = props;
 
     const baseUrl = "https://mangadex.org";
     const apiUrl = "https://api.mangadex.org";
@@ -36,7 +36,7 @@ export const useMangaDexRepository: RepositoryTemplate = (props) => {
     const domains = { baseUrl, imgBaseUrl, apiUrl, tinyImgBaseUrl };
     const methodProps: UseMangaDexMethodProps = {
         ...props,
-        debug,
+        options,
         domains,
         request,
     };

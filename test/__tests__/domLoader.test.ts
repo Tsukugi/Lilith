@@ -15,10 +15,10 @@ describe("DOMLoader", () => {
     beforeEach(() => {
         loader = useAPILoader({
             repo: LilithRepo.NHentai,
-            configurations: {
+            config: {
                 headers,
                 fetch: () => fetchMock({}, TextMocksForDomParser.Search),
-                debug,
+                options: { debug },
             },
         });
     });
@@ -36,7 +36,7 @@ describe("DOMLoader", () => {
     test("Custom fetch for text", async () => {
         const randomLoader = useAPILoader({
             repo: LilithRepo.NHentai,
-            configurations: {
+            config: {
                 headers,
                 fetch: () => fetchMock({}, TextMocksForDomParser.Random),
             },

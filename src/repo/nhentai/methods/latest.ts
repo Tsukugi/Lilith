@@ -1,5 +1,5 @@
 import {
-    Image,
+    LilithImage,
     Pagination,
     BookBase,
     Extension,
@@ -54,7 +54,7 @@ export const useNHentaiGetLatestBooksMethod = (
         // Mapping the response data to book objects
         const books: BookBase[] = (data.result || []).map((result) => {
             const cover = result.images.cover;
-            const coverImage: Image = {
+            const coverImage: LilithImage = {
                 uri: getUri("cover", result.media_id, Extension[cover.t]),
                 width: cover.w,
                 height: cover.h,

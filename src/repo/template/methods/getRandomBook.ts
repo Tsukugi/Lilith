@@ -7,7 +7,7 @@ export const useGetRandomBookMethod = (
 ): GetRandomBook => {
     const {
         domains: { baseUrl },
-        debug,
+        options: { debug },
         request,
     } = props;
 

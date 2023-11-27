@@ -13,7 +13,7 @@ export const useMangaDexGetLatestBooksMethod = (
 ): GetLatestBooks => {
     const {
         domains: { baseUrl },
-        debug,
+        options: { debug },
         request,
     } = props;
 

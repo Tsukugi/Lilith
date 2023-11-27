@@ -15,7 +15,7 @@ export {
 } from "./repo/base/interfaces";
 
 export type {
-    Image,
+    LilithImage,
     Chapter,
     Tag,
     Title,
@@ -40,9 +40,7 @@ export { useMangaDexRepository } from "./repo/mangadex";
 export { useCheerioDomParser } from "./impl/useCheerioDomParser";
 export { useNodeFetch } from "./impl/useNodeFetch";
 
-export {
-    useAPILoader,
-    UseAPILoaderProps,
-    APILoaderConfigurations,
-} from "./api/loader";
+export { useAPILoader } from "./api/loader";
+export type { UseAPILoaderProps, APILoaderConfigurations } from "./api/loader";
+
 export { LilithRepo } from "./interfaces";
