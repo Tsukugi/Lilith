@@ -15,7 +15,7 @@ import { useNHentaiMethods } from "./base";
  * @param {UseNHentaiMethodProps} props - The options and methods needed for NHentai latest book retrieval.
  * @returns {GetLatestBooks} - The function for fetching the latest books.
  */
-export const useNHentaiLatest = (
+export const useNHentaiGetLatestBooksMethod = (
     props: UseNHentaiMethodProps,
 ): GetLatestBooks => {
     const {

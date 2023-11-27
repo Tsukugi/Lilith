@@ -13,7 +13,9 @@ import { LilithError } from "../../base";
 import { UrlParamPair } from "../../../interfaces/fetch";
 import { useMangaDexMethod } from "./base";
 
-export const useGetBook = (props: UseMangaDexMethodProps): GetBook => {
+export const useMangaDexGetBookMethod = (
+    props: UseMangaDexMethodProps,
+): GetBook => {
     const {
         domains: { apiUrl, tinyImgBaseUrl },
         debug,

@@ -1,14 +1,14 @@
 import { Book, GetRandomBook } from "../../base/interfaces";
 import { LilithError } from "../../base";
 import { UseNHentaiMethodProps } from "../interfaces";
-import { useNHentaiBook } from "./getBook";
+import { useNHentaiGetBookmethod } from "./getBook";
 
 /**
  * Hook for retrieving a random book from NHentai.
  * @param {UseNHentaiMethodProps} props - Properties required for the hook.
  * @returns {GetRandomBook} - A function that retrieves a random book.
  */
-export const useNHentaiRandomBook = (
+export const useNHentaiGetRandomBookMethod = (
     props: UseNHentaiMethodProps,
 ): GetRandomBook => {
     const {
@@ -37,7 +37,7 @@ export const useNHentaiRandomBook = (
         }
 
         const id = idElement.getText().replace("#", "");
-        const result = (await useNHentaiBook(props)(id)) || null;
+        const result = (await useNHentaiGetBookmethod(props)(id)) || null;
 
         if (!result) {
             if (retry >= 3) {

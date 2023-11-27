@@ -16,7 +16,9 @@ import { useMangaDexMethod } from "./base";
 import { useRangeFinder } from "../../utils/range";
 import { UrlParamPair } from "../../../interfaces/fetch";
 
-export const useSearch = (props: UseMangaDexMethodProps): Search => {
+export const useMangaDexSearchMethod = (
+    props: UseMangaDexMethodProps,
+): Search => {
     const {
         domains: { apiUrl, tinyImgBaseUrl },
         debug,

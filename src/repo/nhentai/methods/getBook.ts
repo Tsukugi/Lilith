@@ -14,7 +14,7 @@ import { LilithError } from "../../base";
  * @param {UseNHentaiMethodProps} props - Properties required for the hook.
  * @returns {GetBook} - A function that retrieves information about a book based on its identifier.
  */
-export const useNHentaiBook = ({
+export const useNHentaiGetBookmethod = ({
     domains: { apiUrl },
     debug,
     getUri,

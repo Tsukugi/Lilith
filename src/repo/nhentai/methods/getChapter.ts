@@ -9,7 +9,7 @@ import { useNHentaiMethods } from "./base";
  * @param {UseNHentaiMethodProps} props - Properties required for the hook.
  * @returns {GetChapter} - A function that retrieves information about a chapter based on its identifier.
  */
-export const useNHentaiChapter = ({
+export const useNHentaiGetChapterMethod = ({
     domains: { apiUrl },
     debug,
     getUri,

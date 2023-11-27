@@ -21,7 +21,7 @@ import { useNHentaiMethods } from "./base";
  * @param {UseNHentaiMethodProps} options - The options and methods needed for NHentai search.
  * @returns {Search} - The search function.
  */
-export const useNHentaiSearch = ({
+export const useNHentaiSearchMethod = ({
     domains: { baseUrl },
     debug,
     request,

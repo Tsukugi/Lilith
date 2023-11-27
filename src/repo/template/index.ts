@@ -7,11 +7,12 @@ import {
 import { LilithError } from "../base";
 import { useRequest } from "../utils/request";
 import { UseMethodProps } from "./interfaces";
-import { useGetBook } from "./methods/getBook";
-import { useGetChapter } from "./methods/getChapter";
-import { useGetRandomBook } from "./methods/getRandomBook";
-import { useSearch } from "./methods/search";
-import { useLatest } from "./methods/latest";
+import { useGetBookMethod } from "./methods/getBook";
+import { useGetChapterMethod } from "./methods/getChapter";
+import { useGetRandomBookMethod } from "./methods/getRandomBook";
+import { useSearchMethod } from "./methods/search";
+import { useGetLatestBooksMethod } from "./methods/latest";
+import { useGetTrendingBooksMethod } from "./methods/getTrendingBooks";
 
 //! Please rename to use{RepositoryName}Repository and delete these comments
 export const useRepository: RepositoryTemplate = (props) => {
@@ -54,10 +55,11 @@ export const useRepository: RepositoryTemplate = (props) => {
 
     return {
         domains,
-        getChapter: useGetChapter(methodProps),
-        getBook: useGetBook(methodProps),
-        search: useSearch(methodProps),
-        getRandomBook: useGetRandomBook(methodProps),
-        getLatestBooks: useLatest(methodProps),
+        getChapter: useGetChapterMethod(methodProps),
+        getBook: useGetBookMethod(methodProps),
+        search: useSearchMethod(methodProps),
+        getRandomBook: useGetRandomBookMethod(methodProps),
+        getLatestBooks: useGetLatestBooksMethod(methodProps),
+        getTrendingBooks: useGetTrendingBooksMethod(methodProps),
     };
 };

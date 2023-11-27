@@ -7,7 +7,7 @@ import { DefaultSearchOptions } from "../../base";
 import { UseMethodProps } from "../interfaces";
 import { useLilithLog } from "../../utils/log";
 
-export const useSearch = (props: UseMethodProps): Search => {
+export const useSearchMethod = (props: UseMethodProps): Search => {
     const {
         domains: { baseUrl },
         debug,

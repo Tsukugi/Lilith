@@ -2,7 +2,9 @@ import { Book, GetRandomBook } from "../../base/interfaces";
 import { useLilithLog } from "../../utils/log";
 import { UseMethodProps } from "../interfaces";
 
-export const useGetRandomBook = (props: UseMethodProps): GetRandomBook => {
+export const useGetRandomBookMethod = (
+    props: UseMethodProps,
+): GetRandomBook => {
     const {
         domains: { baseUrl },
         debug,

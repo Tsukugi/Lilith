@@ -4,7 +4,7 @@ import { useLilithLog } from "../../utils/log";
 import { UseMethodProps } from "../interfaces";
 import { LilithError } from "../../base";
 
-export const useGetBook = (props: UseMethodProps): GetBook => {
+export const useGetBookMethod = (props: UseMethodProps): GetBook => {
     const {
         domains: { apiUrl },
         debug,

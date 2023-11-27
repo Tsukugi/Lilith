@@ -6,12 +6,13 @@ import {
 } from "../../interfaces/fetch";
 import { LilithError } from "../base";
 import { useRequest } from "../utils/request";
-import { useNHentaiBook } from "./methods/getBook";
-import { useNHentaiChapter } from "./methods/getChapter";
-import { useNHentaiSearch } from "./methods/search";
-import { useNHentaiRandomBook } from "./methods/getRandomBook";
-import { useNHentaiLatest } from "./methods/latest";
+import { useNHentaiGetBookmethod } from "./methods/getBook";
+import { useNHentaiGetChapterMethod } from "./methods/getChapter";
+import { useNHentaiSearchMethod } from "./methods/search";
+import { useNHentaiGetRandomBookMethod } from "./methods/getRandomBook";
+import { useNHentaiGetLatestBooksMethod } from "./methods/latest";
 import { UseNHentaiMethodProps } from "./interfaces";
+import { useNHentaiGetTrendingBooksMethod } from "./methods/getTrendingBooks";
 
 export const useNHentaiRepository: RepositoryTemplate = (props) => {
     const { headers } = props;
@@ -69,10 +70,11 @@ export const useNHentaiRepository: RepositoryTemplate = (props) => {
 
     return {
         domains,
-        getChapter: useNHentaiChapter(methodProps),
-        getBook: useNHentaiBook(methodProps),
-        search: useNHentaiSearch(methodProps),
-        getRandomBook: useNHentaiRandomBook(methodProps),
-        getLatestBooks: useNHentaiLatest(methodProps),
+        getChapter: useNHentaiGetChapterMethod(methodProps),
+        getBook: useNHentaiGetBookmethod(methodProps),
+        search: useNHentaiSearchMethod(methodProps),
+        getRandomBook: useNHentaiGetRandomBookMethod(methodProps),
+        getLatestBooks: useNHentaiGetLatestBooksMethod(methodProps),
+        getTrendingBooks: useNHentaiGetTrendingBooksMethod(methodProps),
     };
 };

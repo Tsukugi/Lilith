@@ -8,7 +8,7 @@ import { UseMethodProps } from "../interfaces";
  * @param {UseMethodProps} props - Properties required for the hook.
  * @returns {GetChapter} - A function that retrieves information about a chapter based on its identifier.
  */
-export const useGetChapter = (props: UseMethodProps): GetChapter => {
+export const useGetChapterMethod = (props: UseMethodProps): GetChapter => {
     const {
         domains: { apiUrl },
         debug,

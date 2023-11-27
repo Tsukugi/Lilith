@@ -89,13 +89,13 @@ export interface RepositoryBase {
      * @param {number} page - The page number.
      * @returns {Promise<Pagination>} - A Promise that resolves to the information for the latest books.
      */
-    getLatestBooks?: GetLatestBooks;
+    getLatestBooks: GetLatestBooks;
 
     /**
      * Retrieves a list of trending books.
      * @returns {Promise<BookBase[]>} - A Promise that resolves to the list of trending books.
      */
-    getTrendingBooks?: GetTrendingBooks;
+    getTrendingBooks: GetTrendingBooks;
 }
 
 /**

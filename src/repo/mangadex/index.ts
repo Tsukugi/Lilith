@@ -6,11 +6,12 @@ import {
 } from "../../interfaces/fetch";
 import { useRequest } from "../utils/request";
 import { UseMangaDexMethodProps } from "./interfaces";
-import { useGetBook } from "./methods/getBook";
-import { useGetChapter } from "./methods/getChapter";
-import { useGetRandomBook } from "./methods/getRandomBook";
-import { useSearch } from "./methods/search";
-import { useLatest } from "./methods/latest";
+import { useMangaDexGetBookMethod } from "./methods/getBook";
+import { useMangaDexGetChapterMethod } from "./methods/getChapter";
+import { useMangaDexGetRandomBookMethod } from "./methods/getRandomBook";
+import { useMangaDexSearchMethod } from "./methods/search";
+import { useMangaDexGetLatestBooksMethod } from "./methods/latest";
+import { useMangaDexGetTrendingBooksMethod } from "./methods/getTrendingBooks";
 
 export const useMangaDexRepository: RepositoryTemplate = (props) => {
     const { doRequest } = useRequest(props);
@@ -42,10 +43,11 @@ export const useMangaDexRepository: RepositoryTemplate = (props) => {
 
     return {
         domains,
-        getChapter: useGetChapter(methodProps),
-        getBook: useGetBook(methodProps),
-        search: useSearch(methodProps),
-        getRandomBook: useGetRandomBook(methodProps),
-        getLatestBooks: useLatest(methodProps),
+        getChapter: useMangaDexGetChapterMethod(methodProps),
+        getBook: useMangaDexGetBookMethod(methodProps),
+        search: useMangaDexSearchMethod(methodProps),
+        getRandomBook: useMangaDexGetRandomBookMethod(methodProps),
+        getLatestBooks: useMangaDexGetLatestBooksMethod(methodProps),
+        getTrendingBooks: useMangaDexGetTrendingBooksMethod(methodProps),
     };
 };
