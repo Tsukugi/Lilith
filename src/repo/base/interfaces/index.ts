@@ -136,13 +136,14 @@ export interface RepositoryBaseOptions {
 
 /**
  * Type representing a function to create a repository template.
+ * All Lilith Repositories must be of this type to be able to be used in the API Loader.
  */
 export type RepositoryTemplate = (props: RepositoryBaseProps) => RepositoryBase;
 
 /**
- * Type representing different types of URIs.
+ * Type representing different types of image URIs.
  */
-export type UriType = "cover" | "page" | "thumbnail";
+export type ImageUriType = "cover" | "page" | "thumbnail";
 
 /**
  * Enum representing Lilith supported languages.
@@ -157,7 +158,7 @@ export enum LilithLanguage {
 /**
  * Enum representing image file extensions supported.
  */
-export enum Extension {
+export enum ImageExtension {
     j = "jpg",
     p = "png",
     g = "gif",
@@ -202,7 +203,7 @@ export interface Chapter extends ChapterBase {
 /**
  * Interface representing a tag with ID and name.
  */
-export interface Tag {
+export interface LilithTag {
     id: string;
     name: string;
 }
@@ -222,7 +223,7 @@ export interface BookBase {
  */
 export interface Book extends BookBase {
     author: string;
-    tags: Tag[];
+    tags: LilithTag[];
     chapters: ChapterBase[];
 }
 
@@ -257,7 +258,7 @@ export interface Domains {
  * Interface representing options for a search query.
  */
 export interface SearchQueryOptions {
-    requiredTags?: Tag[]; // TODO: To be implemented
+    requiredTags?: LilithTag[]; // TODO: To be implemented
     size?: number; // Should default to MaxSize
     page: number;
     sort: Sort; // To be deprecated

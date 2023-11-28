@@ -1,4 +1,4 @@
-import { Chapter, Extension, GetChapter } from "../../base/interfaces";
+import { Chapter, ImageExtension, GetChapter } from "../../base/interfaces";
 import { NHentaiResult, UseNHentaiMethodProps } from "../interfaces";
 import { LilithError } from "../../base";
 import { useLilithLog } from "../../utils/log";
@@ -9,13 +9,16 @@ import { useNHentaiMethods } from "./base";
  * @param {UseNHentaiMethodProps} props - Properties required for the hook.
  * @returns {GetChapter} - A function that retrieves information about a chapter based on its identifier.
  */
-export const useNHentaiGetChapterMethod = ({
-    domains: { apiUrl },
-    options: { debug },
-    getUri,
-    request,
-}: UseNHentaiMethodProps): GetChapter => {
-    const { LanguageMapper, getLanguageFromTags } = useNHentaiMethods();
+export const useNHentaiGetChapterMethod = (
+    props: UseNHentaiMethodProps,
+): GetChapter => {
+    const {
+        domains: { apiUrl },
+        options: { debug },
+        request,
+    } = props;
+    const { LanguageMapper, getLanguageFromTags, getImageUri } =
+        useNHentaiMethods();
 
     /**
      * Retrieves information about a chapter based on its identifier.
@@ -44,12 +47,13 @@ export const useNHentaiGetChapterMethod = ({
         return {
             id: chapterId,
             pages: book.images.pages.map((page, index) => ({
-                uri: getUri(
-                    "page",
-                    book.media_id,
-                    Extension[book.images.thumbnail.t],
-                    index + 1,
-                ),
+                uri: getImageUri({
+                    type: "page",
+                    mediaId: book.media_id,
+                    imageExtension: ImageExtension[book.images.thumbnail.t],
+                    pageNumber: index + 1,
+                    domains: props.domains,
+                }),
                 width: page.w,
                 height: page.h,
             })),

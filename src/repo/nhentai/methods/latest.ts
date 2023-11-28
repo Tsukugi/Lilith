@@ -2,7 +2,7 @@ import {
     LilithImage,
     BookListResults,
     BookBase,
-    Extension,
+    ImageExtension,
     GetLatestBooks,
 } from "../../base/interfaces";
 import { NHentaiPaginateResult, UseNHentaiMethodProps } from "../interfaces";
@@ -21,9 +21,9 @@ export const useNHentaiGetLatestBooksMethod = (
     const {
         domains: { apiUrl },
         request,
-        getUri,
     } = props;
-    const { LanguageMapper, getLanguageFromTags } = useNHentaiMethods();
+    const { LanguageMapper, getLanguageFromTags, getImageUri } =
+        useNHentaiMethods();
 
     /**
      * Function for fetching the latest NHentai books for a specific page.
@@ -37,7 +37,6 @@ export const useNHentaiGetLatestBooksMethod = (
             `${apiUrl}/galleries/all?page=${page}`,
         );
 
-        // Handling non-successful HTTP status codes
         if (response.statusCode !== 200) {
             throw new LilithError(
                 response.statusCode,
@@ -45,7 +44,6 @@ export const useNHentaiGetLatestBooksMethod = (
             );
         }
 
-        // Parsing the response data
         const data = await response.json();
         const numPages = data.num_pages || 0;
         const perPageEntries = data.per_page || 0;
@@ -55,7 +53,12 @@ export const useNHentaiGetLatestBooksMethod = (
         const books: BookBase[] = (data.result || []).map((result) => {
             const cover = result.images.cover;
             const coverImage: LilithImage = {
-                uri: getUri("cover", result.media_id, Extension[cover.t]),
+                uri: getImageUri({
+                    type: "cover",
+                    mediaId: result.media_id,
+                    imageExtension: ImageExtension[cover.t],
+                    domains: props.domains,
+                }),
                 width: cover.w,
                 height: cover.h,
             };

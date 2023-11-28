@@ -8,8 +8,8 @@ export type {
 } from "./interfaces/fetch";
 
 export {
-    Extension,
-    UriType,
+    ImageExtension,
+    ImageUriType,
     Sort,
     LilithLanguage,
 } from "./repo/base/interfaces";
@@ -17,7 +17,7 @@ export {
 export type {
     LilithImage,
     Chapter,
-    Tag,
+    LilithTag,
     Book,
     BookBase,
     SearchResult,

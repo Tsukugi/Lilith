@@ -1,4 +1,4 @@
-import { GetBook, LilithLanguage, Tag } from "../../base/interfaces";
+import { GetBook, LilithLanguage, LilithTag } from "../../base/interfaces";
 import { Book } from "../../base/interfaces";
 import { useLilithLog } from "../../utils/log";
 import {
@@ -93,7 +93,7 @@ export const useMangaDexGetBookMethod = (
 
         if (!fileName) throw new LilithError(404, "No cover found");
 
-        const lilithTags: Tag[] = tags.map((tag) => ({
+        const lilithTags: LilithTag[] = tags.map((tag) => ({
             id: tag.id,
             name: findFirstTranslatedValue(tag.attributes.name),
         }));

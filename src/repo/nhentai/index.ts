@@ -1,4 +1,4 @@
-import { RepositoryTemplate, UriType, Extension } from "../base/interfaces";
+import { RepositoryTemplate } from "../base/interfaces";
 import {
     UrlParamPair,
     Result,
@@ -45,27 +45,11 @@ export const useNHentaiRepository: RepositoryTemplate = (props) => {
         return doRequest(url, params, requestOptions);
     };
 
-    const getUri = (
-        type: UriType,
-        mediaId: string,
-        mime: Extension,
-        pageNumber?: number,
-    ): string => {
-        if (type === "cover")
-            return `${tinyImgBaseUrl}/${mediaId}/cover.${mime}`;
-        if (type === "thumbnail")
-            return `${tinyImgBaseUrl}/${mediaId}/thumb.${mime}`;
-        if (type === "page" && pageNumber !== undefined)
-            return `${imgBaseUrl}/${mediaId}/${pageNumber}.${mime}`;
-        throw new LilithError(500, "Invalid type or missing page number.");
-    };
-
     const domains = { baseUrl, imgBaseUrl, apiUrl, tinyImgBaseUrl };
     const methodProps: UseNHentaiMethodProps = {
         ...props,
         domains,
         request,
-        getUri,
     };
 
     return {

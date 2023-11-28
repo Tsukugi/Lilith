@@ -1,8 +1,8 @@
 import {
-    Extension,
+    ImageExtension,
     GetBook,
     LilithLanguage,
-    Tag,
+    LilithTag,
     Book,
 } from "../../base/interfaces";
 import { NHentaiResult, UseNHentaiMethodProps } from "../interfaces";
@@ -14,13 +14,17 @@ import { LilithError } from "../../base";
  * @param {UseNHentaiMethodProps} props - Properties required for the hook.
  * @returns {GetBook} - A function that retrieves information about a book based on its identifier.
  */
-export const useNHentaiGetBookmethod = ({
-    domains: { apiUrl },
-    options: { debug },
-    getUri,
-    request,
-}: UseNHentaiMethodProps): GetBook => {
-    const { LanguageMapper, getLanguageFromTags } = useNHentaiMethods();
+export const useNHentaiGetBookmethod = (
+    props: UseNHentaiMethodProps,
+): GetBook => {
+    const {
+        domains: { apiUrl },
+        options: { debug },
+        request,
+    } = props;
+
+    const { LanguageMapper, getLanguageFromTags, getImageUri } =
+        useNHentaiMethods();
 
     /**
      * Retrieves information about a book based on its identifier.
@@ -43,7 +47,7 @@ export const useNHentaiGetBookmethod = ({
 
         const book = await response.json();
 
-        const tags: Tag[] = [];
+        const tags: LilithTag[] = [];
 
         let author = "unknown";
         book.tags.forEach((tag) => {
@@ -84,11 +88,12 @@ export const useNHentaiGetBookmethod = ({
             author,
             tags,
             cover: {
-                uri: getUri(
-                    "cover",
-                    book.media_id,
-                    Extension[book.images.cover.t],
-                ),
+                uri: getImageUri({
+                    type: "cover",
+                    mediaId: book.media_id,
+                    imageExtension: ImageExtension[book.images.cover.t],
+                    domains: props.domains,
+                }),
                 width: book.images.cover.w,
                 height: book.images.cover.h,
             },
