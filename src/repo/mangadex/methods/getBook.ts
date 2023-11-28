@@ -28,7 +28,7 @@ export const useMangaDexGetBookMethod = (
         ReverseLanguageMapper,
         getSupportedTranslations,
         findFirstTranslatedValue,
-    } = useMangaDexMethod();
+    } = useMangaDexMethod(props.domains);
 
     return async (
         identifier: string,

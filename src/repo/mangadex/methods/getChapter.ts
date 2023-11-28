@@ -23,7 +23,7 @@ export const useMangaDexGetChapterMethod = (
         request,
     } = props;
 
-    const { ReverseLanguageMapper } = useMangaDexMethod();
+    const { ReverseLanguageMapper } = useMangaDexMethod(props.domains);
 
     return async (identifier: string): Promise<Chapter | null> => {
         const response = await request<MangaDexImageListResult>(

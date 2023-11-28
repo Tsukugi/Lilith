@@ -153,6 +153,12 @@ const getGalleries = (
         });
 };
 
+/**
+ * Get the image URI based on the provided parameters.
+ * @param {GetImageUriProps} props - The properties needed to generate the image URI.
+ * @returns {string} - The generated image URI.
+ * @throws {LilithError} - Throws an error for invalid type or missing page number.
+ */
 const getImageUri = ({
     domains: { tinyImgBaseUrl, imgBaseUrl },
     mediaId,

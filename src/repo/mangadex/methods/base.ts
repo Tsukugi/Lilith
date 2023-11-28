@@ -1,7 +1,13 @@
+import { UrlParamPair } from "../../../interfaces/fetch";
 import { LilithError } from "../../base";
-import { LilithLanguage } from "../../base/interfaces";
+import { BookBase, Domains, LilithLanguage } from "../../base/interfaces";
 import { ArrayUtils } from "../../utils/array";
-import { MangaDexLanguage } from "../interfaces";
+import {
+    MangaDexBook,
+    MangaDexCoverArt,
+    MangaDexLanguage,
+    MangaDexRelationship,
+} from "../interfaces";
 
 enum RelationshipTypes {
     coverArt = "cover_art",
@@ -59,7 +65,68 @@ const getSupportedTranslations = (
     return supportedTranslations;
 };
 
-export const useMangaDexMethod = () => {
+const getLanguageParams = (
+    requiredLanguages: LilithLanguage[],
+): UrlParamPair[] => {
+    const languageParams: UrlParamPair[] = [];
+
+    requiredLanguages.forEach((lang) => {
+        LanguageMapper[lang].forEach((mangaDexLanguage) => {
+            languageParams.push([
+                "availableTranslatedLanguage[]",
+                mangaDexLanguage,
+            ]);
+        });
+    });
+
+    return languageParams;
+};
+
+export const useMangaDexMethod = (domains: Domains) => {
+    const makeCover = (book: MangaDexBook) => {
+        const mangaId = book.id;
+        const coverRelationship = book.relationships.find(
+            (relationship) => relationship.type === RelationshipTypes.coverArt,
+        ) as MangaDexRelationship<MangaDexCoverArt>;
+        if (!coverRelationship || !coverRelationship.attributes) {
+            throw new LilithError(
+                404,
+                "[makeCover] No relationship found for Book",
+            );
+        }
+
+        const coverFilename = coverRelationship.attributes.fileName;
+
+        return `${domains.tinyImgBaseUrl}/${mangaId}/${coverFilename}.${ImageSize}.jpg`; // Specifies the size (256|512)
+    };
+
+    const getBookResults = (
+        books: MangaDexBook[],
+        requiredLanguages: LilithLanguage[],
+    ): BookBase[] => {
+        const results = books.map((manga) => {
+            const supportedTranslations = getSupportedTranslations(
+                requiredLanguages,
+                manga.attributes.availableTranslatedLanguages,
+            );
+            const availableLanguages = supportedTranslations.map(
+                (lang) => ReverseLanguageMapper[lang],
+            );
+
+            return {
+                id: manga.id,
+                cover: {
+                    uri: makeCover(manga),
+                    width: 256,
+                    height: 512,
+                },
+                title: findFirstTranslatedValue(manga.attributes.title),
+                availableLanguages: [...new Set(availableLanguages)],
+            };
+        });
+        return results;
+    };
+
     return {
         RelationshipTypes,
         ImageSize,
@@ -67,5 +134,7 @@ export const useMangaDexMethod = () => {
         LanguageMapper,
         findFirstTranslatedValue,
         getSupportedTranslations,
+        getLanguageParams,
+        getBookResults,
     };
 };

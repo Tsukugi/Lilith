@@ -9,6 +9,8 @@ import {
     RepositoryBase,
     Book,
     Chapter,
+    BookBase,
+    BookListResults,
 } from "../../src/repo/base/interfaces";
 
 const debug = false;
@@ -72,6 +74,21 @@ describe("Lilith", () => {
             const chapter: Chapter = await loader.getChapter(TestChapterId);
             log(chapter);
             expect(chapter).toBeDefined();
+        });
+
+        test("GetLatestBooks", async () => {
+            if (!loader.getLatestBooks) return;
+            const page: BookListResults = await loader.getLatestBooks(1);
+            log(page.results.map((result) => result.availableLanguages));
+            log(page.results.map((result) => result.cover.uri));
+            expect(page).toBeDefined();
+        });
+
+        test("GetTrendingBooks", async () => {
+            if (!loader.getTrendingBooks) return;
+            const page: BookBase[] = await loader.getTrendingBooks();
+            //log(page.map((result) => result.title));
+            expect(page).toBeDefined();
         });
 
         test("GetImageListFromFirstChapter", async () => {

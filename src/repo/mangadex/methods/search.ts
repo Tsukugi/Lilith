@@ -6,8 +6,6 @@ import {
 import { DefaultSearchOptions, LilithError } from "../../base";
 import {
     MangaDexBook,
-    MangaDexCoverArt,
-    MangaDexRelationship,
     MangadexResult,
     UseMangaDexMethodProps,
 } from "../interfaces";
@@ -20,18 +18,13 @@ export const useMangaDexSearchMethod = (
     props: UseMangaDexMethodProps,
 ): Search => {
     const {
-        domains: { apiUrl, tinyImgBaseUrl },
+        domains: { apiUrl },
         options: { debug, requiredLanguages },
         request,
     } = props;
 
-    const {
-        ImageSize,
-        ReverseLanguageMapper,
-        RelationshipTypes,
-        getSupportedTranslations,
-        findFirstTranslatedValue,
-    } = useMangaDexMethod();
+    const { RelationshipTypes, getLanguageParams, getBookResults } =
+        useMangaDexMethod(props.domains);
 
     return async (
         query: string,
@@ -45,10 +38,8 @@ export const useMangaDexSearchMethod = (
         const { pageToRange } = useRangeFinder({ pageSize: innerOptions.size });
         const { startIndex } = pageToRange(innerOptions.page);
 
-        const languageParams: UrlParamPair[] = requiredLanguages.map((lang) => [
-            "availableTranslatedLanguage[]",
-            lang,
-        ]);
+        const languageParams: UrlParamPair[] =
+            getLanguageParams(requiredLanguages);
 
         useLilithLog(debug).log({
             startIndex,
@@ -72,47 +63,10 @@ export const useMangaDexSearchMethod = (
 
         const result = await response.json();
 
-        const makeCover = (book: MangaDexBook) => {
-            const mangaId = book.id;
-            const coverRelationship = book.relationships.find(
-                (relationship) =>
-                    relationship.type === RelationshipTypes.coverArt,
-            ) as MangaDexRelationship<MangaDexCoverArt>;
-            if (!coverRelationship) {
-                throw new LilithError(
-                    404,
-                    "[makeCover] No relationship found for Book",
-                );
-            }
-
-            const coverFilename = coverRelationship.attributes.fileName;
-
-            return `${tinyImgBaseUrl}/${mangaId}/${coverFilename}.${ImageSize}.jpg`; // Specifies the size (256|512)
-        };
-
         return {
             query,
             page: innerOptions.page,
-            results: result.data.map((manga) => {
-                const supportedTranslations = getSupportedTranslations(
-                    requiredLanguages,
-                    manga.attributes.availableTranslatedLanguages,
-                );
-                const availableLanguages = supportedTranslations.map(
-                    (lang) => ReverseLanguageMapper[lang],
-                );
-
-                return {
-                    id: manga.id,
-                    cover: {
-                        uri: makeCover(manga),
-                        width: 256,
-                        height: 512,
-                    },
-                    title: findFirstTranslatedValue(manga.attributes.title),
-                    availableLanguages: [...new Set(availableLanguages)],
-                };
-            }),
+            results: getBookResults(result.data, requiredLanguages),
         };
     };
 };

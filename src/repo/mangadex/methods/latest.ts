@@ -1,6 +1,14 @@
 import { BookListResults, GetLatestBooks } from "../../base/interfaces";
-import { UseMangaDexMethodProps } from "../interfaces";
+import {
+    MangaDexBook,
+    MangadexResult,
+    UseMangaDexMethodProps,
+} from "../interfaces";
 import { useLilithLog } from "../../utils/log";
+import { LilithError, MaxLatestBooksSize } from "../../base";
+import { UrlParamPair } from "../../../interfaces/fetch";
+import { useMangaDexMethod } from "./base";
+import { useRangeFinder } from "../../utils/range";
 
 /**
  * Custom hook for fetching the latest NHentai books using the provided options and methods.
@@ -12,21 +20,42 @@ export const useMangaDexGetLatestBooksMethod = (
     props: UseMangaDexMethodProps,
 ): GetLatestBooks => {
     const {
-        domains: { baseUrl },
-        options: { debug },
+        domains: { apiUrl },
+        options: { debug, requiredLanguages },
         request,
     } = props;
 
-    return async (page: number): Promise<BookListResults> => {
-        const response = await request(`${baseUrl}`);
+    const { getLanguageParams, getBookResults, RelationshipTypes } =
+        useMangaDexMethod(props.domains);
 
+    return async (page: number): Promise<BookListResults> => {
+        const languageParams: UrlParamPair[] =
+            getLanguageParams(requiredLanguages);
+
+        const pageSize = MaxLatestBooksSize;
+        const { pageToRange } = useRangeFinder({ pageSize });
+        const { startIndex } = pageToRange(page);
+
+        const response = await request<MangadexResult<MangaDexBook[]>>(
+            `${apiUrl}/manga`,
+            [
+                ["limit", pageSize],
+                ["offset", startIndex],
+                ["includes[]", RelationshipTypes.coverArt],
+                ...languageParams,
+            ],
+        );
+
+        const result = await response.json();
+
+        if (!response || response?.statusCode !== 200) {
+            throw new LilithError(response?.statusCode, "No search results");
+        }
         useLilithLog(debug).log({ response });
 
         return {
             page,
-            totalResults: 0,
-            totalPages: 0,
-            results: [],
+            results: getBookResults(result.data, requiredLanguages),
         };
     };
 };
