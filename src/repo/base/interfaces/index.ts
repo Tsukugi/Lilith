@@ -94,7 +94,6 @@ export interface RepositoryBase {
      */
     getTrendingBooks: GetTrendingBooks;
 }
-
 /**
  * Interface representing the properties required for creating a repository with base methods.
  */
@@ -114,21 +113,40 @@ export interface RepositoryBaseProps {
      */
     domParser: UseDomParser;
 
+    /**
+     * Options for configuring the repository base.
+     */
     options: RepositoryBaseOptions;
 }
 
+/**
+ * Options for configuring the repository base.
+ */
 export interface RepositoryBaseOptions {
+    /**
+     * An array of required languages for the repository.
+     */
     requiredLanguages: LilithLanguage[];
+
     /**
      * Optional flag indicating whether debugging information should be enabled.
      */
     debug: boolean;
 }
 
+/**
+ * Type representing a function to create a repository template.
+ */
 export type RepositoryTemplate = (props: RepositoryBaseProps) => RepositoryBase;
 
+/**
+ * Type representing different types of URIs.
+ */
 export type UriType = "cover" | "page" | "thumbnail";
 
+/**
+ * Enum representing Lilith supported languages.
+ */
 export enum LilithLanguage {
     english = "en",
     japanese = "jp",
@@ -136,12 +154,18 @@ export enum LilithLanguage {
     mandarin = "zh",
 }
 
+/**
+ * Enum representing image file extensions supported.
+ */
 export enum Extension {
     j = "jpg",
     p = "png",
     g = "gif",
 }
 
+/**
+ * Enum representing sorting options for Search.
+ */
 export enum Sort {
     RECENT = "recent",
     POPULAR_TODAY = "popular-today",
@@ -149,33 +173,43 @@ export enum Sort {
     POPULAR = "popular",
 }
 
+/**
+ * Interface representing an image with URI and optional dimensions.
+ */
 export interface LilithImage {
     uri: string;
     width?: number;
     height?: number;
 }
 
+/**
+ * Interface representing the base properties of a chapter.
+ */
 export interface ChapterBase {
     id: string;
     title: string;
     language: LilithLanguage;
     chapterNumber: number;
 }
+
+/**
+ * Interface representing a chapter with pages.
+ */
 export interface Chapter extends ChapterBase {
     pages: LilithImage[];
 }
 
+/**
+ * Interface representing a tag with ID and name.
+ */
 export interface Tag {
     id: string;
     name: string;
 }
 
-export interface Title {
-    english: string;
-    japanese: string;
-    other: string;
-}
-
+/**
+ * Interface representing the base properties of a book.
+ */
 export interface BookBase {
     id: string;
     cover: LilithImage;
@@ -183,16 +217,25 @@ export interface BookBase {
     availableLanguages: LilithLanguage[];
 }
 
+/**
+ * Interface representing a book with additional properties.
+ */
 export interface Book extends BookBase {
     author: string;
     tags: Tag[];
     chapters: ChapterBase[];
 }
 
+/**
+ * Interface representing search results with query information.
+ */
 export interface SearchResult extends BookListResults {
     query: string;
 }
 
+/**
+ * Interface representing a list of book results with pagination information.
+ */
 export interface BookListResults {
     results: BookBase[];
     page: number;
@@ -200,6 +243,9 @@ export interface BookListResults {
     totalPages?: number; // To be deprecated
 }
 
+/**
+ * Interface representing URLs for different domains.
+ */
 export interface Domains {
     readonly baseUrl: string;
     readonly apiUrl: string;
@@ -207,6 +253,9 @@ export interface Domains {
     readonly tinyImgBaseUrl: string;
 }
 
+/**
+ * Interface representing options for a search query.
+ */
 export interface SearchQueryOptions {
     requiredTags?: Tag[]; // TODO: To be implemented
     size?: number; // Should default to MaxSize

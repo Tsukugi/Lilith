@@ -18,7 +18,6 @@ export type {
     LilithImage,
     Chapter,
     Tag,
-    Title,
     Book,
     BookBase,
     SearchResult,
