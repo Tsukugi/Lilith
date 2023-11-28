@@ -8,7 +8,7 @@ import { useAPILoader } from "../../src/api/loader";
 import { LilithRepo } from "../../src/interfaces";
 import {
     Book,
-    Pagination,
+    BookListResults,
     SearchResult,
     RepositoryBase,
 } from "../../src/repo/base/interfaces";
@@ -56,7 +56,7 @@ describe("Lilith", () => {
         });
         test("Paginate", async () => {
             if (!loader.getLatestBooks) return;
-            const page: Pagination = await loader.getLatestBooks(1);
+            const page: BookListResults = await loader.getLatestBooks(1);
             log(page.results.map((result) => result.availableLanguages));
             log(page.results.map((result) => result.cover.uri));
             expect(page).toBeDefined();

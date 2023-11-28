@@ -22,7 +22,7 @@ export type {
     Book,
     BookBase,
     SearchResult,
-    Pagination,
+    BookListResults,
     ChapterBase,
     Domains,
     RepositoryBaseProps,

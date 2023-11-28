@@ -37,9 +37,9 @@ export type GetRandomBook = (retry?: number) => Promise<Book>;
 /**
  * Type alias for a function that retrieves the latest books based on a page number.
  * @param {number} page - The page number for the latest books.
- * @returns {Promise<Pagination>} - A Promise that resolves to the latest books and pagination information.
+ * @returns {Promise<BookListResults>} - A Promise that resolves to the latest books and pagination information.
  */
-export type GetLatestBooks = (page: number) => Promise<Pagination>;
+export type GetLatestBooks = (page: number) => Promise<BookListResults>;
 
 /**
  * Type alias for a function that retrieves the trending books.
@@ -84,7 +84,7 @@ export interface RepositoryBase {
     /**
      * Retrieves the latest books based on the specified page.
      * @param {number} page - The page number.
-     * @returns {Promise<Pagination>} - A Promise that resolves to the information for the latest books.
+     * @returns {Promise<BookListResults>} - A Promise that resolves to the information for the latest books.
      */
     getLatestBooks: GetLatestBooks;
 
@@ -189,15 +189,11 @@ export interface Book extends BookBase {
     chapters: ChapterBase[];
 }
 
-export interface SearchResult {
+export interface SearchResult extends BookListResults {
     query: string;
-    page: number;
-    results: BookBase[];
-    totalResults?: number; // To be deprecated
-    totalPages?: number; // To be deprecated
 }
 
-export interface Pagination {
+export interface BookListResults {
     results: BookBase[];
     page: number;
     totalResults?: number; // To be deprecated

@@ -1,6 +1,6 @@
 import {
     LilithImage,
-    Pagination,
+    BookListResults,
     BookBase,
     Extension,
     GetLatestBooks,
@@ -29,9 +29,9 @@ export const useNHentaiGetLatestBooksMethod = (
      * Function for fetching the latest NHentai books for a specific page.
      *
      * @param {number} page - The page number for pagination.
-     * @returns {Promise<Pagination>} - The pagination result containing the latest books.
+     * @returns {Promise<BookListResults>} - The pagination result containing the latest books.
      */
-    return async (page: number): Promise<Pagination> => {
+    return async (page: number): Promise<BookListResults> => {
         // Making a request to the NHentai API for the latest books
         const response = await request<NHentaiPaginateResult>(
             `${apiUrl}/galleries/all?page=${page}`,

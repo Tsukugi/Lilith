@@ -1,4 +1,4 @@
-import { Pagination, GetLatestBooks } from "../../base/interfaces";
+import { BookListResults, GetLatestBooks } from "../../base/interfaces";
 import { UseMethodProps } from "../interfaces";
 import { useLilithLog } from "../../utils/log";
 
@@ -17,7 +17,7 @@ export const useGetLatestBooksMethod = (
         request,
     } = props;
 
-    return async (page: number): Promise<Pagination> => {
+    return async (page: number): Promise<BookListResults> => {
         const response = await request(`${baseUrl}`);
 
         useLilithLog(debug).log({ response });
