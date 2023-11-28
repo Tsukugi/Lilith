@@ -1,4 +1,9 @@
-import { RepositoryBaseProps, Domains } from "../../base/interfaces";
+import {
+    RepositoryBaseProps,
+    Domains,
+    ImageUriType,
+    ImageExtension,
+} from "../../base/interfaces";
 import { LilithRequest } from "../../../interfaces/fetch";
 
 interface NHentaiPage {
@@ -50,4 +55,12 @@ export enum NHentaiLanguage {
 export interface UseNHentaiMethodProps extends RepositoryBaseProps {
     domains: Domains;
     request: LilithRequest;
+}
+
+export interface GetImageUriProps {
+    domains: Domains;
+    mediaId: string;
+    type: ImageUriType;
+    imageExtension: ImageExtension;
+    pageNumber?: number;
 }

@@ -11,6 +11,7 @@ import {
     BookListResults,
     SearchResult,
     RepositoryBase,
+    BookBase,
 } from "../../src/repo/base/interfaces";
 
 import { useNodeFetch } from "../../src/impl/useNodeFetch";
@@ -54,12 +55,19 @@ describe("Lilith", () => {
             });
             expect(search4).toBeDefined();
         });
-        test("Paginate", async () => {
+        test("GetLatestBooks", async () => {
             if (!loader.getLatestBooks) return;
             const page: BookListResults = await loader.getLatestBooks(1);
             log(page.results.map((result) => result.availableLanguages));
             log(page.results.map((result) => result.cover.uri));
             expect(page).toBeDefined();
+        });
+        test("GetTrendingBooks", async () => {
+            if (!loader.getTrendingBooks) return;
+            const page: BookBase[] = await loader.getTrendingBooks();
+            log(page.map((result) => result.title));
+            expect(page).toBeDefined();
+            expect(page.length).toBeGreaterThan(0);
         });
         test("RandomBook", async () => {
             const randomLoader = useAPILoader({

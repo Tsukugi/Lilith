@@ -24,7 +24,14 @@ export const useNHentaiGetTrendingBooksMethod = (
 
         const document = await response.getDocument();
 
-        const galleries = getGalleries(document, requiredLanguages);
+        const popularGalleriesContainerSelector =
+            "div.container.index-container.index-popular";
+
+        const galleries = getGalleries(
+            document,
+            requiredLanguages,
+            popularGalleriesContainerSelector,
+        );
 
         useLilithLog(debug).log({ galleries });
 

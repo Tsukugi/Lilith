@@ -1,15 +1,8 @@
 import { UseDomParserImpl } from "../../../interfaces/domParser";
 import { LilithError } from "../../base";
-import {
-    BookBase,
-    Domains,
-    ImageExtension,
-    ImageUriType,
-    LilithImage,
-    LilithLanguage,
-} from "../../base/interfaces";
+import { BookBase, LilithImage, LilithLanguage } from "../../base/interfaces";
 import { ArrayUtils } from "../../utils/array";
-import { NHentaiLanguage, NHentaiTag } from "../interfaces";
+import { GetImageUriProps, NHentaiLanguage, NHentaiTag } from "../interfaces";
 
 /**
  * The size of results per page in an NHentai search.
@@ -73,6 +66,7 @@ const extractLanguages = (title: string): LilithLanguage[] => {
 const getGalleries = (
     document: UseDomParserImpl,
     requiredLanguages: LilithLanguage[],
+    containerSelector: string = "div.container.index-container",
 ): BookBase[] => {
     // Checking for Cloudflare challenge
     const cloudflareDomCheck = document.find("div#content").getAttribute("id");
@@ -84,7 +78,7 @@ const getGalleries = (
     }
 
     // Extracting the container element from the document
-    const container = document.find("div.container");
+    const container = document.find(containerSelector);
     if (!container) {
         throw new LilithError(
             404,
@@ -158,14 +152,6 @@ const getGalleries = (
             };
         });
 };
-
-interface GetImageUriProps {
-    domains: Domains;
-    mediaId: string;
-    type: ImageUriType;
-    imageExtension: ImageExtension;
-    pageNumber?: number;
-}
 
 const getImageUri = ({
     domains: { tinyImgBaseUrl, imgBaseUrl },
