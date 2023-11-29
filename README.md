@@ -1,12 +1,11 @@
 <h1 align="center">Welcome to the Lilith Project!</h1>
 <p>
-  <img alt="Version" src="https://img.shields.io/badge/version-0.5.0-blue.svg?cacheSeconds=2592000" />
   <a href="#" target="_blank">
     <img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg" />
   </a>
 </p>
 
-#### A simple API Loader for Typescript
+#### A simple, repository agnostic, API Loader for Typescript
 
 ## How to Install
 
@@ -29,92 +28,68 @@ import { useAPILoader } from "@atsu/lilith";
 
 const loader = useAPILoader({
     repo: LilithRepo.MangaDex, // Repository to use
-    configurations: {}, // optional configurations for specific repositories
+    config: {}, // optional configurations for specific repositories
 });
 
-const results: SearchResult = await loader.search("komi"); // We already get some data
+/**
+ * Here are some example usages
+ */
+
+// We get some search result with some basic book information.
+const search: SearchResult = await loader.search("komi");
+
+// We get a book information, like title and chapters
+const book: SearchResult = await loader.getBook("480154");
+
+// We get mainly the image URLs from a book
+const chapter: Chapter = await loader.getChapter("480154-1");
 ```
 
-## How to extend it
+## Repository specifics
 
-This project is thought to be extended with more sources, to achieve that, basically we would need a new `useMyNewRepository` that is of type `RepositoryTemplate`
+### NHentai
+
+NHentai is protected with `Cloudflare` DDoS protection (Normally is this delay on the initial load while we see the message _"Making sure that the connection is secure"_). 
+
+We need to already pass this challenge to start to make requests.
+
+When you, in your browser pass this challenge, you get a cookie appended to your further requests.
+
+The `cookie` value is on the request headers, and can be seen in your browser by inspecting the page and while using the `network` tab, you reload, and then check the first request (usually to `https://nhentai.net`)
+
+It should look like this (example):
+
+```
+cf_clearance=AWJDIseOad1233awgyjADJO41123dwaodHIAWDH-0-1-aab50120.3211.2312faw-100.0.1; csrftoken=awdwDAWDJdpoijPAwdjoaw23DawspojwAWdjoawedaAWDPOKPDWADwad; cf_chl_2=0awdKFWAjpaWD
+```
+
+The important one is `cf_clearance`, but you can copy all of it.
+
+And also we need the `User-Agent`, this can be seen with the same method instead of `cookie`, should be something like this:
+
+```
+Mozilla/1.0 (X41; Linux x86_22; rv:100.0) Gecko/12121214 Firefox/69.0
+```
+
+By knowing this information we NEED to append it in our loader
 
 ```ts
-// This is from src/repo/base.ts
-export interface Domains {
-    readonly baseUrl: string;
-    readonly apiUrl: string;
-    readonly imgBaseUrl: string;
-    readonly tinyImgBaseUrl: string;
-}
-
-export interface RepositoryBase {
-    domains: Domains;
-
-    request: <T>(url: string, params?: string) => Promise<Result<T>>;
-
-    getChapter: (identifier: string) => Promise<Chapter>;
-
-    getBook: (identifier: string) => Promise<Book>;
-
-    search: (
-        query: string,
-        page?: number,
-        sort?: Sort,
-    ) => Promise<SearchResult>;
-
-    randomBook: (retry?: number) => Promise<Book>;
-
-    paginate?: (page: number) => Promise<Pagination>;
-}
-
-export interface RepositoryBaseProps {
-    headers: Headers;
-    fetch: CustomFetch;
-    domParser: UseDomParser;
-    debug?: boolean;
-}
-
-export type RepositoryTemplate = (props: RepositoryBaseProps) => RepositoryBase; // This one
+const loader = useAPILoader({
+    repo: LilithRepo.NHentai,
+    config: {
+        headers: {
+            cookie: "... your cookie value",
+            ["User-Agent"]: "... your user agent",
+        },
+    },
+});
 ```
 
-Add it in `src/repo/`
+If you have an invalid, expired or absent headers, you will have code `403` errors on either Lilith or the requests themselves.
 
-```ts
-// in src/interfaces/index.ts
+### MangaDex
 
-export enum LilithRepo {
-    /* ... Already supported entries */
-    myNewRepo = "myNewRepo", // Add a new entry here, to allow users to choose it
-}
-```
-
-And in the loader do the following:
-
-```ts
-switch (repo) {
-    // Add your repo as a new case
-    case LilithRepo.MyNewRepo:
-        return new useMyNewRepository({
-            headers,
-            fetch,
-            domParser,
-            options: { debug },
-        });
-
-    /* ...rest of the options */
-}
-```
-
-One last thing to note is the tests, currently they are working with Jest, but they aren't as extensive nor strict as I would like. If you want to help on this, it would be awesome too.
-
---- More documentation for test comming soon!
-
-## Author
-
-👤 **Tsukugi**
-
--   Github: [@Tsukugi](https://github.com/Tsukugi)
+Currently `getTrendingBooks` is not supported on MangaDex, as its API doesn't support it, and also we cannot scrap the website at the moment.
 
 ## 🤝 Contributing
 
