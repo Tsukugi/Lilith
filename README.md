@@ -39,17 +39,21 @@ const loader = useAPILoader({
 const search: SearchResult = await loader.search("komi");
 
 // We get a book information, like title and chapters
-const book: SearchResult = await loader.getBook("480154");
+const book: SearchResult = await loader.getBook(
+    "a96676e5-8ae2-425e-b549-7f15dd34a6d8",
+);
 
-// We get mainly the image URLs from a book
-const chapter: Chapter = await loader.getChapter("480154-1");
+// We get mainly the image URLs from a Chapter
+const chapter: Chapter = await loader.getChapter(
+    "940f02a3-c4dc-4cc2-9275-5906fcbdb453",
+);
 ```
 
 ## Repository specifics
 
 ### NHentai
 
-NHentai is protected with `Cloudflare` DDoS protection (Normally is this delay on the initial load while we see the message _"Making sure that the connection is secure"_). 
+NHentai is protected with `Cloudflare` DDoS protection (Normally is this delay on the initial load while we see the message _"Making sure that the connection is secure"_).
 
 We need to already pass this challenge to start to make requests.
 
@@ -91,9 +95,11 @@ If you have an invalid, expired or absent headers, you will have code `403` erro
 
 Currently `getTrendingBooks` is not supported on MangaDex, as its API doesn't support it, and also we cannot scrap the website at the moment.
 
-## 🤝 Contributing
+# 🤝 Contributing
 
 Contributions, issues and feature requests are welcome!<br />Feel free to check [issues page](https://github.com/Tsukugi/Lilith/issues).
+
+Also there is a README for developers [here!](./README_DEV.md)
 
 ## Show your support
 

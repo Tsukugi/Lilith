@@ -19,7 +19,7 @@ export const useNHentaiGetBookmethod = (
 ): GetBook => {
     const {
         domains: { apiUrl },
-        options: { debug },
+        options: { debug, requiredLanguages },
         request,
     } = props;
 
@@ -33,10 +33,7 @@ export const useNHentaiGetBookmethod = (
      * @returns {Promise<Book>} - A Promise that resolves to the retrieved book.
      * @throws {LilithError} - Throws an error if the book is not found or no translation is available for the requested language.
      */
-    return async (
-        id: string,
-        requiredLanguages: LilithLanguage[] = Object.values(LilithLanguage),
-    ): Promise<Book> => {
+    return async (id: string): Promise<Book> => {
         const response = await request<NHentaiResult>(
             `${apiUrl}/gallery/${id}`,
         );

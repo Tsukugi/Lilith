@@ -11,10 +11,13 @@ export type GetChapter = (identifier: string) => Promise<Chapter>;
 /**
  * Type alias for a function that retrieves information about a book based on its identifier.
  * @param {string} identifier - The unique identifier of the book.
- * @param {LilithLanguage[]} [requiredLanguages] - Optional array of required languages.
+ * @param {Partial<GetBookOptions>} [options] - Optional GetBook options.
  * @returns {Promise<Book>} - A Promise that resolves to the retrieved book.
  */
-export type GetBook = (identifier: string) => Promise<Book>;
+export type GetBook = (
+    identifier: string,
+    options?: Partial<GetBookOptions>,
+) => Promise<Book>;
 
 /**
  * Type alias for a function that performs a search based on a query and optional search options.
@@ -262,4 +265,20 @@ export interface SearchQueryOptions {
     size?: number; // Should default to MaxSize
     page: number;
     sort: Sort; // To be deprecated
+}
+
+/**
+ * Interface representing options for a getBook query.
+ */
+export interface GetBookOptions {
+    chapterList?: Partial<ChapterListOptions>;
+}
+interface ChapterListOptions {
+    /**
+     * EachRepo should provide some default value that respects it's API.
+     * Should be a high amount that is reasonable for a single request (e.g 25 - 100)
+     */
+    size: number;
+    page: number;
+    orderBy: "asc" | "desc";
 }

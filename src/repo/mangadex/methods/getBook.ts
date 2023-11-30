@@ -1,4 +1,4 @@
-import { GetBook, LilithLanguage, LilithTag } from "../../base/interfaces";
+import { GetBook, GetBookOptions, LilithTag } from "../../base/interfaces";
 import { Book } from "../../base/interfaces";
 import { useLilithLog } from "../../utils/log";
 import {
@@ -12,13 +12,14 @@ import {
 import { LilithError } from "../../base";
 import { UrlParamPair } from "../../../interfaces/fetch";
 import { useMangaDexMethod } from "./base";
+import { useRangeFinder } from "../../utils/range";
 
 export const useMangaDexGetBookMethod = (
     props: UseMangaDexMethodProps,
 ): GetBook => {
     const {
         domains: { apiUrl, tinyImgBaseUrl },
-        options: { debug },
+        options: { debug, requiredLanguages },
         request,
     } = props;
 
@@ -30,10 +31,17 @@ export const useMangaDexGetBookMethod = (
         findFirstTranslatedValue,
     } = useMangaDexMethod(props.domains);
 
-    return async (
-        identifier: string,
-        requiredLanguages: LilithLanguage[] = Object.values(LilithLanguage),
-    ): Promise<Book | null> => {
+    return async (identifier, options = {}): Promise<Book | null> => {
+        const innerOptions: GetBookOptions = {
+            ...options,
+            chapterList: {
+                page: 1,
+                size: 100,
+                orderBy: "desc",
+                ...options.chapterList,
+            },
+        };
+
         const manga = await request<MangadexResult<MangaDexBook>>(
             `${apiUrl}/manga/${identifier}`,
             [
@@ -56,9 +64,15 @@ export const useMangaDexGetBookMethod = (
             availableTranslatedLanguages,
         );
 
+        const pageSize = innerOptions.chapterList.size;
+        const { pageToRange } = useRangeFinder({ pageSize });
+        const { startIndex } = pageToRange(innerOptions.chapterList.page);
+
         useLilithLog(debug).log({
             supportedTranslations,
             availableTranslatedLanguages,
+            pageSize,
+            startIndex,
         });
 
         const languageParams: UrlParamPair[] = supportedTranslations.map(
@@ -67,7 +81,12 @@ export const useMangaDexGetBookMethod = (
 
         const feed = await request<MangadexResult<MangaDexChapter[]>>(
             `${apiUrl}/manga/${identifier}/feed`,
-            [["order[chapter]", "asc"], ...languageParams],
+            [
+                ["limit", pageSize],
+                ["offset", startIndex],
+                ["order[chapter]", innerOptions.chapterList.orderBy],
+                ...languageParams,
+            ],
         );
 
         if (!feed || feed?.statusCode !== 200) {

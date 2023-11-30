@@ -1,4 +1,4 @@
-import { GetBook, LilithLanguage } from "../../base/interfaces";
+import { GetBook, GetBookOptions } from "../../base/interfaces";
 import { Book } from "../../base/interfaces";
 import { useLilithLog } from "../../utils/log";
 import { UseMethodProps } from "../interfaces";
@@ -7,14 +7,17 @@ import { LilithError } from "../../base";
 export const useGetBookMethod = (props: UseMethodProps): GetBook => {
     const {
         domains: { apiUrl },
-        options: { debug },
+        options: { debug, requiredLanguages },
         request,
     } = props;
 
     return async (
         id: string,
-        requiredLanguages: LilithLanguage[] = Object.values(LilithLanguage),
+        options?: Partial<GetBookOptions>,
     ): Promise<Book> => {
+        // Define default values here
+        const innerOptions: GetBookOptions = { ...options };
+
         const response = await request(`${apiUrl}/gallery/${id}`);
 
         if (!response || response?.statusCode !== 200) {
@@ -23,7 +26,7 @@ export const useGetBookMethod = (props: UseMethodProps): GetBook => {
 
         const book = await response.json();
 
-        useLilithLog(debug).log({ book, requiredLanguages });
+        useLilithLog(debug).log({ book, requiredLanguages, innerOptions });
 
         return null;
     };

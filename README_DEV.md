@@ -1,8 +1,8 @@
-## How to extend Lilith
+# How to extend Lilith
 
 This project is thought to be extended with more sources, to achieve that, we need to create a new repository and then attach it to the Lilith API Loader
 
-### Using a template
+## Using a template
 
 It is highly recommended to use the template in `src/repo/template`, as it has already mostly everything done for the structure.
 
@@ -134,14 +134,26 @@ export const useNHentaiTestGetBookmethod = (
 
     return async (
         id: string,
-        requiredLanguages: LilithLanguage[] = Object.values(LilithLanguage),
+        options?: Partial<GetBookOptions>,
     ): Promise<Book> => {
+        /**
+         * Define default values here
+         */
+        const innerOptions: GetBookOptions = {
+            someDefaultValue: false,
+            ...options,
+        };
+
         /**
          * Make a request using the method in the props, it accepts a return type
          * so please add it whenever possible.
          */
         const response = await request<NHentaiResult>(
             `${apiUrl}/gallery/${id}`,
+            [
+                ["someUrlParam", someDefaultValue],
+                ["someUrlParam2", someDefaultValue],
+            ],
         );
 
         /**
@@ -155,11 +167,20 @@ export const useNHentaiTestGetBookmethod = (
         const document: UseDomParserImpl = await response.getDocument();
 
         /**
+         * We can get some scrapped data
+         */
+        const someElement: UseDomParserImpl = document.find("div#title > a");
+        const someTitle: string = someElement.getText();
+        const someUrl: string = someElement.getAttribute("href");
+
+        /**
          * This way we can use the debug flag from the loader to
          * log values, and still be able to disable them.
          */
         useLilithLog(debug).log({
             book,
+            someTitle,
+            someUrl,
         });
 
         const Book: Book = {
@@ -304,5 +325,53 @@ Please check the file for more details on props or related interfaces.
 ## Jest Unit Tests
 
 One last thing to note are the tests, currently they are working with Jest, but they aren't as extensive nor strict as I would like. If you want to help on this, it would be awesome too.
+
+You can run them with the following:
+
+```bash
+npm run test
+```
+
+Or a single one like this:
+
+```bash
+npm run test ./test/__tests__/nhentai.test.ts
+```
+
+### NHentai
+
+You read it on the main [README](README.md), we need to provide the `User-Agent` and more importantly the `cookie` header.
+
+To continue there are two options
+
+#### Test with mocked Data
+
+If you want to simply test it with mocked data, you could do the following in a test:
+
+```ts
+const loader = useAPILoader({
+    repo: LilithRepo.NHentai,
+    config: {
+        headers,
+        fetch: () => fetchMock(),
+        // ... rest of the options
+    },
+});
+```
+
+This replaces the fetch implementation, to a mocked version for tests.
+
+#### Test on remote Data
+
+For testing in the site itself you can manually take them from your browser and create a new `.env` file in the project root folder.
+
+And define the following variables:
+
+```ts
+USER_AGENT = "... your User-Agent here";
+COOKIE = "... your cookie value here";
+```
+
+This will make the tests for NHentai automatically take these values and you can safely test, and as they are not Git tracked, you don't need to worry on commiting your cookies.
 
 --- More documentation for tests comming soon!
