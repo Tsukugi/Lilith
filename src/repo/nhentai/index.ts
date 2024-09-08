@@ -4,7 +4,6 @@ import {
     Result,
     CustomFetchInitOptions,
 } from "../../interfaces/fetch";
-import { LilithError } from "../base";
 import { useRequest } from "../utils/request";
 import { useNHentaiGetBookmethod } from "./methods/getBook";
 import { useNHentaiGetChapterMethod } from "./methods/getChapter";
@@ -27,12 +26,6 @@ export const useNHentaiRepository: RepositoryTemplate = (props) => {
         url: string,
         params: UrlParamPair[] = [],
     ): Promise<Result<T>> => {
-        if (!headers || !headers["User-Agent"] || !headers.cookie) {
-            throw new LilithError(
-                403,
-                "Cloudflare cookie and User-Agent not provided, it is necessary to provide them to use this repository.",
-            );
-        }
         const requestOptions: CustomFetchInitOptions = {
             method: "GET",
             headers: {
