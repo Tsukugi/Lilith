@@ -7,7 +7,7 @@ export type {
     UrlParamValue,
 } from "./interfaces/fetch";
 
-export type {
+export {
     ImageExtension,
     ImageUriType,
     Sort,
@@ -36,10 +36,4 @@ export type {
     GetTrendingBooks,
 } from "./repo/base/interfaces";
 
-export type { UseDomParser, UseDomParserImpl } from "./interfaces/domParser";
-
 export { LilithError } from "./repo/base";
-
-export type { UseAPILoaderProps, APILoaderConfigurations } from "./api/loader";
-
-export { LilithRepo } from "./interfaces";
