@@ -27,6 +27,11 @@ export type {
     RepositoryBaseProps,
     RepositoryTemplate,
     RepositoryBase,
+    GetBook,
+    GetChapter,
+    GetRandomBook,
+    GetLatestBooks,
+    GetTrendingBooks,
 } from "./repo/base/interfaces";
 
 export type { UseDomParser, UseDomParserImpl } from "./interfaces/domParser";

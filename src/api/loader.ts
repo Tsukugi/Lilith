@@ -20,10 +20,12 @@ export interface APILoaderConfigurations {
     domParser: UseDomParser;
     options: Partial<RepositoryBaseOptions>;
 }
+
 export interface UseAPILoaderProps {
     repo: LilithRepo;
     config?: Partial<APILoaderConfigurations>;
 }
+
 export const useAPILoader = ({
     repo,
     config,
