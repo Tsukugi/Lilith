@@ -31,6 +31,7 @@ export type {
     RepositoryTemplate,
     RepositoryBase,
     GetBook,
+    GetBookOptions,
     GetChapter,
     GetRandomBook,
     GetLatestBooks,
