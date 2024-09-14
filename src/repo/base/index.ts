@@ -1,7 +1,7 @@
 import { Sort } from "./interfaces";
 
 /*
- *  This is the size that will define a Page in Search(), we use 25 basically to fit NH search results
+ *  This is the size that will define a Page in Search
  */
 export const MaxSearchSize = 25;
 export const MaxLatestBooksSize = 25;

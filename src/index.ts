@@ -16,13 +16,14 @@ export {
 
 export type {
     LilithImage,
-    Chapter,
     LilithTag,
     Book,
     BookBase,
+    Chapter,
+    ChapterBase,
+    Search,
     SearchResult,
     BookListResults,
-    ChapterBase,
     Domains,
     RepositoryBaseProps,
     RepositoryTemplate,
