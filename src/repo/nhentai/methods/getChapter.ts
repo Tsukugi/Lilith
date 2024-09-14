@@ -1,4 +1,4 @@
-import { Chapter, ImageExtension, GetChapter } from "../../base/interfaces";
+import { Chapter, LilithImageExtension, GetChapter } from "../../base/interfaces";
 import { NHentaiResult, UseNHentaiMethodProps } from "../interfaces";
 import { LilithError } from "../../base";
 import { useLilithLog } from "../../utils/log";
@@ -50,7 +50,7 @@ export const useNHentaiGetChapterMethod = (
                 uri: getImageUri({
                     type: "page",
                     mediaId: book.media_id,
-                    imageExtension: ImageExtension[book.images.thumbnail.t],
+                    imageExtension: LilithImageExtension[book.images.thumbnail.t],
                     pageNumber: index + 1,
                     domains: props.domains,
                 }),

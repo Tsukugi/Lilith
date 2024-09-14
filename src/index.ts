@@ -8,7 +8,7 @@ export type {
 } from "./interfaces/fetch";
 
 export {
-    ImageExtension,
+    LilithImageExtension,
     ImageUriType,
     Sort,
     LilithLanguage,
@@ -27,6 +27,7 @@ export type {
     BookListResults,
     Domains,
     RepositoryBaseProps,
+    RepositoryBaseOptions,
     RepositoryTemplate,
     RepositoryBase,
     GetBook,

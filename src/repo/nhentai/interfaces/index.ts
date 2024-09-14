@@ -2,7 +2,7 @@ import {
     RepositoryBaseProps,
     Domains,
     ImageUriType,
-    ImageExtension,
+    LilithImageExtension,
 } from "../../base/interfaces";
 import { LilithRequest } from "../../../interfaces/fetch";
 
@@ -61,6 +61,6 @@ export interface GetImageUriProps {
     domains: Domains;
     mediaId: string;
     type: ImageUriType;
-    imageExtension: ImageExtension;
+    imageExtension: LilithImageExtension;
     pageNumber?: number;
 }

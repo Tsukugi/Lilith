@@ -2,7 +2,7 @@ import {
     LilithImage,
     BookListResults,
     BookBase,
-    ImageExtension,
+    LilithImageExtension,
     GetLatestBooks,
 } from "../../base/interfaces";
 import { NHentaiPaginateResult, UseNHentaiMethodProps } from "../interfaces";
@@ -56,7 +56,7 @@ export const useNHentaiGetLatestBooksMethod = (
                 uri: getImageUri({
                     type: "cover",
                     mediaId: result.media_id,
-                    imageExtension: ImageExtension[cover.t],
+                    imageExtension: LilithImageExtension[cover.t],
                     domains: props.domains,
                 }),
                 width: cover.w,

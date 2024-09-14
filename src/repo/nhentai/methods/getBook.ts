@@ -1,5 +1,5 @@
 import {
-    ImageExtension,
+    LilithImageExtension,
     GetBook,
     LilithLanguage,
     LilithTag,
@@ -88,7 +88,7 @@ export const useNHentaiGetBookmethod = (
                 uri: getImageUri({
                     type: "cover",
                     mediaId: book.media_id,
-                    imageExtension: ImageExtension[book.images.cover.t],
+                    imageExtension: LilithImageExtension[book.images.cover.t],
                     domains: props.domains,
                 }),
                 width: book.images.cover.w,

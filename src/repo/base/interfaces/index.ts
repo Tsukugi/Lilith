@@ -159,12 +159,12 @@ export enum LilithLanguage {
 }
 
 /**
- * Enum representing image file extensions supported.
+ * Lilith image file extensions supported.
  */
-export enum ImageExtension {
+export enum LilithImageExtension {
     jpg = "jpg",
+    jpeg = "jpeg",
     png = "png",
-    gif = "gif",
 }
 
 /**
