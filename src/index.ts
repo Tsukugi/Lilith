@@ -7,7 +7,7 @@ export type {
     UrlParamValue,
 } from "./interfaces/fetch";
 
-export {
+export type {
     ImageExtension,
     ImageUriType,
     Sort,
@@ -23,6 +23,7 @@ export type {
     ChapterBase,
     Search,
     SearchResult,
+    SearchQueryOptions,
     BookListResults,
     Domains,
     RepositoryBaseProps,
@@ -37,15 +38,8 @@ export type {
 
 export type { UseDomParser, UseDomParserImpl } from "./interfaces/domParser";
 
-export { MaxSearchSize, LilithError } from "./repo/base";
+export { LilithError } from "./repo/base";
 
-export { useNHentaiRepository } from "./repo/nhentai";
-export { useMangaDexRepository } from "./repo/mangadex";
-
-export { useCheerioDomParser } from "./impl/useCheerioDomParser";
-export { useNodeFetch } from "./impl/useNodeFetch";
-
-export { useAPILoader } from "./api/loader";
 export type { UseAPILoaderProps, APILoaderConfigurations } from "./api/loader";
 
 export { LilithRepo } from "./interfaces";

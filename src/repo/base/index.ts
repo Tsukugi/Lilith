@@ -7,7 +7,7 @@ export const MaxSearchSize = 25;
 export const MaxLatestBooksSize = 25;
 
 export const DefaultSearchOptions = {
-    sort: Sort.RECENT,
+    sort: Sort.Latest,
     page: 1,
     size: MaxSearchSize,
 };

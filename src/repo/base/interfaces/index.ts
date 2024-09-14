@@ -162,19 +162,18 @@ export enum LilithLanguage {
  * Enum representing image file extensions supported.
  */
 export enum ImageExtension {
-    j = "jpg",
-    p = "png",
-    g = "gif",
+    jpg = "jpg",
+    png = "png",
+    gif = "gif",
 }
 
 /**
  * Enum representing sorting options for Search.
  */
 export enum Sort {
-    RECENT = "recent",
-    POPULAR_TODAY = "popular-today",
-    POPULAR_WEEK = "popular-week",
-    POPULAR = "popular",
+    Latest = "Latest",
+    Popular = "Popular",
+    PopularAllTime = "PopularAllTime",
 }
 
 /**
@@ -262,9 +261,9 @@ export interface Domains {
  */
 export interface SearchQueryOptions {
     requiredTags?: LilithTag[]; // TODO: To be implemented
-    size?: number; // Should default to MaxSize
+    size: number;
     page: number;
-    sort: Sort; // To be deprecated
+    sort: Sort;
 }
 
 /**
