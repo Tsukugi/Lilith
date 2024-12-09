@@ -20,7 +20,6 @@ export type {
     Book,
     BookBase,
     Chapter,
-    ChapterBase,
     Search,
     SearchResult,
     SearchQueryOptions,

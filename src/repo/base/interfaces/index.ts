@@ -188,17 +188,11 @@ export interface LilithImage {
 /**
  * Interface representing the base properties of a chapter.
  */
-export interface ChapterBase {
+export interface Chapter {
     id: string;
     title: string;
     language: LilithLanguage;
     chapterNumber: number;
-}
-
-/**
- * Interface representing a chapter with pages.
- */
-export interface Chapter extends ChapterBase {
     pages: LilithImage[];
 }
 
@@ -226,7 +220,7 @@ export interface BookBase {
 export interface Book extends BookBase {
     author: string;
     tags: LilithTag[];
-    chapters: ChapterBase[];
+    chapters: Chapter[];
 }
 
 /**
