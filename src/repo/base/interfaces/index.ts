@@ -165,6 +165,7 @@ export enum LilithImageExtension {
     jpg = "jpg",
     jpeg = "jpeg",
     png = "png",
+    webp = "webp"
 }
 
 /**
@@ -194,6 +195,7 @@ export interface Chapter {
     language: LilithLanguage;
     chapterNumber: number;
     pages: LilithImage[];
+    savedAt: number; // Epoch time 
 }
 
 /**
@@ -212,6 +214,7 @@ export interface BookBase {
     cover: LilithImage;
     title: string;
     availableLanguages: LilithLanguage[];
+    savedAt: number; // Epoch time 
 }
 
 /**
@@ -265,6 +268,14 @@ export interface SearchQueryOptions {
  */
 export interface GetBookOptions {
     chapterList?: Partial<ChapterListOptions>;
+    /**
+     * By setting this flag as true, the book also should call getChapters for all avaiable Chapters that this book has
+     */
+    loadChapters?: boolean 
+    /**
+     * By setting this flag as true, the book also should call getChapters for the first chapter
+     */
+    loadFirstChapterOnly?: boolean
 }
 interface ChapterListOptions {
     /**
