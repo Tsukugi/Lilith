@@ -24,7 +24,6 @@ export type {
     SearchResult,
     SearchQueryOptions,
     BookListResults,
-    Domains,
     RepositoryBaseProps,
     RepositoryBaseOptions,
     RepositoryTemplate,
