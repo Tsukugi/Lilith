@@ -1,6 +1,6 @@
 {
     "name": "@atsu/lilith",
-    "version": "1.2.2",
+    "version": "1.3.0",
     "description": "API mapper for different services",
     "main": "./dist/main.umd.bundle.js",
     "exports": {

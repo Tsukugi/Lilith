@@ -24,11 +24,7 @@ export interface CustomFetchInitOptions {
     body?: string; // TODO: Support me!
 }
 
-export interface LilithHeaders {
-    [x: string]: string;
-    ["User-Agent"]: string;
-    cookie: string;
-}
+export type LilithHeaders = Record<string, string>;
 
 export type UrlParamPair = [string, UrlParamValue];
 export type UrlParamValue = string | number | boolean;

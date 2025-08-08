@@ -146,7 +146,7 @@ export type RepositoryTemplate = (props: RepositoryBaseProps) => RepositoryBase;
 /**
  * Type representing different types of image URIs.
  */
-export type ImageUriType = "cover" | "page" | "thumbnail";
+export type ImageUriType = "cover" | "page" ;
 
 /**
  * Enum representing Lilith supported languages.
@@ -244,16 +244,6 @@ export interface BookListResults {
 }
 
 /**
- * Interface representing URLs for different domains.
- */
-export interface Domains {
-    readonly baseUrl: string;
-    readonly apiUrl: string;
-    readonly imgBaseUrl: string;
-    readonly tinyImgBaseUrl: string;
-}
-
-/**
  * Interface representing options for a search query.
  */
 export interface SearchQueryOptions {
@@ -277,6 +267,7 @@ export interface GetBookOptions {
      */
     loadFirstChapterOnly?: boolean
 }
+
 interface ChapterListOptions {
     /**
      * EachRepo should provide some default value that respects it's API.
