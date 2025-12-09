@@ -1,39 +1,6 @@
-export type {
-    CustomFetch,
-    CustomFetchInitOptions,
-    CustomFetchResponse,
-    LilithHeaders,
-    UrlParamPair,
-    UrlParamValue,
-} from "./interfaces/fetch";
+export type * from "./interfaces/fetch";
 
-export {
-    LilithImageExtension,
-    ImageUriType,
-    Sort,
-    LilithLanguage,
-} from "./repo/base/interfaces";
+export * from "./repo/base/interfaces";
+export type * from "./repo/base/interfaces";
 
-export type {
-    LilithImage,
-    LilithTag,
-    Book,
-    BookBase,
-    Chapter,
-    Search,
-    SearchResult,
-    SearchQueryOptions,
-    BookListResults,
-    RepositoryBaseProps,
-    RepositoryBaseOptions,
-    RepositoryTemplate,
-    RepositoryBase,
-    GetBook,
-    GetBookOptions,
-    GetChapter,
-    GetRandomBook,
-    GetLatestBooks,
-    GetTrendingBooks,
-} from "./repo/base/interfaces";
-
-export { LilithError } from "./repo/base";
+export * from "./repo/base";

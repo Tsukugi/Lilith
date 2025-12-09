@@ -146,7 +146,7 @@ export type RepositoryTemplate = (props: RepositoryBaseProps) => RepositoryBase;
 /**
  * Type representing different types of image URIs.
  */
-export type ImageUriType = "cover" | "page" ;
+export type ImageUriType = "cover" | "page";
 
 /**
  * Enum representing Lilith supported languages.
@@ -165,7 +165,7 @@ export enum LilithImageExtension {
     jpg = "jpg",
     jpeg = "jpeg",
     png = "png",
-    webp = "webp"
+    webp = "webp",
 }
 
 /**
@@ -182,6 +182,7 @@ export enum Sort {
  */
 export interface LilithImage {
     uri: string;
+    fallbackUri?: string;
     width?: number;
     height?: number;
 }
@@ -195,7 +196,7 @@ export interface Chapter {
     language: LilithLanguage;
     chapterNumber: number;
     pages: LilithImage[];
-    savedAt: number; // Epoch time 
+    savedAt: number; // Epoch time
 }
 
 /**
@@ -214,7 +215,7 @@ export interface BookBase {
     cover: LilithImage;
     title: string;
     availableLanguages: LilithLanguage[];
-    savedAt: number; // Epoch time 
+    savedAt: number; // Epoch time
 }
 
 /**
@@ -261,11 +262,11 @@ export interface GetBookOptions {
     /**
      * By setting this flag as true, the book also should call getChapters for all avaiable Chapters that this book has
      */
-    loadChapters?: boolean 
+    loadChapters?: boolean;
     /**
      * By setting this flag as true, the book also should call getChapters for the first chapter
      */
-    loadFirstChapterOnly?: boolean
+    loadFirstChapterOnly?: boolean;
 }
 
 interface ChapterListOptions {
